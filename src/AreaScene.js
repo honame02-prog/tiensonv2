@@ -1,6 +1,6 @@
-// Huyền Vân Quan test zone: main hall terrace + outer courtyard + mountain gate + long stairway (fog-and-moss mood).
-// Baked ground (game-art/sect/tools/sect_bake.py) + separate y-sorted sprites (roof/base layers, foliage clusters),
-// ambient animation (koi, foliage sway, incense smoke, drifting mist, cloud sea) and a day/night cycle with lantern light.
+// AreaScene: canh dung chung cho moi khu vuc (Huyen Van Quan, Son Dao, ...). Du lieu khu = public/assets/areas/<id>/area.json (xem NOTES-AREA.md).
+// Nen ve san (ground png, do tools/area_bake.mjs hoac anh goc) + sprite y-sorted (mai/de, tan la), anim moi truong (ca, la lay, khoi huong, suong, bien may),
+// chu ky ngay dem voi anh sang den long, cong chuyen khu (fade 250 ms -> scene.restart).
 import * as Phaser from 'phaser';
 import { UI, RUN_AT } from './ui.js';
 import { isTouchDevice } from './view.js';
@@ -8,52 +8,43 @@ import { FxPlayer } from './fx/FxPlayer.js';
 import { CUES } from './fx/cues/index.js';
 import { setupFxDemo } from './fx/fxdemo.js';
 
-const A = 'assets/sect/';
+const A = 'assets/sect/';              // tai nguyen dung chung (atlas sprite, decal, hinh nen troi, suong)
+const DEFAULT_AREA = 'huyen-van-quan';
+const FADE_MS = 250;
 const WALK_SPEED = 58, RUN_SPEED = 118;
 const DIR8 = ['right', 'down_right', 'down', 'down_left', 'left', 'up_left', 'up', 'up_right'];
 const ANIMS = { idle: { n: 6, ms: 150, repeat: -1 }, walk: { n: 8, ms: 100, repeat: -1 }, run: { n: 8, ms: 75, repeat: -1 }, interact: { n: 8, ms: 90, repeat: 0 } };
 const dir8 = (x, y) => DIR8[((Math.round(Math.atan2(y, x) / (Math.PI / 4)) % 8) + 8) % 8];
 const FLAT = /^(flower|ground)/;
-
-const TEXT = {
-  stele_a: [
-    { who: 'Bia đá cổ', text: 'Chữ khắc đã mòn gần hết dưới lớp rêu. Chỉ còn đọc được mấy dòng: «Huyền Vân Quan, khai sơn năm thứ ba niên hiệu Thái Bình…»' },
-    { who: 'Bia đá cổ', text: '«…tổ sư dẫn ba mươi sáu đệ tử lên núi, dựng điện thờ Tam Thanh giữa biển mây. Ngàn năm hương khói chưa từng tắt.»' },
-  ],
-  stele_b: [
-    { who: 'Bia giới luật', text: '«Tĩnh tâm như nước, giữ đạo như núi. Vào sơn môn, chớ mang theo sân hận.»' },
-    { who: 'Bia giới luật', text: 'Bên dưới có ai khắc thêm một dòng nhỏ, nét còn mới: «Đi chậm thôi, rêu trơn lắm.»' },
-  ],
-  burner: [
-    { who: 'Lư hương đồng', text: 'Lư đồng đã xỉn màu rỉ xanh, tro hương phủ dày cả tấc.' },
-    { who: 'Đạo sĩ', text: 'Thắp ba nén hương, kính Tam Thanh, kính tổ sư.' },
-  ],
-  burner_lit: [{ who: 'Lư hương đồng', text: 'Khói hương lặng lẽ bay lên rồi tan vào sương núi.' }],
-  hall: [
-    { who: 'Chính điện', text: 'Cánh cửa gỗ nặng khép hờ. Bên trong, tượng Tam Thanh mờ khuất sau làn khói trầm.' },
-    { who: 'Chính điện', text: '(Nội điện sẽ mở ở bản sau.)' },
-  ],
-  gate: [
-    { who: 'Sơn môn', text: 'Tấm biển gỗ trên cổng đã bạc màu, nét chữ vàng chỉ còn lờ mờ: «Huyền Vân Quan».' },
-    { who: 'Sơn môn', text: 'Bước qua cổng là bậc đá dài dẫn xuống núi.' },
-  ],
-};
-const PROMPT = { stele_a: 'Đọc bia', stele_b: 'Đọc bia', burner: 'Thắp hương', hall: 'Xem cửa điện', gate: 'Sơn môn' };
 // collision footprints (w, h) at the sprite foot, per sprite key
 const FOOT = { lantern_a: [12, 7], lantern_b: [12, 7], stele_a: [26, 9], stele_b: [26, 9], burner: [32, 12], pine_a: [26, 10], pine_b: [26, 10],
   rock_a: [26, 9], rock_b: [22, 8], rock_c: [16, 6] };
 
-export class SectScene extends Phaser.Scene {
+export class AreaScene extends Phaser.Scene {
   constructor() { super('sect'); }
 
+  init(data) {
+    const sp = new URLSearchParams(location.search);
+    this.areaId = data?.area || sp.get('area') || DEFAULT_AREA;
+    this.spawnName = data?.spawn || null; this.fromPortal = !!data?.fromPortal;
+    // Phaser tai dung instance scene khi restart -> dat lai toan bo trang thai
+    this.busy = false; this.dialog = null; this.typing = false; this.acting = false; this.pendingIt = null; this.wasMoving = false;
+    this.fxDemo = null; this.fxLab = null; this.pond = null; this.smoke = null; this.gateRoof = null; this.gatePos = null; this.hallPos = null; this.burnerPos = null;
+    this.cloudBack = null; this.peaks = null; this.seaDrift = null; this.portalArmed = false;
+  }
+
   preload() {
-    this.load.image('ground', A + 'ground_bake.png');
-    this.load.json('smeta', A + 'testmap_meta.json');
+    const id = this.areaId, key = 'area:' + id;
+    // area.json truoc, roi moi biet ground nao can nap
+    this.load.json(key, `assets/areas/${id}/area.json`);
+    this.load.once('filecomplete-json-' + key, () => {
+      const ar = this.cache.json.get(key);
+      this.load.image('ground:' + id, ar.ground);
+      if (ar.backdrop === 'sect') { this.load.image('peaks', A + 'bg_peaks.png'); this.load.image('cloudBack', A + 'bg_cloud_back.png'); }
+    });
     this.load.json('sspr', A + 'sect_sprites.json');
     this.load.atlas('sect', A + 'sect_atlas.png', A + 'sect_atlas.json');
     this.load.atlas('decals', A + 'decals.png', A + 'decals.json');
-    this.load.image('peaks', A + 'bg_peaks.png');
-    this.load.image('cloudBack', A + 'bg_cloud_back.png');
     this.load.image('mistA', A + 'fx_mist_a.png');
     this.load.image('mistB', A + 'fx_mist_b.png');
     this.load.atlas('hero', 'assets/dao_si.png', 'assets/dao_si.json');
@@ -61,23 +52,27 @@ export class SectScene extends Phaser.Scene {
   }
 
   create() {
-    const meta = this.cache.json.get('smeta'), SP = this.cache.json.get('sspr');
-    this.meta = meta; this.SP = SP;
+    const id = this.areaId, meta = this.cache.json.get('area:' + id), SP = this.cache.json.get('sspr');
+    this.meta = meta; this.SP = SP; this.TEXT = meta.texts || {};
+    const feat = meta.features || {};
     const W = this.W = meta.width, H = this.H = meta.height;
     const sp = new URLSearchParams(location.search);
+    this.events.once('shutdown', this.onShutdown, this);
     // ---------- backdrop: cloud sea far layer (screen-space parallax), distant peaks, drifting cloud sea, then the baked world
-    this.cloudBack = this.add.tileSprite(0, 0, this.scale.width, this.scale.height, 'cloudBack').setOrigin(0).setScrollFactor(0).setDepth(-200);
-    this.peaks = this.add.tileSprite(-400, 0, W + 800, 240, 'peaks').setOrigin(0).setScrollFactor(0.6).setDepth(-190);
-    this.seaDrift = this.add.tileSprite(-200, 0, W + 400, H + 200, 'mistB').setOrigin(0).setDepth(-150).setAlpha(0.55).setTileScale(2, 1);
-    this.add.image(0, 0, 'ground').setOrigin(0).setDepth(-100);
+    if (meta.backdrop === 'sect') {
+      this.cloudBack = this.add.tileSprite(0, 0, this.scale.width, this.scale.height, 'cloudBack').setOrigin(0).setScrollFactor(0).setDepth(-200);
+      this.peaks = this.add.tileSprite(-400, 0, W + 800, 240, 'peaks').setOrigin(0).setScrollFactor(0.6).setDepth(-190);
+      this.seaDrift = this.add.tileSprite(-200, 0, W + 400, H + 200, 'mistB').setOrigin(0).setDepth(-150).setAlpha(0.55).setTileScale(2, 1);
+    }
+    this.add.image(0, 0, 'ground:' + id).setOrigin(0).setDepth(-100);
     // ---------- decals
-    for (const o of meta.objs) this.add.image(o.x, o.y, 'decals', o.name).setOrigin(0.5, 1).setDepth(FLAT.test(o.name) ? -80 : o.y);
+    for (const o of meta.objs || []) this.add.image(o.x, o.y, 'decals', o.name).setOrigin(0.5, 1).setDepth(FLAT.test(o.name) ? -80 : o.y);
     // ---------- props (separate sprites, y-sorted; roof/base layers; foliage clusters)
     this.solids = this.physics.add.staticGroup();
     const solid = (x, y, w, h) => this.solids.add(this.add.zone(x, y, w, h));
     this.interactables = []; this.foliage = []; this.lanterns = []; this.ferns = [];
     this.makeAnims();
-    for (const p of meta.props) {
+    for (const p of meta.props || []) {
       const k = p.key, m = SP.sprites[k], x = Math.round(p.x), y = Math.round(p.y);
       const left = x - Math.round(m.w / 2), top = y - m.h;
       if (k === 'hall') {
@@ -114,59 +109,65 @@ export class SectScene extends Phaser.Scene {
       }
       if (FOOT[k]) solid(x, y - FOOT[k][1] / 2, FOOT[k][0], FOOT[k][1]);
     }
-    // ---------- collision grid (void, cliff faces, wall bodies, steep mountainside) + stair balustrades + pond
-    meta.col.forEach((row, cy) => row.forEach((c, cx) => { if (c) solid(cx * 32 + 16, cy * 32 + 16, 32, 32); }));
-    for (const [sx, sy, sw, sh] of meta.stairs) { solid(sx + 7, sy + sh / 2 + 4, 14, sh - 8); solid(sx + sw - 7, sy + sh / 2 + 4, 14, sh - 8); }
-    const pd = meta.pond;
-    for (const [fy, fx] of [[-0.7, 0.62], [-0.25, 0.98], [0.25, 0.98], [0.7, 0.62]]) solid(pd.cx, pd.cy + fy * pd.ry, pd.rx * 2 * fx + 10, pd.ry * 0.5 + 8);
-    // ---------- pond life: koi under the surface layer (lily pads), glints, ripples
-    this.makePond(pd);
-    // ---------- incense smoke from the burner
-    this.makeSmoke();
+    // ---------- collision grid (void, cliff faces, wall bodies, steep mountainside) + stair balustrades
+    (meta.col || []).forEach((row, cy) => row.forEach((c, cx) => { if (c) solid(cx * 32 + 16, cy * 32 + 16, 32, 32); }));
+    for (const [sx, sy, sw, sh] of meta.stairs || []) { solid(sx + 7, sy + sh / 2 + 4, 14, sh - 8); solid(sx + sw - 7, sy + sh / 2 + 4, 14, sh - 8); }
+    // ---------- pond (chi khi co features.pond): collision ring + koi under the surface layer (lily pads), glints, ripples
+    const pd = feat.pond;
+    if (pd) {
+      for (const [fy, fx] of [[-0.7, 0.62], [-0.25, 0.98], [0.25, 0.98], [0.7, 0.62]]) solid(pd.cx, pd.cy + fy * pd.ry, pd.rx * 2 * fx + 10, pd.ry * 0.5 + 8);
+      this.makePond(pd, feat.koi ?? 5);
+    }
+    // ---------- incense smoke from the burner (chi khi co features.smoke va co lu huong)
+    if (feat.smoke) this.makeSmoke();
     // ---------- hero
-    const sx = +(sp.get('x') || meta.spawn[0]), sy = +(sp.get('y') || meta.spawn[1]);
+    const spn = this.spawnName && meta.spawns?.[this.spawnName] ? meta.spawns[this.spawnName] : (meta.spawns?.default || meta.spawn);
+    const urlPos = !this.fromPortal && (sp.has('x') || sp.has('y'));
+    const sx = urlPos ? +(sp.get('x') || spn[0]) : spn[0], sy = urlPos ? +(sp.get('y') || spn[1]) : spn[1];
     this.player = this.physics.add.sprite(sx, sy, 'hero', 'dao_si_idle_down_00').setOrigin(32 / 64, 61 / 64);
     this.player.body.setSize(14, 8).setOffset(25, 54);
     this.player.on('animationcomplete', (anim) => { if (anim.key.startsWith('interact_')) this.endInteract(); });
-    this.facing = sp.get('face') || 'up'; this.acting = false;
+    this.facing = (urlPos && sp.get('face')) || spn[2] || 'up'; this.acting = false;
     this.player.anims.play(`idle_${this.facing}`);
-    const g = this.make.graphics({ x: 0, y: 0 }, false); g.fillStyle(0x0b0a09, 0.32); g.fillEllipse(9, 3, 18, 6); g.generateTexture('shadow', 18, 6); g.destroy();
+    if (!this.textures.exists('shadow')) { const g = this.make.graphics({ x: 0, y: 0 }, false); g.fillStyle(0x0b0a09, 0.32); g.fillEllipse(9, 3, 18, 6); g.generateTexture('shadow', 18, 6); g.destroy(); }
     this.shadow = this.add.image(0, 0, 'shadow').setDepth(-70);
     this.physics.add.collider(this.player, this.solids);
     this.physics.world.setBounds(0, 0, W, H);
     this.player.setCollideWorldBounds(true);
-    // way down the mountain (transition placeholder) at the west end of the lower landing
-    this.exitZone = new Phaser.Geom.Rectangle(7 * 32, 30 * 32, 2.2 * 32, 3 * 32);
+    // ---------- exits: vung "cho" (toast + dich chuyen trong khu); portals: chuyen khu that
+    this.exits = (meta.exits || []).map(e => ({ ...e, r: new Phaser.Geom.Rectangle(...e.rect) }));
+    this.portals = (meta.portals || []).map(p => ({ ...p, r: new Phaser.Geom.Rectangle(...p.rect) }));
     // ---------- mist: drifting banks over the cliff edges (world) + thin fog veils over everything (screen)
-    const cb = meta.cliffBottom;
-    this.mistBands = [
-      this.add.tileSprite(-100, cb - 150, W + 200, 190, 'mistA').setOrigin(0).setDepth(8600).setAlpha(0.42).setTileScale(2, 1),
-      this.add.tileSprite(-100, 700, 9 * 32 + 100, 220, 'mistA').setOrigin(0).setDepth(8600).setAlpha(0.38).setTileScale(2, 1),
-      this.add.tileSprite(22 * 32, 700, 9 * 32 + 100, 220, 'mistA').setOrigin(0).setDepth(8600).setAlpha(0.38).setTileScale(2, 1),
-    ];
+    this.mistBands = (feat.mist || []).map(([mx, my, mw, mh, a]) => this.add.tileSprite(mx, my, mw, mh, 'mistA').setOrigin(0).setDepth(8600).setAlpha(a).setTileScale(2, 1));
     this.mistBands.forEach(m => { m.baseA = m.alpha; });
     this.fogA = this.add.tileSprite(0, 0, this.scale.width, this.scale.height, 'mistA').setOrigin(0).setScrollFactor(0).setDepth(8900).setAlpha(0.13).setTileScale(2, 1.4);
     this.fogB = this.add.tileSprite(0, 0, this.scale.width, this.scale.height, 'mistB').setOrigin(0).setScrollFactor(0).setDepth(8901).setAlpha(0.09).setTileScale(3, 2);
-    // ---------- day / night
+    // ---------- day / night (giu qua cac khu)
     this.makeNight();
-    this.nightK = sp.has('night') ? 1 : 0; this.night = this.nightK > 0.5; this.cycle = sp.has('cycle');
+    this.nightK = sp.has('night') || this.game.registry.get('night') ? 1 : 0; this.night = this.nightK > 0.5; this.cycle = sp.has('cycle');
     // ---------- camera
     const cam = this.cameras.main;
     cam.setBounds(0, 0, W, H); cam.startFollow(this.player, true, 0.15, 0.15); cam.setRoundPixels(true);
-    cam.setBackgroundColor('#7d8c92');
-    // ---------- input + UI
+    cam.setBackgroundColor(meta.bg || '#7d8c92'); cam.centerOn(sx, sy);
+    // ---------- input + UI (UI la DOM, tao 1 lan cho ca game; callback tro toi scene hien tai)
     this.keys = this.input.keyboard.addKeys('W,A,S,D,UP,DOWN,LEFT,RIGHT,E,SPACE,SHIFT,N');
     this.input.keyboard.on('keydown-E', () => this.onInteract());
     this.input.keyboard.on('keydown-SPACE', () => this.onInteract());
     this.input.keyboard.on('keydown-N', () => this.toggleNight());
-    this.ui = new UI({ onAction: () => this.onInteract(), onDialogTap: () => this.onInteract(), title: 'Huyền Vân Quan', sub: 'Sơn môn · Chính điện' });
-    this.touch = this.ui;
-    this.ui.help.innerHTML = '<kbd>WASD</kbd>/<kbd>↑↓←→</kbd> đi · giữ <kbd>Shift</kbd> chạy · <kbd>E</kbd> tương tác · <kbd>N</kbd> ngày/đêm';
-    this.ui.addDayNight(() => this.toggleNight()); this.ui.setDayNight(this.night);
-    if (isTouchDevice()) this.ui.enableTouch();
+    let ui = this.game.registry.get('ui');
+    if (!ui) {
+      ui = new UI({ onAction: () => ui.scene.onInteract(), onDialogTap: () => ui.scene.onInteract(), title: meta.name, sub: meta.sub || '' });
+      ui.addDayNight(() => ui.scene.toggleNight());
+      if (isTouchDevice()) ui.enableTouch();
+      this.game.registry.set('ui', ui);
+    } else { ui.setTitle(meta.name, meta.sub || ''); ui.showDialog(false); ui.setPrompt(null); }
+    ui.scene = this; this.ui = ui; this.touch = ui;
+    ui.help.innerHTML = '<kbd>WASD</kbd>/<kbd>↑↓←→</kbd> đi · giữ <kbd>Shift</kbd> chạy · <kbd>E</kbd> tương tác · <kbd>N</kbd> ngày/đêm';
+    ui.setDayNight(this.night);
     this.scale.on('resize', this.onResize, this);
     this.applyNight();
     window.__scene = this;
+    if (this.fromPortal) ui.fadeTo(0, FADE_MS);
     // ---------- FX: bo phat hieu ung skill (depth: ground -60, light ngay -59 / dem 9100 theo this.night, overlay 9500); che do thu chi khi ?fx=1; ?fxlab=1 ngu y fx=1
     this.fx = new FxPlayer(this, { maxParticles: 300, isNight: () => this.night });
     const lab = sp.get('fxlab') === '1';
@@ -174,7 +175,23 @@ export class SectScene extends Phaser.Scene {
     if (lab) import('./fxlab/index.js').then(m => { if (this.scene.isActive()) this.fxLab = m.setupFxLab(this, this.fxDemo); });
   }
 
+  onShutdown() {
+    this.scale.off('resize', this.onResize, this);
+    if (this.textures.exists('nightmask')) this.textures.remove('nightmask');
+    // nen + du lieu cua khu nay: bo khoi cache (lan vao sau se nap lai) de texture khong tich luy qua cac khu
+    if (this.textures.exists('ground:' + this.areaId)) this.textures.remove('ground:' + this.areaId);
+    this.cache.json.remove('area:' + this.areaId);
+  }
+
+  // chuyen khu: fade den 250 ms -> restart scene voi khu moi -> (create) fade vao
+  async goArea(area, spawn) {
+    if (this.busy) return; this.busy = true; this.player.setVelocity(0, 0); this.ui.setPrompt(null);
+    await this.ui.fadeTo(1, FADE_MS);
+    this.scene.restart({ area, spawn, fromPortal: true });
+  }
+
   makeAnims() {
+    if (this.anims.exists('idle_down')) return;     // anim la toan cuc: chi tao 1 lan (restart khu khong tao lai)
     for (const [a, c] of Object.entries(ANIMS)) for (const d of DIR8)
       this.anims.create({ key: `${a}_${d}`, frames: this.anims.generateFrameNames('hero', { prefix: `dao_si_${a}_${d}_`, start: 0, end: c.n - 1, zeroPad: 2 }), frameRate: 1000 / c.ms, repeat: c.repeat });
     for (const f of ['fern_a', 'fern_b', 'fern_c'])
@@ -182,11 +199,11 @@ export class SectScene extends Phaser.Scene {
     for (let c = 0; c < 3; c++) this.anims.create({ key: `koi${c}`, frames: [0, 1].map(i => ({ key: 'sect', frame: `koi${c}_${i}` })), frameRate: 4, repeat: -1 });
   }
 
-  makePond(pd) {
+  makePond(pd, nKoi) {
     const fr = this.textures.getFrame('sect', 'pond_surface'), pw = fr.width, ph = fr.height;
     const x0 = Math.round(pd.cx - pw / 2), y0 = Math.round(pd.cy - ph / 2);
     this.fish = [];
-    const N = 5;
+    const N = nKoi;
     for (let i = 0; i < N; i++) {
       const s = this.add.sprite(pd.cx, pd.cy, 'sect', `koi${i % 3}_0`).setDepth(-97).setAlpha(0.92);
       s.anims.play({ key: `koi${i % 3}`, startFrame: i % 2 });
@@ -282,7 +299,7 @@ export class SectScene extends Phaser.Scene {
   }
 
   toggleNight() {
-    this.night = !this.night; this.ui.setDayNight(this.night);
+    this.night = !this.night; this.ui.setDayNight(this.night); this.game.registry.set('night', this.night);
     this.tweens.add({ targets: this, nightK: this.night ? 1 : 0, duration: 2600, ease: 'Sine.inOut', onUpdate: () => this.applyNight() });
   }
 
@@ -295,7 +312,7 @@ export class SectScene extends Phaser.Scene {
 
   onResize() {
     const W = this.scale.width, H = this.scale.height;
-    this.cameras.main.setSize(W, H); this.cloudBack.setSize(W, H); this.fogA.setSize(W, H); this.fogB.setSize(W, H);
+    this.cameras.main.setSize(W, H); this.cloudBack?.setSize(W, H); this.fogA.setSize(W, H); this.fogB.setSize(W, H);
   }
 
   nearest() {
@@ -330,12 +347,13 @@ export class SectScene extends Phaser.Scene {
     if (!it) return;
     const key = it.key === 'burner' && this.incenseLit ? 'burner_lit' : it.key;
     if (it.key === 'burner' && !this.incenseLit) this.lightIncense();
-    this.dialog = { lines: TEXT[key], i: 0, it };
+    this.dialog = { lines: this.TEXT[key].lines, i: 0, it };
     this.player.setVelocity(0, 0);
     this.ui.showDialog(true); this.showLine();
   }
 
-  afterDialog(it) { if (it.key === 'gate') this.transition('Hạ sơn', 'Khu vực dưới núi đang được xây dựng. Quay lại sân Huyền Vân Quan.', { x: this.gatePos.x, y: this.gatePos.y - 70, face: 'down' }); }
+  // tuy chon: texts[key].after = { title, text, to:{x,y,face} } -> chuyen "cho" trong khu sau khi doc het hoi thoai
+  afterDialog(it) { const a = this.TEXT[it.key]?.after; if (a) this.transition(a.title, a.text, a.to); }
 
   async transition(title, text, to) {
     if (this.busy) return; this.busy = true; this.player.setVelocity(0, 0);
@@ -381,22 +399,35 @@ export class SectScene extends Phaser.Scene {
     p.setDepth(p.y); this.shadow.setPosition(Math.round(p.x), Math.round(p.y) - 1);
     // walking under the gate roof: let the hero show through
     const G = this.gatePos, under = G && p.x > G.px0 - 6 && p.x < G.px1 + 6 && p.y > G.top + 112 && p.y < G.top + 112 + 60;
-    const ra = under ? 0.72 : 1; if (this.gateRoof.alpha !== ra) this.gateRoof.alpha += Phaser.Math.Clamp(ra - this.gateRoof.alpha, -delta / 250, delta / 250);
-    if (!this.busy && this.exitZone.contains(p.x, p.y)) this.transition('Đường xuống núi', 'Khu vực kế tiếp đang được xây dựng.', { x: 10.5 * 32, y: 31 * 32, face: 'right' });
+    if (this.gateRoof) { const ra = under ? 0.72 : 1; if (this.gateRoof.alpha !== ra) this.gateRoof.alpha += Phaser.Math.Clamp(ra - this.gateRoof.alpha, -delta / 250, delta / 250); }
+    if (!this.busy) for (const e of this.exits) if (e.r.contains(p.x, p.y)) { this.transition(e.title, e.text, e.to); break; }
+    // cong chuyen khu: cham vung la chuyen; sau khi vao khu, phai buoc ra khoi moi cong thi cong moi "len dan" (tranh nhay qua lai)
+    let hit = null, near = null;
+    for (const q of this.portals) {
+      if (q.r.contains(p.x, p.y)) hit = q;
+      else if (Phaser.Geom.Rectangle.Overlaps(Phaser.Geom.Rectangle.Inflate(Phaser.Geom.Rectangle.Clone(q.r), 56, 56), new Phaser.Geom.Rectangle(p.x - 1, p.y - 1, 2, 2))) near = near || q;
+    }
+    if (!hit) this.portalArmed = true;
+    if (hit && this.portalArmed && !this.busy) this.goArea(hit.to.area, hit.to.spawn);
     // prompt
     const it = !this.dialog && !this.busy && this.nearest();
     if (it) {
       const z = this.scale.zoom, r = this.game.canvas.getBoundingClientRect();
       const wy = it.key === 'hall' ? it.y - 70 : it.key === 'gate' ? it.y - 70 : it.y - 50;
-      this.ui.setPrompt(PROMPT[it.key] || 'Xem', r.left + (it.x - cam.scrollX) * z, r.top + (wy - cam.scrollY) * z);
+      this.ui.setPrompt(this.TEXT[it.key]?.prompt || 'Xem', r.left + (it.x - cam.scrollX) * z, r.top + (wy - cam.scrollY) * z);
+    } else if (near && !this.busy && !this.dialog) {
+      const z = this.scale.zoom, r = this.game.canvas.getBoundingClientRect(), q = near.r;
+      this.ui.setPrompt('→ ' + (near.label || near.to.area), r.left + (q.centerX - cam.scrollX) * z, r.top + (q.y - 8 - cam.scrollY) * z, true);
     } else this.ui.setPrompt(null);
     // ---- ambience
     const ts = time / 1000;
     for (const f of this.foliage) f.img.x = f.x0 + Math.round(Math.sin(ts * f.f + f.ph) * f.amp);
-    this.updatePond(delta);
-    this.cloudBack.tilePositionX = Math.round(cam.scrollX * 0.5 + time * 0.004); this.cloudBack.tilePositionY = Math.round(cam.scrollY * 0.5);
-    this.peaks.y = Math.round(this.meta.cliffBottom - 90 - 0.4 * Math.max(0, this.H - cam.height));
-    this.seaDrift.tilePositionX = time * 0.006;
+    if (this.pond) this.updatePond(delta);
+    if (this.cloudBack) {
+      this.cloudBack.tilePositionX = Math.round(cam.scrollX * 0.5 + time * 0.004); this.cloudBack.tilePositionY = Math.round(cam.scrollY * 0.5);
+      this.peaks.y = Math.round(this.meta.cliffBottom - 90 - 0.4 * Math.max(0, this.H - cam.height));
+      this.seaDrift.tilePositionX = time * 0.006;
+    }
     this.mistBands.forEach((m, i) => { m.tilePositionX = time * (0.009 + i * 0.003) + i * 77; });
     this.fogA.tilePositionX = cam.scrollX * 0.4 + time * 0.007; this.fogA.tilePositionY = cam.scrollY * 0.4;
     this.fogB.tilePositionX = cam.scrollX * 0.25 - time * 0.004; this.fogB.tilePositionY = cam.scrollY * 0.25 + time * 0.001;

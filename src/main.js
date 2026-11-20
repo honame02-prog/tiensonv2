@@ -1,5 +1,5 @@
 import * as Phaser from 'phaser';
-import { SectScene } from './SectScene.js';
+import { AreaScene } from './AreaScene.js';
 import { computeView } from './view.js';
 
 // block page scroll / pinch-zoom / long-press on mobile
@@ -24,7 +24,7 @@ async function start() {
     scale: { mode: Phaser.Scale.NONE, zoom: v.zoom, autoCenter: Phaser.Scale.CENTER_BOTH },
     input: { activePointers: 3 },
     physics: { default: 'arcade', arcade: { debug: new URLSearchParams(location.search).has('debug') } },
-    scene: [SectScene],
+    scene: [AreaScene],
   });
   let last = '';
   const relayout = () => {

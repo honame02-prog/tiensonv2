@@ -101,7 +101,7 @@ export class UI {
     this.title = q('.title'); this.help = q('.help'); this.prompt = q('.prompt');
     this.joy.querySelector('svg').outerHTML = JOY_SVG;
     this.help.innerHTML = '<kbd>WASD</kbd>/<kbd>↑↓←→</kbd> đi &nbsp;·&nbsp; giữ <kbd>Shift</kbd> chạy &nbsp;·&nbsp; <kbd>E</kbd>/<kbd>Space</kbd> tương tác';
-    setTimeout(() => { this.title.style.opacity = 0; }, 4500);
+    this._titleT = setTimeout(() => { this.title.style.opacity = 0; }, 4500);
     this.helpTimer = setTimeout(() => { this.help.style.opacity = 0; }, 12000);
     this.layout();
     window.addEventListener('resize', () => this.layout());
@@ -185,10 +185,14 @@ export class UI {
   showDialog(on) { this.dlg.style.display = on ? 'block' : 'none'; this.root.classList.toggle('dlgopen', on); this.dialogOpen = on; if (on) { this.prompt.style.display = 'none'; this._pl = null; this.lbl.textContent = 'Tiếp'; } }
   setDialog(name, text, done) { this.dName.textContent = name; this.dText.textContent = text; this.dNext.style.visibility = done ? 'visible' : 'hidden'; }
   // ---- prompt above a world point (CSS px) + contextual button label
-  setPrompt(label, x, y) {
+  setTitle(name, sub) {   // ten khu hien khi vao khu (mo roi mo dan sau 4.5 s)
+    this.title.querySelector('b').textContent = name; this.title.querySelector('i').textContent = sub || '';
+    this.title.style.opacity = 1; clearTimeout(this._titleT); this._titleT = setTimeout(() => { this.title.style.opacity = 0; }, 4500);
+  }
+  setPrompt(label, x, y, plain = false) {   // plain: nhan khong co phim E (nhan cong)
     if (!label) { if (this._pl !== null) { this.prompt.style.display = 'none'; this._pl = null; } this.lbl.textContent = this.dialogOpen ? 'Tiếp' : 'Tương tác'; return; }
-    if (this._pl !== label) { this.prompt.innerHTML = (this.touchMode ? '' : '<kbd>E</kbd>') + label; this._pl = label; this.prompt.style.display = 'block'; }
+    if (this._pl !== label) { this.prompt.innerHTML = (this.touchMode || plain ? '' : '<kbd>E</kbd>') + label; this._pl = label; this.prompt.style.display = 'block'; }
     this.prompt.style.left = Math.round(x) + 'px'; this.prompt.style.top = Math.round(y) + 'px';
-    this.lbl.textContent = label;
+    if (!plain) this.lbl.textContent = label;
   }
 }
