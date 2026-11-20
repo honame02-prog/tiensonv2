@@ -4,6 +4,9 @@
 import * as Phaser from 'phaser';
 import { UI, RUN_AT } from './ui.js';
 import { isTouchDevice } from './view.js';
+import { FxPlayer } from './fx/FxPlayer.js';
+import { CUES } from './fx/cues/index.js';
+import { setupFxDemo } from './fx/fxdemo.js';
 
 const A = 'assets/sect/';
 const WALK_SPEED = 58, RUN_SPEED = 118;
@@ -54,6 +57,7 @@ export class SectScene extends Phaser.Scene {
     this.load.image('mistA', A + 'fx_mist_a.png');
     this.load.image('mistB', A + 'fx_mist_b.png');
     this.load.atlas('hero', 'assets/dao_si.png', 'assets/dao_si.json');
+    FxPlayer.preload(this, Object.values(CUES));
   }
 
   create() {
@@ -163,6 +167,9 @@ export class SectScene extends Phaser.Scene {
     this.scale.on('resize', this.onResize, this);
     this.applyNight();
     window.__scene = this;
+    // ---------- FX: bo phat hieu ung skill (depth: ground -60, light 9100 tren lop dem, overlay 9500); che do thu chi khi ?fx=1
+    this.fx = new FxPlayer(this, { maxParticles: 300 });
+    if (sp.get('fx') === '1') this.fxDemo = setupFxDemo(this);
   }
 
   makeAnims() {
