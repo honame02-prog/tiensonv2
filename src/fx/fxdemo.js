@@ -18,7 +18,8 @@ export function setupFxDemo(scene) {
       return fx.play(id, { x: p.x + Math.cos(a) * 40, y: p.y + Math.sin(a) * 28 }).done;
     }));
   };
-  const demo = { cast, castAll, looping: false, loopTimer: null };
+  const frontPoint = d => { const p = scene.player, f = front(d); return { x: p.x + f.x, y: p.y + f.y }; };
+  const demo = { cast, castAll, frontPoint, looping: false, loopTimer: null };
   demo.setLoop = on => {
     demo.looping = on; demo.loopTimer?.remove(); demo.loopTimer = null;
     if (on) { castAll(); demo.loopTimer = scene.time.addEvent({ delay: 2000, loop: true, callback: castAll }); }

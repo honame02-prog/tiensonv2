@@ -50,6 +50,7 @@ export class FxPlayer {
   // sinh san texture ring/cot cho cue (tranh giat o lan phat dau)
   warm(cue, ramp = cue.ramp) {
     for (const tr of cue.tracks) {
+      if (tr.off) continue;
       if (tr.type === 'ring') {
         const [a, b] = tr.grow || [tr.rx, tr.rx];
         for (let r = this._q(Math.min(a, b)); r <= this._q(Math.max(a, b)); r += 4) ringTex(this.scene, r, tr.width || 2);
@@ -161,8 +162,8 @@ class Run {
     this.S = opts.scale ?? 1; this.ramp = opts.ramp || cue.ramp;
     this.x = Math.round(opts.x ?? 0); this.y = Math.round(opts.y ?? 0);
     this.t = 0; this.live = []; this.dead = false;
-    this.pending = [...cue.tracks].sort((a, b) => (a.at || 0) - (b.at || 0));
-    this.duration = cue.duration ?? Math.max(...cue.tracks.map(t => (t.at || 0) + (t.dur || 0)));
+    this.pending = cue.tracks.filter(t => !t.off).sort((a, b) => (a.at || 0) - (b.at || 0));
+    this.duration = cue.duration ?? Math.max(0, ...cue.tracks.filter(t => !t.off).map(t => (t.at || 0) + (t.dur || 0)));
     this.done = new Promise(r => { this._res = r; });
     this.handle = { id: cue.id, done: this.done, stop: () => this.kill() };
     fx.runs.add(this);
