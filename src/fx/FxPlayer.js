@@ -1,0 +1,284 @@
+// FxPlayer: phat hieu ung skill dieu khien bang cue JSON. Xem design/tienson/02-fxplayer-api.md.
+import * as Phaser from 'phaser';
+import { FX_PALETTE, resolveColor } from './palette.js';
+import { makeFxTextures, lightTex, ringTex, columnTex } from './textures.js';
+import { CUES } from './cues/index.js';
+
+const DEPTH_GROUND = -3, DEPTH_OVERLAY = 8800;
+const BLEND = { add: Phaser.BlendModes.ADD, normal: Phaser.BlendModes.NORMAL };
+const easeFn = e => Phaser.Tweens.Builders.GetEaseFunction(e || 'Linear');
+const lerp = (a, b, t) => a + (b - a) * t;
+const now = () => performance.now();
+
+// so hoac mang keyframe deu nhau -> gia tri tai t (0..1)
+function kf(v, t, fb) {
+  if (v === undefined) v = fb;
+  if (!Array.isArray(v)) return v;
+  if (v.length === 1) return v[0];
+  const f = Math.min(Math.max(t, 0), 1) * (v.length - 1), i = Math.min(Math.floor(f), v.length - 2);
+  return lerp(v[i], v[i + 1], f - i);
+}
+
+export class FxPlayer {
+  static preload(scene, cueList = []) {
+    // GD4: nap atlas ma cue can (track anim, neu cue ghi atlasUrl/atlasJson). GD2 chi dung texture thu tuc.
+    for (const c of cueList) for (const tr of (c.tracks || [])) if (tr.type === 'anim' && tr.atlasUrl) scene.load.atlas(tr.atlas, tr.atlasUrl, tr.atlasJson);
+  }
+
+  constructor(scene, { palette = FX_PALETTE, maxParticles = 300 } = {}) {
+    this.scene = scene; this.palette = palette; this.maxParticles = maxParticles;
+    this.cues = { ...CUES };
+    this.runs = new Set(); this._free = []; this._inUse = 0; this._emitters = new Set();
+    this._dims = new Set(); this._dimTargets = null; this._dimV = 255;
+    this._hitUntil = 0; this._frozen = false; this._capped = false; this._alive = 0; this._warned = new Set();
+    makeFxTextures(scene);
+    for (const c of Object.values(this.cues)) this.warm(c);
+    scene.events.on(Phaser.Scenes.Events.UPDATE, this._update, this);
+    scene.events.once(Phaser.Scenes.Events.SHUTDOWN, this.destroy, this);
+  }
+
+  register(cue) { this.cues[cue.id] = cue; this.warm(cue); }
+
+  // sinh san texture ring/cot cho cue (tranh giat o lan phat dau)
+  warm(cue, ramp = cue.ramp) {
+    for (const tr of cue.tracks) {
+      if (tr.type === 'ring') {
+        const [a, b] = tr.grow || [tr.rx, tr.rx];
+        for (let r = this._q(Math.min(a, b)); r <= this._q(Math.max(a, b)); r += 4) ringTex(this.scene, r, tr.width || 2);
+      } else if (tr.type === 'column') columnTex(this.scene, tr.ramp || ramp, tr.w, tr.h, this.palette);
+    }
+  }
+  _q(r) { return Math.max(8, Math.round(r / 4) * 4); }
+
+  play(cueOrId, opts = {}) {
+    const cue = typeof cueOrId === 'string' ? this.cues[cueOrId] : cueOrId;
+    if (!cue) throw new Error(`FX: khong co cue "${cueOrId}"`);
+    const run = new Run(this, cue, opts);
+    if (!run.dead) this.runs.add(run);
+    return run.handle;
+  }
+
+  stats() {
+    let particles = 0;
+    for (const e of this._emitters) particles += e.getAliveParticleCount();
+    return { active: this.runs.size, particles, objects: this._inUse + this._emitters.size };
+  }
+
+  // ---- pool
+  _img(tex) {
+    let im = this._free.pop();
+    if (!im) { im = this.scene.add.image(0, 0, tex); im.__fx = true; }
+    im.setTexture(tex).setVisible(true).setActive(true).setOrigin(0.5, 0.5).setScale(1).setAlpha(1).setAngle(0).clearTint().setFlip(false, false).setScrollFactor(1);
+    im.setBlendMode(Phaser.BlendModes.NORMAL);
+    this._inUse++;
+    return im;
+  }
+  _put(im) {
+    if (!im) return;
+    this._inUse--;
+    if (this._free.length >= 48) { im.destroy(); return; }
+    im.setVisible(false).setActive(false);
+    this._free.push(im);
+  }
+  _emitter(x, y, tex, cfg) {
+    const e = this.scene.add.particles(x, y, tex, cfg); e.__fx = true;
+    this._emitters.add(e);
+    return e;
+  }
+  _killEmitter(e) { if (this._emitters.delete(e)) e.destroy(); }
+
+  // ---- hitstop / dim (toan cuc, dong ho that)
+  _hitstop(ms) { this._hitUntil = Math.max(this._hitUntil, now() + ms); }
+  _applyFreeze() {
+    const frozen = now() < this._hitUntil;
+    if (frozen === this._frozen) return;
+    this._frozen = frozen;
+    const s = this.scene;
+    if (frozen) {
+      this._sv = { anim: s.anims.globalTimeScale, tw: s.tweens.timeScale, ph: !!(s.physics?.world && !s.physics.world.isPaused) };
+      s.anims.globalTimeScale = 0; s.tweens.timeScale = 0;
+      if (this._sv.ph) s.physics.world.pause();
+    } else if (this._sv) {
+      s.anims.globalTimeScale = this._sv.anim; s.tweens.timeScale = this._sv.tw;
+      if (this._sv.ph) s.physics.world.resume();
+      this._sv = null;
+    }
+  }
+  _applyDim() {
+    let lv = 0;
+    for (const d of this._dims) lv = Math.max(lv, d.level);
+    const v = lv <= 0 ? 255 : Math.max(0, Math.round(255 * (1 - lv) / 8) * 8);   // luong tu hoa: tile tint ton CPU
+    if (v === this._dimV) return;
+    if (!this._dimTargets) {
+      this._dimTargets = this.scene.children.list.filter(o => !o.__fx && o.visible && o.scrollFactorX !== 0 && typeof o.setTint === 'function');
+    }
+    this._dimV = v;
+    const col = (v << 16) | (v << 8) | v;
+    for (const o of this._dimTargets) {
+      if (!o.scene) continue;
+      if (v === 255) { if (o.clearTint) o.clearTint(); else o.setTint(0xffffff); } else o.setTint(col);
+    }
+    if (v === 255) this._dimTargets = null;
+  }
+
+  _update(time, delta) {
+    const dt = Math.min(delta, 100);
+    this._applyFreeze();
+    let total = 0;
+    for (const e of this._emitters) { total += e.getAliveParticleCount(); e.timeScale = this._frozen ? 0 : 1; }
+    this._capped = total >= this.maxParticles; this._alive = total;
+    for (const r of [...this.runs]) r.step(this._frozen ? 0 : dt);
+    if (this._dims.size || this._dimV !== 255) this._applyDim();
+  }
+
+  destroy() {
+    for (const r of [...this.runs]) r.kill();
+    for (const im of this._free) im.destroy();
+    this._free.length = 0;
+    this._dims.clear(); this._applyDim();
+    this._hitUntil = 0; this._applyFreeze();
+    this.scene.events.off(Phaser.Scenes.Events.UPDATE, this._update, this);
+  }
+}
+
+class Run {
+  constructor(fx, cue, opts) {
+    this.fx = fx; this.cue = cue; this.opts = opts;
+    this.S = opts.scale ?? 1; this.ramp = opts.ramp || cue.ramp;
+    this.x = Math.round(opts.x ?? 0); this.y = Math.round(opts.y ?? 0);
+    this.t = 0; this.live = []; this.dead = false;
+    this.pending = [...cue.tracks].sort((a, b) => (a.at || 0) - (b.at || 0));
+    this.duration = cue.duration ?? Math.max(...cue.tracks.map(t => (t.at || 0) + (t.dur || 0)));
+    this.done = new Promise(r => { this._res = r; });
+    this.handle = { id: cue.id, done: this.done, stop: () => this.kill() };
+    fx.runs.add(this);
+    this.step(0);   // khoi dong cac track at=0 ngay
+  }
+  color(tok) { return resolveColor(tok, this.ramp, this.fx.palette); }
+  depth(layer, def) { const l = layer || def; return l === 'ground' ? DEPTH_GROUND : l === 'overlay' ? DEPTH_OVERLAY : this.y + 0.5; }
+
+  step(dt) {
+    if (this.dead) return;
+    this.t += dt;
+    while (this.pending.length && (this.pending[0].at || 0) <= this.t) {
+      const tr = this.pending.shift();
+      const inst = this.start(tr);
+      if (inst) { inst.t0 = tr.at || 0; this.live.push(inst); }
+    }
+    const over = this.t >= this.duration;
+    for (let i = this.live.length - 1; i >= 0; i--) {
+      const inst = this.live[i];
+      const lt = this.t - inst.t0, p = inst.dur > 0 ? Math.min(lt / inst.dur, 1) : 1;
+      inst.update?.(p, lt);
+      if ((lt >= inst.dur || over) && (!inst.drained || inst.drained())) { inst.release?.(); this.live.splice(i, 1); }
+    }
+    if (over && !this.live.length) this.finish();
+    else if (this.t >= this.duration + 4000) this.kill();   // chong treo
+  }
+
+  finish() {
+    if (this.dead) return;
+    this.dead = true; this.fx.runs.delete(this); this._res();
+  }
+  kill() {
+    if (this.dead) return;
+    for (const inst of this.live) inst.release?.();
+    this.live.length = 0; this.pending.length = 0;
+    this.finish();
+  }
+
+  start(tr) {
+    const fx = this.fx, S = this.S, ease = easeFn(tr.ease);
+    const ax = this.x + Math.round((tr.x || 0) * S), ay = this.y + Math.round((tr.y || 0) * S);
+    const blend = BLEND[tr.blend || (tr.type === 'light' ? 'add' : 'normal')];
+    const mkImg = (tex, layer, def) => {
+      const im = fx._img(tex).setPosition(ax, ay).setDepth(this.depth(layer, def)).setBlendMode(blend);
+      if (tr.color !== undefined && tr.type !== 'column') im.setTint(this.color(tr.color));
+      return im;
+    };
+    switch (tr.type) {
+      case 'light': {
+        const ground = (tr.layer || 'ground') === 'ground';
+        const rx = tr.rx * S, ry = (tr.ry ?? (ground ? tr.rx * 0.5 : tr.rx)) * S;
+        const size = tr.rx > 40 ? 128 : 64, power = tr.power ?? 1;
+        const im = mkImg(lightTex(fx.scene, size), tr.layer, 'ground');
+        return { dur: tr.dur, release: () => fx._put(im), update: p => {
+          const q = ease(p), s = kf(tr.scale, q, 1);
+          im.setAlpha(Math.min(1, kf(tr.alpha, q, [0, 1, 0]) * power)).setScale(rx * 2 / size * s, ry * 2 / size * s);
+        } };
+      }
+      case 'decal': {
+        const im = mkImg('fx_decal', tr.layer, 'ground'), rx = tr.rx * S;
+        return { dur: tr.dur, release: () => fx._put(im), update: p => {
+          const q = ease(p), s = kf(tr.scale, q, 1);
+          im.setAlpha(kf(tr.alpha, q, [0, 1, 0])).setScale(rx * 2 / 64 * s, rx / 64 * s);   // nen doc 0,5
+        } };
+      }
+      case 'ring': {
+        const im = mkImg('fx_ring', tr.layer, 'ground'), [g0, g1] = tr.grow || [tr.rx, tr.rx];
+        return { dur: tr.dur, release: () => fx._put(im), update: p => {
+          const q = ease(p);
+          im.setTexture(ringTex(fx.scene, fx._q(lerp(g0, g1, q) * S), tr.width || 2)).setAlpha(kf(tr.alpha, q, [1, 1, 0])).setScale(1, 0.5);   // nen doc 0,5
+        } };
+      }
+      case 'column': {
+        const im = mkImg(columnTex(fx.scene, tr.ramp || this.ramp, tr.w, tr.h, fx.palette), tr.layer, 'body').setOrigin(0.5, 1);
+        if (tr.rotate) im.setAngle(this.opts.angle || 0);
+        return { dur: tr.dur, release: () => fx._put(im), update: (p, lt) => {
+          const q = ease(p);
+          im.setAlpha(kf(tr.alpha, q, 1)).setScale(S * kf(tr.scaleX, q, tr.scale ?? 1), S * kf(tr.scaleY, q, tr.scale ?? 1));
+          if (tr.flicker) im.setFlipX(Math.floor(lt / tr.flicker) % 2 === 1);
+        } };
+      }
+      case 'emitter': return this.startEmitter(tr, ax, ay);
+      case 'anim': {
+        if (!fx.scene.textures.exists(tr.atlas)) {
+          if (!fx._warned.has(tr.atlas)) { fx._warned.add(tr.atlas); console.warn(`FX: thieu atlas "${tr.atlas}" (track anim)`); }
+          return null;
+        }
+        const sp = fx.scene.add.sprite(ax, ay, tr.atlas).setOrigin(0.5, tr.originY ?? 1).setDepth(this.depth(tr.layer, 'body')).setScale(S).setBlendMode(blend);
+        sp.__fx = true; fx._inUse++;
+        if (tr.color !== undefined) sp.setTint(this.color(tr.color));
+        if (tr.rotate) sp.setAngle(this.opts.angle || 0);
+        sp.play({ key: tr.anim, frameRate: tr.fps });
+        return { dur: tr.dur, update: p => sp.setAlpha(kf(tr.alpha, ease(p), 1)), release: () => { fx._inUse--; sp.destroy(); } };
+      }
+      case 'shake': fx.scene.cameras.main.shake(tr.dur, tr.intensity ?? 0.004); return null;
+      case 'flash': {
+        const cam = fx.scene.cameras.main, a0 = tr.alpha ?? 0.6;
+        const im = fx._img('fx_px1').setOrigin(0, 0).setScrollFactor(0).setDepth(DEPTH_OVERLAY).setBlendMode(blend).setPosition(0, 0)
+          .setDisplaySize(cam.width, cam.height).setTint(this.color(tr.color ?? 'core'));
+        return { dur: tr.dur, release: () => fx._put(im), update: p => im.setAlpha(a0 * (1 - ease(p))) };   // chop roi tat dan
+      }
+      case 'hitstop': fx._hitstop(tr.dur); return null;
+      case 'dim': {
+        const d = { level: 0 }, tin = tr.in ?? 150, hold = tr.hold ?? 600, out = tr.out ?? 300, to = tr.to ?? 0.5;
+        fx._dims.add(d);
+        return { dur: tin + hold + out, release: () => fx._dims.delete(d), update: (p, lt) => {
+          d.level = lt < tin ? to * lt / tin : lt < tin + hold ? to : to * Math.max(0, 1 - (lt - tin - hold) / out);
+        } };
+      }
+      case 'event': this.opts.onEvent?.(tr.name, this.handle); return null;
+      default: console.warn(`FX: track type la "${tr.type}"`); return null;
+    }
+  }
+
+  startEmitter(tr, ax, ay) {
+    const fx = this.fx, cfg = { ...(tr.config || {}) };
+    if (tr.color) { cfg.color = tr.color.map(c => this.color(c)); cfg.colorEase = tr.colorEase || 'quad.out'; }
+    if (tr.max) cfg.maxAliveParticles = tr.max;
+    if (tr.rotate && cfg.angle && typeof cfg.angle === 'object') {
+      const a = this.opts.angle || 0; cfg.angle = { min: cfg.angle.min + a, max: cfg.angle.max + a };
+    }
+    const burst = cfg.frequency === -1, qty = typeof cfg.quantity === 'number' ? cfg.quantity : 10;
+    cfg.emitting = burst ? false : !fx._capped;
+    if (tr.blend === 'add') cfg.blendMode = 'ADD';
+    const em = fx._emitter(ax, ay, tr.tex || 'fx_px1', cfg).setDepth(this.depth(tr.layer, 'body') + 0.1);
+    if (burst) em.explode(Math.max(0, Math.min(qty, fx.maxParticles - fx._alive)));
+    return {
+      dur: tr.dur, drained: () => em.getAliveParticleCount() === 0,
+      update: p => { if (!burst) em.emitting = p < 1 && !fx._capped; },
+      release: () => fx._killEmitter(em),
+    };
+  }
+}

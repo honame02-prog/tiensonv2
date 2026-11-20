@@ -1,0 +1,16 @@
+{ "id": "demo-kim-giang", "ramp": "kim", "duration": 1800, "ultimate": true,
+  "tracks": [
+    { "at": 0, "type": "dim", "to": 0.55, "in": 150, "hold": 1000, "out": 450 },
+    { "at": 0, "type": "light", "rx": 22, "ry": 22, "y": -190, "layer": "body", "power": 0.9, "dur": 160, "color": "kim.5", "alpha": [0.2, 1, 1] },
+    { "at": 150, "type": "column", "w": 14, "h": 190, "dur": 250, "scaleX": [0.5, 1, 0], "scaleY": 1, "alpha": [1, 1, 0.6] },
+    { "at": 150, "type": "light", "rx": 92, "power": 1, "dur": 1000, "color": "glow", "alpha": [0, 1, 0.55, 0] },
+    { "at": 150, "type": "light", "rx": 34, "ry": 34, "y": -20, "layer": "body", "power": 0.9, "dur": 450, "color": "kim.5", "alpha": [0, 1, 0] },
+    { "at": 150, "type": "decal", "rx": 44, "dur": 1500, "color": "kim.1", "alpha": [0, 0.85, 0.6, 0] },
+    { "at": 150, "type": "ring", "grow": [20, 58], "width": 3, "dur": 700, "ease": "Quad.easeOut", "color": "kim.5", "alpha": [1, 0.9, 0] },
+    { "at": 260, "type": "ring", "grow": [14, 40], "width": 2, "dur": 600, "ease": "Quad.easeOut", "color": "kim.3", "alpha": [1, 0.8, 0] },
+    { "at": 150, "type": "emitter", "tex": "fx_px2", "dur": 0, "blend": "add", "color": ["core", "kim.4", "kim.2"],
+      "config": { "frequency": -1, "quantity": 26, "speed": { "min": 50, "max": 160 }, "angle": { "min": 200, "max": 340 }, "lifespan": { "min": 450, "max": 900 }, "gravityY": 230, "alpha": { "start": 1, "end": 0 } } },
+    { "at": 150, "type": "flash", "color": "kim.5", "alpha": 0.65, "dur": 220 },
+    { "at": 150, "type": "shake", "dur": 300, "intensity": 0.008 },
+    { "at": 150, "type": "event", "name": "hit" }
+  ] }

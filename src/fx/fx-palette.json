@@ -1,0 +1,56 @@
+{
+ "hoa": [
+  "#4f1413",
+  "#b4201a",
+  "#f0461a",
+  "#ff8a1c",
+  "#ffc83a",
+  "#fff09a",
+  "#fffbe8"
+ ],
+ "bang": [
+  "#13292d",
+  "#1846a0",
+  "#2a7fe0",
+  "#4fc3ff",
+  "#9ff0ff",
+  "#e0fdff",
+  "#ffffff"
+ ],
+ "kim": [
+  "#362417",
+  "#a85a10",
+  "#e89a1a",
+  "#ffd23c",
+  "#ffef8a",
+  "#fffbd6",
+  "#ffffff"
+ ],
+ "moc": [
+  "#1a413c",
+  "#127a4a",
+  "#1fb85e",
+  "#5cf08a",
+  "#b4ffc0",
+  "#ecfff0",
+  "#ffffff"
+ ],
+ "tam": [
+  "#380e0e",
+  "#a0103c",
+  "#ea2a5c",
+  "#ff5e8e",
+  "#ffa8c6",
+  "#ffe6ef",
+  "#ffffff"
+ ],
+ "u": [
+  "#14161c",
+  "#4a1a8a",
+  "#7c32e0",
+  "#b066ff",
+  "#dca8ff",
+  "#f6e8ff",
+  "#ffffff"
+ ]
+}
