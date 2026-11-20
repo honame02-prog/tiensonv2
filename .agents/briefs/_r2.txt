@@ -1,0 +1,5 @@
+
+## Vòng 2 — lý do làm lại (Opus xem ảnh 2×, scout chấm 3–5/10)
+Bản vòng 1 nằm ở nhánh `codex/<id gốc>` (xem bằng `git show codex/AG1:tools/assetgen/...`), check số liệu PASS nhưng HÌNH KHÔNG ĐẠT: trông như hoạ sĩ khác. Nguyên tắc vòng 2: **dùng chính pixel của tài nguyên cũ làm cọ/mẫu** (cắt từ `public/assets/sect/sect_atlas.png` theo `sect_atlas.json`, `public/assets/sect/decals.png|json`, `public/assets/sect/ground_bake.png`), không vẽ nhiễu thủ tục tự do. Đây là tài nguyên của chính dự án, được phép tái dùng.
+- KHÔNG lật ngang (flipX) cụm có hướng sáng (sẽ thành sáng trên-phải). Đa dạng bằng chọn cụm khác + làm tối/sáng theo tầng.
+- Tự kiểm bằng mắt: xuất `records/assetgen/<gói>/compare.png` = tài nguyên mới đặt cạnh tài nguyên cũ ở 2× trên cùng nền. Nếu bạn xem được ảnh, xem nó tối đa 3 vòng.
