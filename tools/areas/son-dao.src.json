@@ -1,0 +1,48 @@
+{
+ "materials": "tools/area_materials.json",
+ "area": {
+  "id": "son-dao", "name": "Sơn Đạo", "sub": "Đường núi ngoài sơn môn", "backdrop": "none", "bg": "#1c2a1e",
+  "spawns": { "default": [330, 44, "down"], "north": [330, 44, "down"] },
+  "portals": [{ "id": "to-huyen-van-quan", "rect": [262, 0, 136, 20], "to": { "area": "huyen-van-quan", "spawn": "gate" }, "label": "Huyền Vân Quan" }],
+  "features": { "mist": [[0, 600, 640, 200, 0.26]] },
+  "exits": [{ "rect": [330, 772, 120, 28], "title": "Chân núi", "text": "Đường xuống chân núi đang được xây dựng.", "to": { "x": 385, "y": 700, "face": "up" } }],
+  "texts": {
+   "stele_a": { "prompt": "Đọc bia", "lines": [
+    { "who": "Bia đá", "text": "«Sơn đạo ba nghìn bậc, mỗi bậc một lần buông.»" },
+    { "who": "Bia đá", "text": "Dưới chân bia có ai đặt một nắm hương đã tàn. Phía bắc là Huyền Vân Quan, phía nam đường mòn còn dài." } ] }
+  }
+ },
+ "bake": {
+  "width": 640, "height": 800, "seed": 20,
+  "paths": {
+   "main": { "pts": [[330, -10], [330, 80], [306, 190], [252, 290], [240, 380], [270, 470], [350, 560], [410, 650], [392, 740], [385, 810]], "width": [96, 96, 92, 88, 96, 90, 92, 96, 96, 100] },
+   "north": { "pts": [[330, -10], [330, 80], [312, 170]], "width": [84, 84, 80] }
+  },
+  "regions": [
+   { "material": "forest", "fill": true },
+   { "material": "grass", "path": "main", "width": 230, "dither": 8, "wobble": 10, "seed": 3 },
+   { "material": "dirt", "path": "main", "dither": 3, "wobble": 3, "seed": 4 },
+   { "material": "cobble", "path": "north", "dither": 3, "wobble": 2, "seed": 5 },
+   { "material": "cobble", "poly": [[222, 292], [250, 284], [276, 296], [270, 316], [240, 322], [220, 310]], "smooth": true, "dither": 2, "wobble": 2, "seed": 6 },
+   { "material": "cobble", "poly": [[330, 540], [362, 532], [380, 552], [366, 574], [338, 576]], "smooth": true, "dither": 2, "wobble": 2, "seed": 7 },
+   { "material": "cobble", "poly": [[384, 636], [414, 628], [432, 648], [418, 668], [390, 670]], "smooth": true, "dither": 2, "wobble": 2, "seed": 8 },
+   { "material": "slab", "poly": [[190, 390], [334, 390], [348, 404], [348, 448], [334, 462], [190, 462], [176, 448], [176, 404]], "dither": 1, "wobble": 1, "seed": 9, "rim": { "px": 1, "shadow": 3, "dark": 0.55 } }
+  ],
+  "blocks": [
+   { "poly": [[0, 0], [60, 0], [48, 150], [66, 300], [40, 450], [70, 600], [46, 740], [60, 800], [0, 800]] },
+   { "poly": [[640, 0], [584, 0], [596, 160], [574, 320], [600, 470], [570, 620], [596, 760], [584, 800], [640, 800]] }
+  ],
+  "props": [
+   { "key": "lantern_b", "x": 268, "y": 72 }, { "key": "lantern_b", "x": 392, "y": 72 },
+   { "key": "stele_a", "x": 226, "y": 414 }, { "key": "lantern_a", "x": 312, "y": 414 }
+  ],
+  "scatter": [
+   { "keys": ["pine_a", "pine_b"], "count": 16, "on": ["forest", "grass"], "avoidPaths": [{ "path": "main", "dist": 60 }], "keepClear": [[330, 44, 70], [262, 425, 110]], "minDist": 90, "seed": 1 },
+   { "keys": ["rock_a", "rock_b", "rock_c"], "count": 10, "on": ["forest", "grass"], "avoidPaths": [{ "path": "main", "dist": 30 }], "keepClear": [[330, 44, 70], [262, 425, 110]], "minDist": 50, "seed": 2 },
+   { "keys": ["fern_a", "fern_b", "fern_c"], "count": 16, "on": ["forest", "grass"], "avoidPaths": [{ "path": "main", "dist": 14 }], "keepClear": [[330, 44, 50]], "minDist": 44, "seed": 3 },
+   { "kind": "decal", "keys": ["tuft1", "tuft2", "tuft3", "tuft4", "tuft5", "tuft6", "tuft7", "tuft8", "tuft9", "tuft10", "tuft11"], "count": 46, "on": ["forest", "grass"], "minDist": 30, "seed": 4 },
+   { "kind": "decal", "keys": ["flower1", "flower2", "flower3", "flower4", "flower5", "flower6", "flower7", "flower8", "flower9", "flower10"], "count": 6, "on": ["grass"], "minDist": 34, "seed": 5 },
+   { "kind": "decal", "keys": ["ground1", "ground2", "ground3", "ground4", "ground5", "ground6", "ground7", "ground8", "ground9"], "count": 16, "on": ["dirt"], "minDist": 36, "seed": 6 }
+  ]
+ }
+}
