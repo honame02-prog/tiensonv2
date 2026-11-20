@@ -4,7 +4,10 @@ import { FX_PALETTE, resolveColor } from './palette.js';
 import { makeFxTextures, lightTex, ringTex, columnTex } from './textures.js';
 import { CUES } from './cues/index.js';
 
-const DEPTH_GROUND = -3, DEPTH_OVERLAY = 8800;
+// Do sau cho SectScene (Tien Son day du): ground -100, bong -70, actor = y, suong 8600-9000, lop dem MULTIPLY 9000, den long 9001, UI la DOM (z-index 10).
+// ground: tren bong (-70), duoi moi actor. light: ADD tren lop dem de phat sang ban dem. overlay: tren lop dem, duoi UI (UI la DOM nen luon tren canvas).
+// dimBelow: dim chi to cac doi tuong co depth < gia tri nay (suong the gioi 8600+, lop dem, den long, overlay bi loai).
+const DEFAULT_DEPTHS = { ground: -60, light: 9100, overlay: 9500, dimBelow: 8600 };
 const BLEND = { add: Phaser.BlendModes.ADD, normal: Phaser.BlendModes.NORMAL };
 const easeFn = e => Phaser.Tweens.Builders.GetEaseFunction(e || 'Linear');
 const lerp = (a, b, t) => a + (b - a) * t;
@@ -25,7 +28,8 @@ export class FxPlayer {
     for (const c of cueList) for (const tr of (c.tracks || [])) if (tr.type === 'anim' && tr.atlasUrl) scene.load.atlas(tr.atlas, tr.atlasUrl, tr.atlasJson);
   }
 
-  constructor(scene, { palette = FX_PALETTE, maxParticles = 300 } = {}) {
+  constructor(scene, { palette = FX_PALETTE, maxParticles = 300, depths = {} } = {}) {
+    this.D = { ...DEFAULT_DEPTHS, ...depths };
     this.scene = scene; this.palette = palette; this.maxParticles = maxParticles;
     this.cues = { ...CUES };
     this.runs = new Set(); this._free = []; this._inUse = 0; this._emitters = new Set();
@@ -110,13 +114,19 @@ export class FxPlayer {
     const v = lv <= 0 ? 255 : Math.max(0, Math.round(255 * (1 - lv) / 8) * 8);   // luong tu hoa: tile tint ton CPU
     if (v === this._dimV) return;
     if (!this._dimTargets) {
-      this._dimTargets = this.scene.children.list.filter(o => !o.__fx && o.visible && o.scrollFactorX !== 0 && typeof o.setTint === 'function');
+      // loai: FX, scrollFactor 0 (troi nen, suong man hinh), depth >= dimBelow (suong the gioi, lop dem, den long, overlay); luu 4 goc tint goc de tra lai
+      const lim = this.D.dimBelow;
+      this._dimTargets = this.scene.children.list
+        .filter(o => !o.__fx && o.visible && o.scrollFactorX !== 0 && o.depth < lim && typeof o.setTint === 'function' && o.tintMode === Phaser.TintModes.MULTIPLY)
+        .map(o => ({ o, tl: o.tintTopLeft, tr: o.tintTopRight, bl: o.tintBottomLeft, br: o.tintBottomRight }));
     }
     this._dimV = v;
-    const col = (v << 16) | (v << 8) | v;
-    for (const o of this._dimTargets) {
+    const m = c => ((((c >> 16) & 255) * v / 255 | 0) << 16) | ((((c >> 8) & 255) * v / 255 | 0) << 8) | ((c & 255) * v / 255 | 0);
+    for (const t of this._dimTargets) {
+      const o = t.o;
       if (!o.scene) continue;
-      if (v === 255) { if (o.clearTint) o.clearTint(); else o.setTint(0xffffff); } else o.setTint(col);
+      if (v === 255) { o.tintTopLeft = t.tl; o.tintTopRight = t.tr; o.tintBottomLeft = t.bl; o.tintBottomRight = t.br; }
+      else { o.tintTopLeft = m(t.tl); o.tintTopRight = m(t.tr); o.tintBottomLeft = m(t.bl); o.tintBottomRight = m(t.br); }
     }
     if (v === 255) this._dimTargets = null;
   }
@@ -155,7 +165,12 @@ class Run {
     this.step(0);   // khoi dong cac track at=0 ngay
   }
   color(tok) { return resolveColor(tok, this.ramp, this.fx.palette); }
-  depth(layer, def) { const l = layer || def; return l === 'ground' ? DEPTH_GROUND : l === 'overlay' ? DEPTH_OVERLAY : this.y + 0.5; }
+  depth(layer, def, type) {
+    const l = layer || def, D = this.fx.D;
+    if (l === 'overlay') return D.overlay;
+    if (type === 'light') return D.light;   // anh sang cong luon tren lop dem (ban dem moi thay phat sang)
+    return l === 'ground' ? D.ground : this.y + 0.5;
+  }
 
   step(dt) {
     if (this.dead) return;
@@ -192,7 +207,7 @@ class Run {
     const ax = this.x + Math.round((tr.x || 0) * S), ay = this.y + Math.round((tr.y || 0) * S);
     const blend = BLEND[tr.blend || (tr.type === 'light' ? 'add' : 'normal')];
     const mkImg = (tex, layer, def) => {
-      const im = fx._img(tex).setPosition(ax, ay).setDepth(this.depth(layer, def)).setBlendMode(blend);
+      const im = fx._img(tex).setPosition(ax, ay).setDepth(this.depth(layer, def, tr.type)).setBlendMode(blend);
       if (tr.color !== undefined && tr.type !== 'column') im.setTint(this.color(tr.color));
       return im;
     };
@@ -246,7 +261,7 @@ class Run {
       case 'shake': fx.scene.cameras.main.shake(tr.dur, tr.intensity ?? 0.004); return null;
       case 'flash': {
         const cam = fx.scene.cameras.main, a0 = tr.alpha ?? 0.6;
-        const im = fx._img('fx_px1').setOrigin(0, 0).setScrollFactor(0).setDepth(DEPTH_OVERLAY).setBlendMode(blend).setPosition(0, 0)
+        const im = fx._img('fx_px1').setOrigin(0, 0).setScrollFactor(0).setDepth(fx.D.overlay).setBlendMode(blend).setPosition(0, 0)
           .setDisplaySize(cam.width, cam.height).setTint(this.color(tr.color ?? 'core'));
         return { dur: tr.dur, release: () => fx._put(im), update: p => im.setAlpha(a0 * (1 - ease(p))) };   // chop roi tat dan
       }
