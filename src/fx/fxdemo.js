@@ -27,6 +27,20 @@ export function setupFxDemo(scene) {
   ['ONE', 'TWO', 'THREE'].forEach((k, i) => kb.on(`keydown-${k}`, () => cast(i)));
   kb.on('keydown-FOUR', castAll);
   kb.on('keydown-R', () => demo.setLoop(!demo.looping));
+  // nut cam ung 1/2/3 (theo style .dn cua ui.js: vong vang tren nen toi), phat cue truoc mat nguoi choi
+  const bar = document.createElement('div');
+  bar.style.cssText = 'position:fixed;left:4px;top:26px;z-index:11;display:flex;gap:8px';
+  CUE_IDS.forEach((id, i) => {
+    const b = document.createElement('div');
+    b.textContent = i + 1; b.title = id;
+    b.style.cssText = 'width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;touch-action:none;user-select:none;-webkit-user-select:none;font:700 16px Georgia,serif;color:#f0cf7a;background:radial-gradient(circle at 40% 30%,rgba(60,58,66,.92),rgba(22,20,26,.92));box-shadow:0 0 0 1.5px #c9a656,0 0 0 4px rgba(16,12,10,.45),0 4px 10px rgba(0,0,0,.4)';
+    b.addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); b.style.transform = 'scale(.92)'; cast(i); });
+    const up = () => { b.style.transform = ''; };
+    b.addEventListener('pointerup', up); b.addEventListener('pointerleave', up); b.addEventListener('pointercancel', up);
+    bar.appendChild(b);
+  });
+  document.body.appendChild(bar);
+  demo.btnBar = bar;
   const hud = document.createElement('div');
   hud.style.cssText = 'position:fixed;left:4px;top:4px;z-index:11;pointer-events:none;font:11px monospace;color:#fff;background:#000a;padding:2px 5px;white-space:pre';
   document.body.appendChild(hud);
@@ -34,7 +48,7 @@ export function setupFxDemo(scene) {
     const s = fx.stats();
     hud.textContent = `FPS ${Math.round(scene.game.loop.actualFps)}  fx: active ${s.active} hat ${s.particles} obj ${s.objects}${demo.looping ? '  [R: lap]' : ''}`;
   } });
-  scene.events.once('shutdown', () => { t.remove(); hud.remove(); demo.setLoop(false); });
+  scene.events.once('shutdown', () => { t.remove(); hud.remove(); bar.remove(); demo.setLoop(false); });
   window.__fxdemo = demo; window.__fx = fx;
   return demo;
 }
