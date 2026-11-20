@@ -1,0 +1,16 @@
+{ "id": "thanh-lien-td", "ramp": "moc", "duration": 2500, "ultimate": false,
+  "tracks": [
+    { "at": 0, "type": "anim", "atlas": "thanhlien-td-floor", "anim": "thanhlien-td-floor", "layer": "ground", "blend": "normal" },
+    { "at": 0, "type": "anim", "atlas": "thanhlien-td-back", "anim": "thanhlien-td-back", "layer": "behind", "blend": "normal" },
+    { "at": 0, "type": "anim", "atlas": "thanhlien-td-front", "anim": "thanhlien-td-front", "layer": "front", "blend": "normal" },
+    { "at": 300, "type": "light", "rx": 50, "ry": 25, "power": 0.8, "dur": 1420, "ease": "Quad.easeIn", "color": "#24d9a1", "alpha": [0, 0.5, 1] },
+    { "at": 1720, "type": "light", "rx": 50, "ry": 25, "power": 0.9, "dur": 580, "ease": "Quad.easeOut", "color": "#24d9a1", "alpha": [1, 0.45, 0] },
+    { "at": 980, "type": "light", "rx": 50, "ry": 25, "power": 0.5, "dur": 160, "color": "#7afbc6", "alpha": [0, 1, 0] },
+    { "at": 1160, "type": "light", "rx": 50, "ry": 25, "power": 0.5, "dur": 160, "color": "#7afbc6", "alpha": [0, 1, 0] },
+    { "at": 300, "type": "shake", "dur": 120, "intensity": 0.0015 },
+    { "at": 1720, "type": "shake", "dur": 200, "intensity": 0.004 },
+    { "at": 1720, "type": "hitstop", "dur": 50 },
+    { "at": 1720, "type": "emitter", "tex": "fx_px2", "dur": 0, "blend": "add", "y": -50, "color": ["#caffed", "#7afbc6", "#24d9a1"],
+      "config": { "frequency": -1, "quantity": 26, "x": { "min": -14, "max": 14 }, "speed": { "min": 30, "max": 110 }, "angle": { "min": 0, "max": 360 }, "lifespan": { "min": 450, "max": 900 }, "gravityY": 90, "alpha": { "start": 1, "end": 0 } } },
+    { "at": 1720, "type": "event", "name": "hit" }
+  ] }

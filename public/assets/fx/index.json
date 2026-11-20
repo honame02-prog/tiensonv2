@@ -61,6 +61,66 @@
    "source": "di-hoa/cot-linh-td"
   },
   {
+   "key": "thanhlien-td-back",
+   "image": "thanhlien-td-back.png",
+   "json": "thanhlien-td-back.json",
+   "tags": [
+    "thanhlien-td-back"
+   ],
+   "fps": 30,
+   "frames": 76,
+   "loop": false,
+   "size": [
+    246,
+    1890
+   ],
+   "pivot": [
+    112,
+    146
+   ],
+   "source": "di-hoa/thanh-lien-td"
+  },
+  {
+   "key": "thanhlien-td-floor",
+   "image": "thanhlien-td-floor.png",
+   "json": "thanhlien-td-floor.json",
+   "tags": [
+    "thanhlien-td-floor"
+   ],
+   "fps": 30,
+   "frames": 76,
+   "loop": false,
+   "size": [
+    1020,
+    710
+   ],
+   "pivot": [
+    112,
+    146
+   ],
+   "source": "di-hoa/thanh-lien-td"
+  },
+  {
+   "key": "thanhlien-td-front",
+   "image": "thanhlien-td-front.png",
+   "json": "thanhlien-td-front.json",
+   "tags": [
+    "thanhlien-td-front"
+   ],
+   "fps": 30,
+   "frames": 76,
+   "loop": false,
+   "size": [
+    992,
+    438
+   ],
+   "pivot": [
+    112,
+    146
+   ],
+   "source": "di-hoa/thanh-lien-td"
+  },
+  {
    "key": "vocab-strike",
    "image": "vocab-strike.png",
    "json": "vocab-strike.json",

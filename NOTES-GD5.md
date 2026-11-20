@@ -18,3 +18,11 @@
 - Nguyen nhan lech: cue 1-5 truoc day dat o diem cach hero 36 px / chan hero; atlas vocab-strike co pivot = chan nguoi ra don, vu no cach pivot ~(+57, -25) nen lech phai ~57 px.
 - Cach tong quat: atlas JSON co `meta.impact {x,y}` (px nguon; xuat bang `phaser-atlas.mjs ... --impact 101,75`; vocab-strike da them tay cung gia tri, khong doi PNG); track anim trong cue dat `"anchor": "impact"` thi FxPlayer lay origin = impact/sourceSize (originX/originY trong cue van uu tien nhat; khong co anchor hoac khong co impact thi dung pivot nhu cu).
 - Test: `npm run build` roi `node tools/center_test.mjs` (preview cong 8098; do lech x tam chieu so voi nom <= 2 px, anh shots/center_1..6.png); `node tools/center_measure.mjs` in toa do tho. gd4_test sua 2 dong (origin = impact, vi tri = than nom) theo hanh vi moi.
+
+## GD6: Thanh Lien Dia Tam Hoa top-down (phim 7)
+- Cue `src/fx/cues/thanh-lien-td.json` (2,5 s): 3 track anim at=0 (atlas `thanhlien-td-floor|back|front`, layer `ground|behind|front`), light ADD luc 0,30 -> 1,72 -> 2,30 (rx 50, ry 25; mau hex dai thanhlien, khong dung ramp), nhap 0,98 / 1,16, shake 0,30 va 1,72, hitstop 50 ms 1,72, emitter tan lua 1,72, event `hit` 1,72. Khong co track tint.
+- Xuat atlas (repo skillfx): `node tools/phaser-atlas.mjs di-hoa/thanh-lien-td --out ../tiensonv2/public/assets/fx --name thanhlien-td-<part> --opts '{"part":"<part>"}'` (floor, back, front). 76 khung moi atlas; pivot (112,146) / sourceSize 224x200. PNG: floor 1020x710 (86851 B), back 246x1890 (49481 B), front 992x438 (41140 B).
+- Bang mau: them dai `thanhlien` (7 mau ngoc bich #031d29 #07545b #0c9b88 #24d9a1 #7afbc6 #caffed #ffffff) vao `art/palette/tienson-fx.gpl` (va ban sao `tienson/art/palette/tienson-fx.gpl`, giong het). KHONG chay lai gpl_to_json (fx-palette.json giu nguyen), KHONG xuat lai cotlinh-td / vocab-strike (snap lai co the doi mau).
+- Kiem mau atlas: 398.726 pixel duc, 100,00 % thuoc dai thanhlien, 0 pixel thuoc dai moc (xanh co).
+- Test: `npm run build` roi `node tools/gd6_test.mjs` (cong 8097). Anh shots/gd6_bloom.png (~1,35 s), gd6_column.png (~1,95 s), gd6_fade.png (~2,4 s). Phim 7 / nut 7 = `__fxdemo.castTl()`.
+- FPS swiftshader luc nay ~48-50 (gd5_test cu cung ~48 luc do) do may ban, nguong 55 khong dat o ca hai test; khong do tren GPU that.
