@@ -1,0 +1,370 @@
+{
+ "frames": {
+  "pavilion": {
+   "frame": {
+    "x": 1,
+    "y": 1,
+    "w": 192,
+    "h": 232
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 192,
+    "h": 232
+   },
+   "sourceSize": {
+    "w": 192,
+    "h": 232
+   },
+   "duration": 100
+  },
+  "shrine": {
+   "frame": {
+    "x": 195,
+    "y": 1,
+    "w": 164,
+    "h": 195
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 164,
+    "h": 195
+   },
+   "sourceSize": {
+    "w": 164,
+    "h": 195
+   },
+   "duration": 100
+  },
+  "bamboo": {
+   "frame": {
+    "x": 361,
+    "y": 1,
+    "w": 69,
+    "h": 130
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 69,
+    "h": 130
+   },
+   "sourceSize": {
+    "w": 69,
+    "h": 130
+   },
+   "duration": 100
+  },
+  "bridge": {
+   "frame": {
+    "x": 1,
+    "y": 235,
+    "w": 164,
+    "h": 120
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 164,
+    "h": 120
+   },
+   "sourceSize": {
+    "w": 164,
+    "h": 120
+   },
+   "duration": 100
+  },
+  "pine": {
+   "frame": {
+    "x": 167,
+    "y": 235,
+    "w": 93,
+    "h": 120
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 93,
+    "h": 120
+   },
+   "sourceSize": {
+    "w": 93,
+    "h": 120
+   },
+   "duration": 100
+  },
+  "plum": {
+   "frame": {
+    "x": 262,
+    "y": 235,
+    "w": 83,
+    "h": 118
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 83,
+    "h": 118
+   },
+   "sourceSize": {
+    "w": 83,
+    "h": 118
+   },
+   "duration": 100
+  },
+  "koi_pond": {
+   "frame": {
+    "x": 347,
+    "y": 235,
+    "w": 150,
+    "h": 95
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 150,
+    "h": 95
+   },
+   "sourceSize": {
+    "w": 150,
+    "h": 95
+   },
+   "duration": 100
+  },
+  "lantern_post_teal": {
+   "frame": {
+    "x": 1,
+    "y": 357,
+    "w": 26,
+    "h": 62
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 26,
+    "h": 62
+   },
+   "sourceSize": {
+    "w": 26,
+    "h": 62
+   },
+   "duration": 100
+  },
+  "lantern_post_white": {
+   "frame": {
+    "x": 29,
+    "y": 357,
+    "w": 26,
+    "h": 62
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 26,
+    "h": 62
+   },
+   "sourceSize": {
+    "w": 26,
+    "h": 62
+   },
+   "duration": 100
+  },
+  "rock_a": {
+   "frame": {
+    "x": 57,
+    "y": 357,
+    "w": 56,
+    "h": 52
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 56,
+    "h": 52
+   },
+   "sourceSize": {
+    "w": 56,
+    "h": 52
+   },
+   "duration": 100
+  },
+  "stone_lantern": {
+   "frame": {
+    "x": 115,
+    "y": 357,
+    "w": 25,
+    "h": 50
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 25,
+    "h": 50
+   },
+   "sourceSize": {
+    "w": 25,
+    "h": 50
+   },
+   "duration": 100
+  },
+  "rock_d": {
+   "frame": {
+    "x": 142,
+    "y": 357,
+    "w": 42,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 42,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 42,
+    "h": 48
+   },
+   "duration": 100
+  },
+  "incense": {
+   "frame": {
+    "x": 186,
+    "y": 357,
+    "w": 38,
+    "h": 45
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 38,
+    "h": 45
+   },
+   "sourceSize": {
+    "w": 38,
+    "h": 45
+   },
+   "duration": 100
+  },
+  "rock_b": {
+   "frame": {
+    "x": 226,
+    "y": 357,
+    "w": 42,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 42,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 42,
+    "h": 36
+   },
+   "duration": 100
+  },
+  "rock_c": {
+   "frame": {
+    "x": 270,
+    "y": 357,
+    "w": 38,
+    "h": 31
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 38,
+    "h": 31
+   },
+   "sourceSize": {
+    "w": 38,
+    "h": 31
+   },
+   "duration": 100
+  },
+  "paper_teal": {
+   "frame": {
+    "x": 310,
+    "y": 357,
+    "w": 9,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 9,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 9,
+    "h": 24
+   },
+   "duration": 100
+  },
+  "paper_white": {
+   "frame": {
+    "x": 321,
+    "y": 357,
+    "w": 8,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 8,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 8,
+    "h": 24
+   },
+   "duration": 100
+  }
+ },
+ "meta": {
+  "app": "tools/make_props.py shelf packer",
+  "image": "props.png",
+  "size": {
+   "w": 512,
+   "h": 420
+  },
+  "scale": "1"
+ }
+}
