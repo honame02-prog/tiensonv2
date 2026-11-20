@@ -40,6 +40,10 @@ export class AreaScene extends Phaser.Scene {
     this.load.once('filecomplete-json-' + key, () => {
       const ar = this.cache.json.get(key);
       this.load.image('ground:' + id, ar.ground);
+      for (const a of ar.atlases || []) {   // goi tai nguyen kem theo khu (vd cliff, forest): atlas + bang kich thuoc/foot
+        this.load.atlas(a, `assets/${a}/${a}_atlas.png`, `assets/${a}/${a}_atlas.json`);
+        this.load.json('spr:' + a, `assets/${a}/${a}_sprites.json`);
+      }
       if (ar.backdrop === 'sect') { this.load.image('peaks', A + 'bg_peaks.png'); this.load.image('cloudBack', A + 'bg_cloud_back.png'); }
     });
     this.load.json('sspr', A + 'sect_sprites.json');
@@ -73,7 +77,15 @@ export class AreaScene extends Phaser.Scene {
     this.interactables = []; this.foliage = []; this.lanterns = []; this.ferns = [];
     this.makeAnims();
     for (const p of meta.props || []) {
-      const k = p.key, m = SP.sprites[k], x = Math.round(p.x), y = Math.round(p.y);
+      const k = p.key, x = Math.round(p.x), y = Math.round(p.y), ci = k.indexOf(':');
+      if (ci > 0) {   // khoa dang "atlas:frame" (vd cliff:cliff_n_0, forest:canopy_2): kich thuoc/foot tu <atlas>_sprites.json, pivot giua mep duoi
+        const at = k.slice(0, ci), fr = k.slice(ci + 1), sm = this.cache.json.get('spr:' + at)?.sprites?.[fr];
+        if (!sm) throw new Error('khong co sprite ' + k);
+        this.add.image(x - Math.round(sm.w / 2), y - sm.h, at, fr).setOrigin(0).setDepth(sm.role === 'ground-decoration' ? y - sm.h - 10 : y);
+        if (sm.foot && sm.foot[0] > 0 && sm.foot[1] > 0) solid(x, y - sm.foot[1] / 2, sm.foot[0], sm.foot[1]);
+        continue;
+      }
+      const m = SP.sprites[k];
       const left = x - Math.round(m.w / 2), top = y - m.h;
       if (k === 'hall') {
         this.add.image(left, top, 'sect', 'hall_base').setOrigin(0).setDepth(y);
@@ -180,6 +192,7 @@ export class AreaScene extends Phaser.Scene {
     if (this.textures.exists('nightmask')) this.textures.remove('nightmask');
     // nen + du lieu cua khu nay: bo khoi cache (lan vao sau se nap lai) de texture khong tich luy qua cac khu
     if (this.textures.exists('ground:' + this.areaId)) this.textures.remove('ground:' + this.areaId);
+    for (const a of this.meta?.atlases || []) { if (this.textures.exists(a)) this.textures.remove(a); this.cache.json.remove('spr:' + a); }
     this.cache.json.remove('area:' + this.areaId);
   }
 

@@ -2,6 +2,7 @@
 // node tools/area_bake.mjs tools/areas/<id>.src.json   ->  public/assets/areas/<id>/ground.png + area.json
 // Cach dung va dinh dang: NOTES-AREA.md. Chat lieu = mau cat tu assets/sect/ground_bake.png (tools/area_materials.json).
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { dirname } from 'node:path';
 import { createHash } from 'node:crypto';
 import { decodePng, encodePng } from './png.mjs';
 import { formatArea } from './area_common.mjs';
@@ -50,12 +51,21 @@ function buildMaterial(name) {
       const p = lo / sorted.length * (K - 1), k0 = Math.floor(p), k1 = Math.min(K - 1, k0 + 1), f = p - k0;
       for (let c = 0; c < 3; c++) t.data[i * 4 + c] = Math.round(ramp[k0][c] * (1 - f) + ramp[k1][c] * f); t.data[i * 4 + 3] = 255;
     }
+  } else if (d.type === 'terrain') {   // bo o lat lien 128 px (public/assets/terrain): chon bien the theo hash(o, seed), wrap modulo, KHONG lat guong
+    const tj = JSON.parse(readFileSync(d.src || 'public/assets/terrain/terrain.json', 'utf8')), files = tj.materials[d.set]; if (!files) throw new Error('terrain khong co bo ' + d.set);
+    const T = tj.tile || 128, tiles = files.map(f => { const im = decodePng(`${dirname(d.src || 'public/assets/terrain/terrain.json')}/${f}`); if (im.w !== T || im.h !== T) throw new Error(`o ${f} khong phai ${T}x${T}`);
+      for (let i = 0; i < T * T; i++) if (im.data[i * 4 + 3] < 255) throw new Error(`o ${f} co pixel trong suot`); return im.data; });
+    t = { w: T, h: T, tiles, data: tiles[0] };
   } else throw new Error('type chat lieu la: ' + d.type);
   t.id = MAT_NAMES.length; MAT_NAMES.push(name); return (MATS[name] = t);
 }
 const mirror = (v, n) => { v = ((v % (2 * n)) + 2 * n) % (2 * n); return v < n ? v : 2 * n - 1 - v; };
 // lay mau chat lieu tai (x,y): lat guong; tron 2 lop lech nhau theo nhieu thap tan (dither) de giau duong nen/doi xung
 function matPix(m, x, y, out) {
+  if (m.tiles) {   // terrain: o 128 px lien, bien the theo hash(o, seed), wrap modulo
+    const T = m.w, tx = Math.floor(x / T), ty = Math.floor(y / T), a = (((y % T) + T) % T * T + ((x % T) + T) % T) * 4, td = m.tiles[Math.floor(hash(tx, ty, SEED * 31 + m.id * 7 + 11) * m.tiles.length)];
+    out[0] = td[a]; out[1] = td[a + 1]; out[2] = td[a + 2]; return;
+  }
   const n = vnoise(x / 56, y / 56, 77 + m.id) + (hash(x, y, 5 + m.id) - 0.5) * 0.2;
   const L = n > 0.5 ? 1 : 0, ox = L ? Math.floor(m.w * 0.43) : 0, oy = L ? Math.floor(m.h * 0.37) : 0;
   const a = (mirror(y + oy, m.h) * m.w + mirror(x + ox, m.w)) * 4;
@@ -160,10 +170,10 @@ for (const s of B.scatter || []) {
     if (s.in?.poly && !inPoly(s.in.poly, x, y)) continue;
     if ((s.keepClear || []).some(([cx, cy, rr]) => Math.hypot(x - cx, y - cy) < rr)) continue;
     if (avoidSd.some(([f, dist]) => f(x, y) < dist)) continue;
-    if (placed.some(q => Math.hypot(x - q.x, y - q.y) < Math.max(minD, q.r))) continue;
+    if (placed.some(q => Math.hypot(x - q.x, y - q.y) < (s.soft ? minD : Math.max(minD, q.r)))) continue;   // soft: do vat nho, chi tranh tam vat khac trong minDist cua chinh no
     const key = s.keys[Math.floor(R() * s.keys.length)];
     if (s.kind === 'decal') objs.push({ name: key, x, y }); else props.push({ key, x, y });
-    placed.push({ x, y, r: s.kind === 'decal' ? minD * 0.6 : minD }); got++;
+    placed.push({ x, y, r: s.kind === 'decal' ? minD * 0.6 : s.soft ? 0 : minD }); got++;
   }
   if (got < want) console.warn(`  canh bao: scatter ${s.keys.join('/')} chi dat ${got}/${want}`);
 }
@@ -174,7 +184,7 @@ const A = src.area, outDir = `public/assets/areas/${A.id}`;
 mkdirSync(outDir, { recursive: true });
 const png = encodePng({ w: W, h: H, data: img }, `${outDir}/ground.png`);
 const area = { ...A, ground: `assets/areas/${A.id}/ground.png`, width: W, height: H, baked: true, walls: [], stairs: [], col, objs, props };
-const order = ['id', 'name', 'sub', 'ground', 'backdrop', 'bg', 'width', 'height', 'baked', 'spawns', 'portals', 'features', 'exits', 'texts', 'walls', 'stairs', 'col', 'objs', 'props'];
+const order = ['id', 'name', 'sub', 'ground', 'backdrop', 'bg', 'atlases', 'width', 'height', 'baked', 'spawns', 'portals', 'features', 'exits', 'texts', 'walls', 'stairs', 'col', 'objs', 'props'];
 const ordered = {}; for (const k of order) if (area[k] !== undefined) ordered[k] = area[k]; for (const k of Object.keys(area)) if (!(k in ordered)) ordered[k] = area[k];
 const json = formatArea(ordered); writeFileSync(`${outDir}/area.json`, json);
 const md5 = s => createHash('md5').update(s).digest('hex').slice(0, 12);

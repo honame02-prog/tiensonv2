@@ -2,10 +2,13 @@
  "source": "public/assets/sect/ground_bake.png",
  "ghi_chu": "Mau cat tu anh nen Huyen Van Quan (toa do pixel [x,y,w,h]). Chon vung dong nhat: khong co mep tuong/bac/sinh, khong co pixel trong suot. Bake lat guong + tron 2 lop lech de giau duong noi. Dat: anh goc chi co mang dat nho -> 'recolor' = do sang cua co (tile 'grass') anh xa len bang mau lay tu mang dat that (vung palette).",
  "materials": {
-  "grass":  { "type": "tile", "rect": [140, 24, 148, 260], "ghi_chu": "co reu vung tren-trai (x140-288, y24-284), cach mep vach da va mep nui >= 6 px" },
-  "cobble": { "type": "tile", "rect": [330, 40, 340, 240], "ghi_chu": "da lat san tren (x330-670, y40-280), tranh vet do o dinh (y<20) va mep" },
-  "slab":   { "type": "tile", "rect": [458, 380, 76, 330], "ghi_chu": "dai da phien giua san (x458-534, y380-710), giua hai thanh thang" },
-  "forest": { "type": "shade", "base": "grass", "mul": [0.66, 0.74, 0.7], "ghi_chu": "co toi duoi tan rung (co nhan 0.66/0.74/0.70)" },
-  "dirt":   { "type": "recolor", "base": "grass", "palette": [[268, 988, 22, 12], [258, 1004, 14, 10]], "ghi_chu": "dat nau: mang dat that o goc duoi-trai nen (x246-306, y978-1023)" }
+  "grass": {"type": "terrain", "set": "grass", "src": "public/assets/terrain/terrain.json", "ghi_chu": "o lat lien 128 px (khong lat guong), chon bien the theo hash(o, seed), wrap modulo"},
+  "forest": {"type": "terrain", "set": "forest", "src": "public/assets/terrain/terrain.json", "ghi_chu": "nhu grass, bo forest"},
+  "dirt": {"type": "terrain", "set": "dirt", "src": "public/assets/terrain/terrain.json", "ghi_chu": "nhu grass, bo dirt"},
+  "cobble": {"type": "tile", "rect": [330, 40, 340, 240], "ghi_chu": "da lat san tren (x330-670, y40-280), tranh vet do o dinh (y<20) va mep"},
+  "slab": {"type": "tile", "rect": [458, 380, 76, 330], "ghi_chu": "dai da phien giua san (x458-534, y380-710), giua hai thanh thang"},
+  "grass_mirror": {"type": "tile", "rect": [140, 24, 148, 260], "ghi_chu": "ban cu (lat guong) cua grass; forest_shade/dirt_recolor dua tren no. Khong khu nao dung neu khong goi ten"},
+  "forest_shade": {"type": "terrain", "set": "forest", "src": "public/assets/terrain/terrain.json", "ghi_chu": "o lat lien 128 (khong lat guong), chon bien the theo hash(o, seed)", "base": "grass_mirror"},
+  "dirt_recolor": {"type": "recolor", "base": "grass_mirror", "palette": [[268, 988, 22, 12], [258, 1004, 14, 10]], "ghi_chu": "dat nau: mang dat that o goc duoi-trai nen (x246-306, y978-1023)"}
  }
 }
