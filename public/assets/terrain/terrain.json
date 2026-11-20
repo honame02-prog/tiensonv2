@@ -1,0 +1,45 @@
+{
+  "tile": 128,
+  "version": 2,
+  "method": "source-pixel minimum-error quilting; toroidal overlap; shared outer 8px",
+  "sources": {
+    "grass": [
+      140,
+      24,
+      148,
+      260
+    ],
+    "dirt": [
+      246,
+      978,
+      60,
+      45
+    ]
+  },
+  "materials": {
+    "grass": [
+      "grass_0.png",
+      "grass_1.png",
+      "grass_2.png",
+      "grass_3.png"
+    ],
+    "forest": [
+      "forest_0.png",
+      "forest_1.png",
+      "forest_2.png",
+      "forest_3.png"
+    ],
+    "dirt": [
+      "dirt_0.png",
+      "dirt_1.png",
+      "dirt_2.png",
+      "dirt_3.png"
+    ],
+    "gravel": [
+      "gravel_0.png",
+      "gravel_1.png",
+      "gravel_2.png",
+      "gravel_3.png"
+    ]
+  }
+}
