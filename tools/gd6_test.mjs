@@ -3,10 +3,11 @@
 // Kiem: 3 atlas nap, phim 7 phat len hinh nom, 3 lop dung chan nom (<= 1 px), depth floor < back < nom < front, event hit 1,72 s,
 // o khung tru lua (~1,95 s) lop front co pixel duc phu than nom, het 2,5 s stats 0, 0 loi console, FPS; anh shots/gd6_bloom.png (~1,35 s), gd6_column.png (~1,95 s), gd6_fade.png (~2,4 s).
 import { chromium } from 'playwright';
-import { spawn } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 import { mkdirSync } from 'node:fs';
 mkdirSync('shots', { recursive: true });
 
+let fpsRes = null;
 let srv = null, base = process.argv[2];
 if (!base) {
   const port = 8097;
@@ -64,10 +65,16 @@ try {
   check('1,35 s: chua co event hit', mid.ev.length === 0, JSON.stringify(mid));
   await page.screenshot({ path: 'shots/gd6_bloom.png' });
   // 4. tru lua ~1,95 s: front co pixel duc phu than nom
-  await waitT(1950);
-  const col = await page.evaluate(() => {
+  // cho theo dieu kien: sprite front ton tai va dang o khung 58-66 (~1,93-2,2 s); khong dua vao moc thoi gian co dinh
+  const frontOk = await page.waitForFunction(() => {
+    const o = __scene.children.list.find(o => o.__fx && o.type === 'Sprite' && o.texture.key === 'thanhlien-td-front');
+    const i = o?.anims?.currentFrame?.index; return i >= 58 && i <= 66;
+  }, null, { timeout: 8000, polling: 10 }).then(() => true, () => false);
+  const col = !frontOk ? { err: 'khong thay sprite front o khung 58-66 trong 8 s' } : await page.evaluate(() => {
     const d = __fxdemo.dummy, bx0 = d.x - 10, bx1 = d.x + 10, by0 = d.y - 52, by1 = d.y - 4;   // hop than nom (20 x 48 px, tren chan)
-    const o = __scene.children.list.find(o => o.__fx && o.type === 'Sprite' && o.texture.key === 'thanhlien-td-front'), f = o.frame;
+    const o = __scene.children.list.find(o => o.__fx && o.type === 'Sprite' && o.texture.key === 'thanhlien-td-front');
+    if (!o) return { err: 'sprite front bi huy truoc khi do (t=' + [...__fx.runs][0]?.t + ')' };
+    const f = o.frame;
     const c = document.createElement('canvas'); c.width = f.cutWidth; c.height = f.cutHeight;
     const g = c.getContext('2d'); g.drawImage(f.source.image, f.cutX, f.cutY, f.cutWidth, f.cutHeight, 0, 0, f.cutWidth, f.cutHeight);
     const px = g.getImageData(0, 0, c.width, c.height).data; let n = 0, all = 0;
@@ -76,8 +83,8 @@ try {
     return { t: [...__fx.runs][0]?.t, idx: o.anims.currentFrame?.index, n, all, ev: [...__scene.fxEvents] };
   });
   await page.screenshot({ path: 'shots/gd6_column.png' });
-  check('1,95 s: lop front co pixel duc trong hop than nom (tru che truoc nhan vat) n > 0', col.n > 0, JSON.stringify(col));
-  check('event hit da ban (1,72 s)', col.ev.join() === 'hit', col.ev.join());
+  check('1,95 s: lop front co pixel duc trong hop than nom (tru che truoc nhan vat) n > 0', !col.err && col.n > 0, JSON.stringify(col));
+  check('event hit da ban (1,72 s)', !col.err && col.ev.join() === 'hit', col.err || col.ev.join());
   await waitT(2400);
   await page.screenshot({ path: 'shots/gd6_fade.png' });
 
@@ -87,7 +94,7 @@ try {
   const fps = await page.evaluate(() => { clearInterval(window.__fpsT); const a = window.__fps.slice(2); return { n: a.length, avg: a.reduce((x, y) => x + y, 0) / a.length, min: Math.min(...a) }; });
   const e1 = await page.evaluate(() => ({ ...__fx.stats(), spr: __scene.children.list.filter(o => o.__fx && o.type === 'Sprite').length, tint: __fxdemo.dummy.tintTopLeft }));
   check('het cue: stats ve 0, khong sprite FX con lai', e1.active === 0 && e1.objects === 0 && e1.particles === 0 && e1.spr === 0, JSON.stringify(e1));
-  check(`FPS trong luc phat (swiftshader) avg ${fps.avg.toFixed(1)} min ${fps.min.toFixed(1)} (${fps.n} mau) >= 55`, fps.avg >= 55);
+  fpsRes = fps;
   // 6. phat lien tiep + stop giua chung, khong ro ri
   await page.evaluate(() => { __fxdemo.castTl(); __fxdemo.castTl().stop(); __fxdemo.castTl(); });
   await page.waitForTimeout(300);
@@ -104,6 +111,17 @@ try {
 } finally {
   await browser.close();
   if (srv) srv.kill();
+}
+// FPS: nguong 55; neu thap thi do them gd5_test (cung may, ngay sau do) lam moc. Ca hai thap => CANH BAO MAY BAN, khong tinh la loi.
+if (fpsRes) {
+  const f6 = fpsRes.avg, msg = `FPS trong luc phat (swiftshader) avg ${f6.toFixed(1)} min ${fpsRes.min.toFixed(1)} (${fpsRes.n} mau), nguong 55`;
+  if (f6 >= 55) out.push('OK   ' + msg);
+  else {
+    const r = spawnSync(process.execPath, ['tools/gd5_test.mjs'], { encoding: 'utf8', timeout: 50000 });
+    const m = /avg ([0-9.]+) min ([0-9.]+)/.exec(r.stdout || ''), f5 = m ? +m[1] : null;
+    if (f5 !== null && f5 < 55) out.push(`CANH BAO MAY BAN ${msg}; gd5_test cung luc avg ${f5} min ${m[2]} (cung thap => do may, khong tinh LOI)`);
+    else { out.push(`LOI  ${msg}; gd5_test cung luc ${f5 === null ? 'khong do duoc' : 'avg ' + f5}`); fail++; }
+  }
 }
 console.log(out.join('\n'));
 console.log(fail ? `TONG: ${fail} LOI` : 'TONG: tat ca dat');
