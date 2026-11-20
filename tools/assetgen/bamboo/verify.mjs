@@ -1,0 +1,14 @@
+import assert from 'node:assert/strict';
+import { execFileSync } from 'node:child_process';
+import { readFileSync,readdirSync,writeFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { fileURLToPath } from 'node:url';
+import path from 'node:path';
+const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'../../..');
+const hash=()=>Object.fromEntries(['public/assets/bamboo','records/assetgen/bamboo'].flatMap(dir=>readdirSync(path.join(root,dir)).filter(n=>n!=='verify.json').sort().map(n=>[`${dir}/${n}`,createHash('md5').update(readFileSync(path.join(root,dir,n))).digest('hex')])));
+const run=script=>process.stdout.write(execFileSync(process.execPath,[`tools/assetgen/bamboo/${script}.mjs`],{cwd:root,encoding:'utf8',timeout:60000}));
+run('gen');const first=hash();run('gen');const second=hash();assert.deepEqual(second,first,'non-deterministic output');
+for(const [file,md5]of Object.entries(first))console.log(`MD5 ${file} run1=${md5} run2=${second[file]}`);
+run('check');
+writeFileSync(path.join(root,'records/assetgen/bamboo/verify.json'),JSON.stringify({first,second,identical:true},null,2)+'\n','utf8');
+console.log(`PASS reproducibility files=${Object.keys(first).length} md5_identical=true`);

@@ -1,0 +1,188 @@
+{
+  "sprites": {
+    "fence_bamboo_h_0": {
+      "w": 64,
+      "h": 28,
+      "foot": [
+        64,
+        5
+      ],
+      "pivot": [
+        0.5,
+        1
+      ],
+      "role": "prop"
+    },
+    "fence_bamboo_h_1": {
+      "w": 64,
+      "h": 28,
+      "foot": [
+        64,
+        5
+      ],
+      "pivot": [
+        0.5,
+        1
+      ],
+      "role": "prop"
+    },
+    "fence_bamboo_post": {
+      "w": 7,
+      "h": 31,
+      "foot": [
+        5,
+        4
+      ],
+      "pivot": [
+        0.5,
+        1
+      ],
+      "role": "prop"
+    },
+    "mossrock_0": {
+      "w": 27,
+      "h": 28,
+      "foot": [
+        17,
+        6
+      ],
+      "pivot": [
+        0.5,
+        1
+      ],
+      "role": "prop"
+    },
+    "mossrock_0_shadow": {
+      "w": 31,
+      "h": 8,
+      "foot": [
+        0,
+        0
+      ],
+      "pivot": [
+        0.5,
+        1
+      ],
+      "role": "ground-decal"
+    },
+    "mossrock_1": {
+      "w": 35,
+      "h": 36,
+      "foot": [
+        22,
+        6
+      ],
+      "pivot": [
+        0.5,
+        1
+      ],
+      "role": "prop"
+    },
+    "mossrock_1_shadow": {
+      "w": 39,
+      "h": 8,
+      "foot": [
+        0,
+        0
+      ],
+      "pivot": [
+        0.5,
+        1
+      ],
+      "role": "ground-decal"
+    },
+    "mossrock_2": {
+      "w": 22,
+      "h": 23,
+      "foot": [
+        14,
+        6
+      ],
+      "pivot": [
+        0.5,
+        1
+      ],
+      "role": "prop"
+    },
+    "mossrock_2_shadow": {
+      "w": 26,
+      "h": 8,
+      "foot": [
+        0,
+        0
+      ],
+      "pivot": [
+        0.5,
+        1
+      ],
+      "role": "ground-decal"
+    },
+    "stone_path_0": {
+      "w": 47,
+      "h": 35,
+      "foot": [
+        0,
+        0
+      ],
+      "pivot": [
+        0.5,
+        1
+      ],
+      "role": "ground-decal"
+    },
+    "stone_path_1": {
+      "w": 47,
+      "h": 35,
+      "foot": [
+        0,
+        0
+      ],
+      "pivot": [
+        0.5,
+        1
+      ],
+      "role": "ground-decal"
+    },
+    "stone_path_2": {
+      "w": 47,
+      "h": 35,
+      "foot": [
+        0,
+        0
+      ],
+      "pivot": [
+        0.5,
+        1
+      ],
+      "role": "ground-decal"
+    },
+    "stone_path_3": {
+      "w": 47,
+      "h": 35,
+      "foot": [
+        0,
+        0
+      ],
+      "pivot": [
+        0.5,
+        1
+      ],
+      "role": "ground-decal"
+    }
+  },
+  "layers": {},
+  "version": 1,
+  "sources": [
+    "terrain/forest_0..3",
+    "sect/rock_a",
+    "sect/fern_a"
+  ],
+  "placement": {
+    "flipX": false,
+    "shadowOffset": [
+      3,
+      1
+    ],
+    "shadowDepth": "ground; separate shadow frames"
+  }
+}

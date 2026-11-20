@@ -1,0 +1,65 @@
+{
+  "hashes": {
+    "dirt_0.png": "498e4062c165f99a8c047ca6ab616bfc",
+    "dirt_1.png": "52a3feaa981166ec7fe526487d9416cf",
+    "dirt_2.png": "b75368704296e924d1498fa541c57995",
+    "dirt_3.png": "0d06ce4ae33eeb7de26a9fe17156a2f4",
+    "forest_0.png": "0dea841de563a53160c9efb4efa2436f",
+    "forest_1.png": "b0dad8c69276a18ae285a11997d76e2a",
+    "forest_2.png": "83d733245304a2d03392c28ac2305a26",
+    "forest_3.png": "73fcad1ed63e67f31a4d49cc60d5bdfa",
+    "grass_0.png": "fe74aecb52f7ea47f42eaaec2804b0bd",
+    "grass_1.png": "9d90e67e78f7a7717f55f590a65f56d4",
+    "grass_2.png": "4e16e7654cebc09d5519ead5757429f6",
+    "grass_3.png": "dc4d3f9ede1e02fae832e21cdcb668f7",
+    "gravel_0.png": "6b6bbf5c05c20f356d5c40815d019da0",
+    "gravel_1.png": "f1ca03ed6d75ee5f0e48eca7d97e6654",
+    "gravel_2.png": "41f60d67f7af40c3fc957f88f04e7c85",
+    "gravel_3.png": "a533d2f2fab2876ab8e3e43e883773c0"
+  },
+  "terrain": {
+    "tile": 128,
+    "version": 2,
+    "method": "source-pixel minimum-error quilting; toroidal overlap; shared outer 8px",
+    "sources": {
+      "grass": [
+        140,
+        24,
+        148,
+        260
+      ],
+      "dirt": [
+        246,
+        978,
+        60,
+        45
+      ]
+    },
+    "materials": {
+      "grass": [
+        "grass_0.png",
+        "grass_1.png",
+        "grass_2.png",
+        "grass_3.png"
+      ],
+      "forest": [
+        "forest_0.png",
+        "forest_1.png",
+        "forest_2.png",
+        "forest_3.png"
+      ],
+      "dirt": [
+        "dirt_0.png",
+        "dirt_1.png",
+        "dirt_2.png",
+        "dirt_3.png"
+      ],
+      "gravel": [
+        "gravel_0.png",
+        "gravel_1.png",
+        "gravel_2.png",
+        "gravel_3.png"
+      ]
+    }
+  }
+}

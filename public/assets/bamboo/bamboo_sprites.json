@@ -1,0 +1,342 @@
+{
+  "sprites": {
+    "bamboo_stem_0": {
+      "w": 72,
+      "h": 114,
+      "foot": [
+        8,
+        6
+      ],
+      "pivot": [
+        0.5,
+        1
+      ],
+      "role": "base"
+    },
+    "bamboo_stem_1": {
+      "w": 80,
+      "h": 137,
+      "foot": [
+        10,
+        6
+      ],
+      "pivot": [
+        0.5,
+        1
+      ],
+      "role": "base"
+    },
+    "bamboo_stem_2": {
+      "w": 88,
+      "h": 126,
+      "foot": [
+        12,
+        6
+      ],
+      "pivot": [
+        0.5,
+        1
+      ],
+      "role": "base"
+    },
+    "bamboo_stem_3": {
+      "w": 72,
+      "h": 150,
+      "foot": [
+        14,
+        6
+      ],
+      "pivot": [
+        0.5,
+        1
+      ],
+      "role": "base"
+    },
+    "bamboo_stem_4": {
+      "w": 80,
+      "h": 121,
+      "foot": [
+        8,
+        6
+      ],
+      "pivot": [
+        0.5,
+        1
+      ],
+      "role": "base"
+    },
+    "bamboo_stem_5": {
+      "w": 88,
+      "h": 143,
+      "foot": [
+        10,
+        6
+      ],
+      "pivot": [
+        0.5,
+        1
+      ],
+      "role": "base"
+    },
+    "bamboo_leaf_0": {
+      "w": 60,
+      "h": 45,
+      "foot": [
+        0,
+        0
+      ],
+      "pivot": [
+        0.5,
+        1
+      ],
+      "role": "overhead"
+    },
+    "bamboo_leaf_1": {
+      "w": 61,
+      "h": 48,
+      "foot": [
+        0,
+        0
+      ],
+      "pivot": [
+        0.5,
+        1
+      ],
+      "role": "overhead"
+    },
+    "bamboo_leaf_2": {
+      "w": 55,
+      "h": 46,
+      "foot": [
+        0,
+        0
+      ],
+      "pivot": [
+        0.5,
+        1
+      ],
+      "role": "overhead"
+    },
+    "bamboo_leaf_3": {
+      "w": 64,
+      "h": 48,
+      "foot": [
+        0,
+        0
+      ],
+      "pivot": [
+        0.5,
+        1
+      ],
+      "role": "overhead"
+    },
+    "bamboo_leaf_4": {
+      "w": 62,
+      "h": 45,
+      "foot": [
+        0,
+        0
+      ],
+      "pivot": [
+        0.5,
+        1
+      ],
+      "role": "overhead"
+    },
+    "bamboo_leaf_5": {
+      "w": 61,
+      "h": 47,
+      "foot": [
+        0,
+        0
+      ],
+      "pivot": [
+        0.5,
+        1
+      ],
+      "role": "overhead"
+    },
+    "bamboo_clump_0": {
+      "w": 52,
+      "h": 40,
+      "foot": [
+        12,
+        6
+      ],
+      "pivot": [
+        0.5,
+        1
+      ],
+      "role": "base"
+    },
+    "bamboo_clump_1": {
+      "w": 50,
+      "h": 52,
+      "foot": [
+        12,
+        6
+      ],
+      "pivot": [
+        0.5,
+        1
+      ],
+      "role": "base"
+    },
+    "bamboo_clump_2": {
+      "w": 58,
+      "h": 64,
+      "foot": [
+        12,
+        6
+      ],
+      "pivot": [
+        0.5,
+        1
+      ],
+      "role": "base"
+    }
+  },
+  "layers": {
+    "bamboo_stem_0": {
+      "base": "bamboo_stem_0",
+      "clusters": [
+        {
+          "name": "bamboo_leaf_0",
+          "x": 6,
+          "y": 0,
+          "w": 60,
+          "h": 45,
+          "cy": 21.599999999999998
+        }
+      ]
+    },
+    "bamboo_stem_1": {
+      "base": "bamboo_stem_1",
+      "clusters": [
+        {
+          "name": "bamboo_leaf_1",
+          "x": 10,
+          "y": 0,
+          "w": 61,
+          "h": 48,
+          "cy": 23.04
+        }
+      ]
+    },
+    "bamboo_stem_2": {
+      "base": "bamboo_stem_2",
+      "clusters": [
+        {
+          "name": "bamboo_leaf_2",
+          "x": 17,
+          "y": 0,
+          "w": 55,
+          "h": 46,
+          "cy": 22.08
+        }
+      ]
+    },
+    "bamboo_stem_3": {
+      "base": "bamboo_stem_3",
+      "clusters": [
+        {
+          "name": "bamboo_leaf_3",
+          "x": 4,
+          "y": 0,
+          "w": 64,
+          "h": 48,
+          "cy": 23.04
+        }
+      ]
+    },
+    "bamboo_stem_4": {
+      "base": "bamboo_stem_4",
+      "clusters": [
+        {
+          "name": "bamboo_leaf_4",
+          "x": 9,
+          "y": 0,
+          "w": 62,
+          "h": 45,
+          "cy": 21.599999999999998
+        }
+      ]
+    },
+    "bamboo_stem_5": {
+      "base": "bamboo_stem_5",
+      "clusters": [
+        {
+          "name": "bamboo_leaf_5",
+          "x": 14,
+          "y": 0,
+          "w": 61,
+          "h": 47,
+          "cy": 22.56
+        }
+      ]
+    }
+  },
+  "palette": {
+    "bamboo": [
+      [
+        23,
+        34,
+        28
+      ],
+      [
+        38,
+        53,
+        43
+      ],
+      [
+        53,
+        68,
+        56
+      ],
+      [
+        70,
+        85,
+        68
+      ],
+      [
+        89,
+        104,
+        79
+      ],
+      [
+        113,
+        128,
+        100
+      ],
+      [
+        142,
+        154,
+        114
+      ]
+    ],
+    "dry": [
+      [
+        36,
+        36,
+        31
+      ],
+      [
+        57,
+        59,
+        48
+      ],
+      [
+        84,
+        84,
+        71
+      ],
+      [
+        112,
+        107,
+        85
+      ]
+    ]
+  },
+  "lighting": "upper-left",
+  "flipX": false
+}

@@ -1,0 +1,312 @@
+{
+  "frames": {
+    "bamboo_stem_0": {
+      "frame": {
+        "x": 2,
+        "y": 2,
+        "w": 72,
+        "h": 114
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 72,
+        "h": 114
+      },
+      "sourceSize": {
+        "w": 72,
+        "h": 114
+      }
+    },
+    "bamboo_stem_1": {
+      "frame": {
+        "x": 78,
+        "y": 2,
+        "w": 80,
+        "h": 137
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 80,
+        "h": 137
+      },
+      "sourceSize": {
+        "w": 80,
+        "h": 137
+      }
+    },
+    "bamboo_stem_2": {
+      "frame": {
+        "x": 162,
+        "y": 2,
+        "w": 88,
+        "h": 126
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 88,
+        "h": 126
+      },
+      "sourceSize": {
+        "w": 88,
+        "h": 126
+      }
+    },
+    "bamboo_stem_3": {
+      "frame": {
+        "x": 254,
+        "y": 2,
+        "w": 72,
+        "h": 150
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 72,
+        "h": 150
+      },
+      "sourceSize": {
+        "w": 72,
+        "h": 150
+      }
+    },
+    "bamboo_stem_4": {
+      "frame": {
+        "x": 330,
+        "y": 2,
+        "w": 80,
+        "h": 121
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 80,
+        "h": 121
+      },
+      "sourceSize": {
+        "w": 80,
+        "h": 121
+      }
+    },
+    "bamboo_stem_5": {
+      "frame": {
+        "x": 414,
+        "y": 2,
+        "w": 88,
+        "h": 143
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 88,
+        "h": 143
+      },
+      "sourceSize": {
+        "w": 88,
+        "h": 143
+      }
+    },
+    "bamboo_leaf_0": {
+      "frame": {
+        "x": 2,
+        "y": 156,
+        "w": 60,
+        "h": 45
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 60,
+        "h": 45
+      },
+      "sourceSize": {
+        "w": 60,
+        "h": 45
+      }
+    },
+    "bamboo_leaf_1": {
+      "frame": {
+        "x": 66,
+        "y": 156,
+        "w": 61,
+        "h": 48
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 61,
+        "h": 48
+      },
+      "sourceSize": {
+        "w": 61,
+        "h": 48
+      }
+    },
+    "bamboo_leaf_2": {
+      "frame": {
+        "x": 131,
+        "y": 156,
+        "w": 55,
+        "h": 46
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 55,
+        "h": 46
+      },
+      "sourceSize": {
+        "w": 55,
+        "h": 46
+      }
+    },
+    "bamboo_leaf_3": {
+      "frame": {
+        "x": 190,
+        "y": 156,
+        "w": 64,
+        "h": 48
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 48
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 48
+      }
+    },
+    "bamboo_leaf_4": {
+      "frame": {
+        "x": 258,
+        "y": 156,
+        "w": 62,
+        "h": 45
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 62,
+        "h": 45
+      },
+      "sourceSize": {
+        "w": 62,
+        "h": 45
+      }
+    },
+    "bamboo_leaf_5": {
+      "frame": {
+        "x": 324,
+        "y": 156,
+        "w": 61,
+        "h": 47
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 61,
+        "h": 47
+      },
+      "sourceSize": {
+        "w": 61,
+        "h": 47
+      }
+    },
+    "bamboo_clump_0": {
+      "frame": {
+        "x": 389,
+        "y": 156,
+        "w": 52,
+        "h": 40
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 52,
+        "h": 40
+      },
+      "sourceSize": {
+        "w": 52,
+        "h": 40
+      }
+    },
+    "bamboo_clump_1": {
+      "frame": {
+        "x": 445,
+        "y": 156,
+        "w": 50,
+        "h": 52
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 50,
+        "h": 52
+      },
+      "sourceSize": {
+        "w": 50,
+        "h": 52
+      }
+    },
+    "bamboo_clump_2": {
+      "frame": {
+        "x": 2,
+        "y": 212,
+        "w": 58,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 58,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 58,
+        "h": 64
+      }
+    }
+  },
+  "meta": {
+    "image": "bamboo_atlas.png",
+    "size": {
+      "w": 512,
+      "h": 512
+    },
+    "scale": "1"
+  }
+}

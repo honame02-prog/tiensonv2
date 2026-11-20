@@ -40,6 +40,7 @@
       "gravel_1.png",
       "gravel_2.png",
       "gravel_3.png"
-    ]
+    ],
+    "leaflitter": ["leaflitter_0.png","leaflitter_1.png","leaflitter_2.png","leaflitter_3.png"]
   }
 }

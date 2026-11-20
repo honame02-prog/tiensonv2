@@ -1,0 +1,272 @@
+{
+  "frames": {
+    "fence_bamboo_h_0": {
+      "frame": {
+        "x": 2,
+        "y": 2,
+        "w": 64,
+        "h": 28
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 28
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 28
+      }
+    },
+    "fence_bamboo_h_1": {
+      "frame": {
+        "x": 68,
+        "y": 2,
+        "w": 64,
+        "h": 28
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 28
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 28
+      }
+    },
+    "fence_bamboo_post": {
+      "frame": {
+        "x": 134,
+        "y": 2,
+        "w": 7,
+        "h": 31
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 7,
+        "h": 31
+      },
+      "sourceSize": {
+        "w": 7,
+        "h": 31
+      }
+    },
+    "mossrock_0": {
+      "frame": {
+        "x": 143,
+        "y": 2,
+        "w": 27,
+        "h": 28
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 27,
+        "h": 28
+      },
+      "sourceSize": {
+        "w": 27,
+        "h": 28
+      }
+    },
+    "mossrock_0_shadow": {
+      "frame": {
+        "x": 172,
+        "y": 2,
+        "w": 31,
+        "h": 8
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 31,
+        "h": 8
+      },
+      "sourceSize": {
+        "w": 31,
+        "h": 8
+      }
+    },
+    "mossrock_1": {
+      "frame": {
+        "x": 205,
+        "y": 2,
+        "w": 35,
+        "h": 36
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 35,
+        "h": 36
+      },
+      "sourceSize": {
+        "w": 35,
+        "h": 36
+      }
+    },
+    "mossrock_1_shadow": {
+      "frame": {
+        "x": 2,
+        "y": 40,
+        "w": 39,
+        "h": 8
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 39,
+        "h": 8
+      },
+      "sourceSize": {
+        "w": 39,
+        "h": 8
+      }
+    },
+    "mossrock_2": {
+      "frame": {
+        "x": 43,
+        "y": 40,
+        "w": 22,
+        "h": 23
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 22,
+        "h": 23
+      },
+      "sourceSize": {
+        "w": 22,
+        "h": 23
+      }
+    },
+    "mossrock_2_shadow": {
+      "frame": {
+        "x": 67,
+        "y": 40,
+        "w": 26,
+        "h": 8
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 26,
+        "h": 8
+      },
+      "sourceSize": {
+        "w": 26,
+        "h": 8
+      }
+    },
+    "stone_path_0": {
+      "frame": {
+        "x": 95,
+        "y": 40,
+        "w": 47,
+        "h": 35
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 47,
+        "h": 35
+      },
+      "sourceSize": {
+        "w": 47,
+        "h": 35
+      }
+    },
+    "stone_path_1": {
+      "frame": {
+        "x": 144,
+        "y": 40,
+        "w": 47,
+        "h": 35
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 47,
+        "h": 35
+      },
+      "sourceSize": {
+        "w": 47,
+        "h": 35
+      }
+    },
+    "stone_path_2": {
+      "frame": {
+        "x": 193,
+        "y": 40,
+        "w": 47,
+        "h": 35
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 47,
+        "h": 35
+      },
+      "sourceSize": {
+        "w": 47,
+        "h": 35
+      }
+    },
+    "stone_path_3": {
+      "frame": {
+        "x": 2,
+        "y": 77,
+        "w": 47,
+        "h": 35
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 47,
+        "h": 35
+      },
+      "sourceSize": {
+        "w": 47,
+        "h": 35
+      }
+    }
+  },
+  "meta": {
+    "image": "bamboofloor_atlas.png",
+    "size": {
+      "w": 256,
+      "h": 192
+    },
+    "scale": "1"
+  }
+}
