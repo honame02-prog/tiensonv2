@@ -1,0 +1,20 @@
+{ "id": "cot-linh-td", "ramp": "bang", "duration": 2500, "ultimate": false,
+  "tracks": [
+    { "at": 0, "type": "anim", "atlas": "cotlinh-td-floor", "anim": "cotlinh-td-floor", "layer": "ground", "blend": "normal" },
+    { "at": 0, "type": "anim", "atlas": "cotlinh-td-back", "anim": "cotlinh-td-back", "layer": "behind", "blend": "normal" },
+    { "at": 0, "type": "anim", "atlas": "cotlinh-td-front", "anim": "cotlinh-td-front", "layer": "front", "blend": "normal" },
+    { "at": 500, "type": "light", "rx": 44, "ry": 22, "power": 0.9, "dur": 600, "ease": "Quad.easeIn", "color": "glow", "alpha": [0, 1] },
+    { "at": 1100, "type": "light", "rx": 44, "ry": 22, "power": 0.9, "dur": 700, "ease": "Quad.easeOut", "color": "glow", "alpha": [1, 0.45, 0] },
+    { "at": 1300, "type": "light", "rx": 44, "ry": 22, "power": 0.5, "dur": 160, "color": "bang.4", "alpha": [0, 1, 0] },
+    { "at": 1520, "type": "light", "rx": 44, "ry": 22, "power": 0.5, "dur": 160, "color": "bang.4", "alpha": [0, 1, 0] },
+    { "at": 1100, "type": "tint", "dur": 650, "color": "bang.4", "in": 90, "out": 160, "amount": 0.9 },
+    { "at": 1100, "type": "shake", "dur": 120, "intensity": 0.0015 },
+    { "at": 1100, "type": "event", "name": "freeze" },
+    { "at": 1750, "type": "shake", "dur": 200, "intensity": 0.004 },
+    { "at": 1750, "type": "hitstop", "dur": 50 },
+    { "at": 1750, "type": "emitter", "tex": "fx_px2", "dur": 0, "blend": "add", "y": -30, "color": ["core", "bang.5", "bang.3"],
+      "config": { "frequency": -1, "quantity": 26, "x": { "min": -14, "max": 14 }, "speed": { "min": 30, "max": 110 }, "angle": { "min": 0, "max": 360 }, "lifespan": { "min": 450, "max": 900 }, "gravityY": 90, "alpha": { "start": 1, "end": 0 } } },
+    { "at": 1750, "type": "emitter", "tex": "fx_px1", "dur": 700, "max": 24, "y": -60, "color": ["core", "bang.5", "bang.4"],
+      "config": { "frequency": 90, "quantity": 1, "x": { "min": -26, "max": 26 }, "speed": { "min": 4, "max": 14 }, "angle": { "min": 70, "max": 110 }, "lifespan": { "min": 700, "max": 1000 }, "gravityY": 40, "alpha": { "start": 1, "end": 0 } } },
+    { "at": 1750, "type": "event", "name": "hit" }
+  ] }

@@ -214,7 +214,11 @@ class Run {
     const l = layer || def, D = this.fx.D;
     if (l === 'overlay') return D.overlay;
     if (type === 'light') return this.fx.lightDepth();   // ngay: tren ground, duoi actor; dem: tren lop dem
-    return l === 'ground' ? D.ground : this.y + 0.5;
+    if (l === 'ground') return D.ground;
+    // GD5: 'behind' / 'front' theo y chan muc tieu: actor co depth = y, nen y-1 nam ngay sau than, y+1 ngay truoc than
+    if (l === 'behind') return this.y - 1;
+    if (l === 'front') return this.y + 1;
+    return this.y + 0.5;
   }
 
   step(dt) {
@@ -309,6 +313,21 @@ class Run {
         sp.play({ key, ...(tr.fps ? { frameRate: tr.fps } : {}), repeat: tr.loop ? -1 : 0 });
         if (!tr.loop) sp.once('animationcomplete', () => sp.setVisible(false));
         return { dur: fx.animDur(tr), update: p => sp.setAlpha(kf(tr.alpha, ease(p), 1)), release: () => { fx._inUse--; sp.destroy(); } };
+      }
+      case 'tint': {
+        // GD5: nhuom doi tuong muc tieu (opts.target, sprite) bang mau cue trong dur (vao `in`, giu, ra `out`), nhan voi tint goc, tra lai khi het
+        const o = this.opts.target;
+        if (!o || !o.scene || typeof o.setTint !== 'function') return null;
+        const orig = [o.tintTopLeft, o.tintTopRight, o.tintBottomLeft, o.tintBottomRight];
+        const c = this.color(tr.color ?? 'core'), cr = (c >> 16) & 255, cg = (c >> 8) & 255, cb = c & 255;
+        const tin = tr.in ?? 80, out = tr.out ?? 120, amt = tr.amount ?? 1;
+        const mix = (base, k) => { const m = (ch, t) => Math.round(ch * (255 + (t - 255) * k) / 255); return (m((base >> 16) & 255, cr) << 16) | (m((base >> 8) & 255, cg) << 8) | m(base & 255, cb); };
+        const restore = () => { if (o.scene) { o.tintTopLeft = orig[0]; o.tintTopRight = orig[1]; o.tintBottomLeft = orig[2]; o.tintBottomRight = orig[3]; } };
+        return { dur: tr.dur, release: restore, update: (p, lt) => {
+          if (!o.scene) return;
+          const k = amt * Math.min(1, lt / tin, Math.max(0, (tr.dur - lt) / out));
+          o.tintTopLeft = mix(orig[0], k); o.tintTopRight = mix(orig[1], k); o.tintBottomLeft = mix(orig[2], k); o.tintBottomRight = mix(orig[3], k);
+        } };
       }
       case 'shake': fx.scene.cameras.main.shake(tr.dur, tr.intensity ?? 0.004); return null;
       case 'flash': {

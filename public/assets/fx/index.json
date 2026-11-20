@@ -1,6 +1,66 @@
 {
  "atlases": [
   {
+   "key": "cotlinh-td-back",
+   "image": "cotlinh-td-back.png",
+   "json": "cotlinh-td-back.json",
+   "tags": [
+    "cotlinh-td-back"
+   ],
+   "fps": 30,
+   "frames": 76,
+   "loop": false,
+   "size": [
+    1022,
+    546
+   ],
+   "pivot": [
+    112,
+    122
+   ],
+   "source": "di-hoa/cot-linh-td"
+  },
+  {
+   "key": "cotlinh-td-floor",
+   "image": "cotlinh-td-floor.png",
+   "json": "cotlinh-td-floor.json",
+   "tags": [
+    "cotlinh-td-floor"
+   ],
+   "fps": 30,
+   "frames": 76,
+   "loop": false,
+   "size": [
+    1009,
+    591
+   ],
+   "pivot": [
+    112,
+    122
+   ],
+   "source": "di-hoa/cot-linh-td"
+  },
+  {
+   "key": "cotlinh-td-front",
+   "image": "cotlinh-td-front.png",
+   "json": "cotlinh-td-front.json",
+   "tags": [
+    "cotlinh-td-front"
+   ],
+   "fps": 30,
+   "frames": 76,
+   "loop": false,
+   "size": [
+    1001,
+    685
+   ],
+   "pivot": [
+    112,
+    122
+   ],
+   "source": "di-hoa/cot-linh-td"
+  },
+  {
    "key": "vocab-strike",
    "image": "vocab-strike.png",
    "json": "vocab-strike.json",
