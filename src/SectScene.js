@@ -171,6 +171,7 @@ export class SectScene extends Phaser.Scene {
     this.fx = new FxPlayer(this, { maxParticles: 300, isNight: () => this.night });
     const lab = sp.get('fxlab') === '1';
     if (lab || sp.get('fx') === '1') this.fxDemo = setupFxDemo(this);
+    if (lab) import('./fxlab/index.js').then(m => { if (this.scene.isActive()) this.fxLab = m.setupFxLab(this, this.fxDemo); });
   }
 
   makeAnims() {
