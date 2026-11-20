@@ -1,0 +1,494 @@
+{
+  "frames": {
+    "cliff_n_0": {
+      "frame": {
+        "x": 2,
+        "y": 2,
+        "w": 64,
+        "h": 84
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 84
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 84
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 1
+      }
+    },
+    "cliff_n_1": {
+      "frame": {
+        "x": 70,
+        "y": 2,
+        "w": 64,
+        "h": 84
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 84
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 84
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 1
+      }
+    },
+    "cliff_n_2": {
+      "frame": {
+        "x": 138,
+        "y": 2,
+        "w": 64,
+        "h": 84
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 84
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 84
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 1
+      }
+    },
+    "cliff_n_3": {
+      "frame": {
+        "x": 206,
+        "y": 2,
+        "w": 64,
+        "h": 84
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 84
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 84
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 1
+      }
+    },
+    "cliff_s_0": {
+      "frame": {
+        "x": 274,
+        "y": 2,
+        "w": 64,
+        "h": 28
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 28
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 28
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 1
+      }
+    },
+    "cliff_s_1": {
+      "frame": {
+        "x": 342,
+        "y": 2,
+        "w": 64,
+        "h": 28
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 28
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 28
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 1
+      }
+    },
+    "cliff_s_2": {
+      "frame": {
+        "x": 410,
+        "y": 2,
+        "w": 64,
+        "h": 28
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 28
+      },
+      "sourceSize": {
+        "w": 64,
+        "h": 28
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 1
+      }
+    },
+    "cliff_w_0": {
+      "frame": {
+        "x": 2,
+        "y": 90,
+        "w": 40,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 40,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 40,
+        "h": 64
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 1
+      }
+    },
+    "cliff_w_1": {
+      "frame": {
+        "x": 46,
+        "y": 90,
+        "w": 40,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 40,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 40,
+        "h": 64
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 1
+      }
+    },
+    "cliff_w_2": {
+      "frame": {
+        "x": 90,
+        "y": 90,
+        "w": 40,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 40,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 40,
+        "h": 64
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 1
+      }
+    },
+    "cliff_e_0": {
+      "frame": {
+        "x": 134,
+        "y": 90,
+        "w": 40,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 40,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 40,
+        "h": 64
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 1
+      }
+    },
+    "cliff_e_1": {
+      "frame": {
+        "x": 178,
+        "y": 90,
+        "w": 40,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 40,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 40,
+        "h": 64
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 1
+      }
+    },
+    "cliff_e_2": {
+      "frame": {
+        "x": 222,
+        "y": 90,
+        "w": 40,
+        "h": 64
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 40,
+        "h": 64
+      },
+      "sourceSize": {
+        "w": 40,
+        "h": 64
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 1
+      }
+    },
+    "cliff_nw": {
+      "frame": {
+        "x": 266,
+        "y": 90,
+        "w": 40,
+        "h": 84
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 40,
+        "h": 84
+      },
+      "sourceSize": {
+        "w": 40,
+        "h": 84
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 1
+      }
+    },
+    "cliff_ne": {
+      "frame": {
+        "x": 310,
+        "y": 90,
+        "w": 40,
+        "h": 84
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 40,
+        "h": 84
+      },
+      "sourceSize": {
+        "w": 40,
+        "h": 84
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 1
+      }
+    },
+    "cliff_sw": {
+      "frame": {
+        "x": 354,
+        "y": 90,
+        "w": 40,
+        "h": 28
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 40,
+        "h": 28
+      },
+      "sourceSize": {
+        "w": 40,
+        "h": 28
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 1
+      }
+    },
+    "cliff_se": {
+      "frame": {
+        "x": 398,
+        "y": 90,
+        "w": 40,
+        "h": 28
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 40,
+        "h": 28
+      },
+      "sourceSize": {
+        "w": 40,
+        "h": 28
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 1
+      }
+    },
+    "boulder_0": {
+      "frame": {
+        "x": 442,
+        "y": 90,
+        "w": 56,
+        "h": 53
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 56,
+        "h": 53
+      },
+      "sourceSize": {
+        "w": 56,
+        "h": 53
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 1
+      }
+    },
+    "boulder_1": {
+      "frame": {
+        "x": 2,
+        "y": 178,
+        "w": 68,
+        "h": 60
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 68,
+        "h": 60
+      },
+      "sourceSize": {
+        "w": 68,
+        "h": 60
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 1
+      }
+    },
+    "boulder_2": {
+      "frame": {
+        "x": 74,
+        "y": 178,
+        "w": 48,
+        "h": 43
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 48,
+        "h": 43
+      },
+      "sourceSize": {
+        "w": 48,
+        "h": 43
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 1
+      }
+    }
+  },
+  "meta": {
+    "app": "Tienson cliff assetgen v4 staggered broad north cells",
+    "image": "cliff_atlas.png",
+    "format": "RGBA8888",
+    "size": {
+      "w": 512,
+      "h": 240
+    },
+    "scale": "1"
+  }
+}
