@@ -14,7 +14,7 @@ export function setupFxLab(scene, demo) {
 
   const lab = {
     scene, fx, base, looping: false, dummy: null, loopTimer: null,
-    cue: null, play0: 0, handle: null, peak: { particles: 0, limit: 120 }, minFps: 99, baseFps: 0, tracking: false,
+    atlases: [], cue: null, play0: 0, handle: null, peak: { particles: 0, limit: 120 }, minFps: 99, baseFps: 0, tracking: false,
     ids: () => Object.keys(fx.cues).sort(),
     select(id) { lab.cue = fx.cues[id]; panel.render(); panel.say(''); lab.resetPeak(); },
     // sua nho (keo thanh truot): ap dung + luu nhap + ve lai thanh thoi gian
@@ -40,6 +40,16 @@ export function setupFxLab(scene, demo) {
       if (fx.cues[id]) return 'id đã có';
       const c = clone(lab.cue); c.id = id; fx.cues[id] = c; base[id] = clone(c); saveDraft(c); lab.select(id);
       return 'Đã tạo ' + id + ' (nháp trong trình duyệt; bấm Tải JSON / Lưu vào dự án để giữ)';
+    },
+    // ---- atlas (GD4): danh sach tu assets/fx/index.json; chon atlas + tag cho track anim, nap luc chay roi phat lai
+    async pickAtlas(tr, key, tag) {
+      const a = lab.atlases.find(x => x.key === key);
+      if (!a) return panel.say('Không có atlas ' + key);
+      const ok = await fx.ensureAtlas(key, { img: 'assets/fx/' + a.image, json: 'assets/fx/' + a.json });
+      if (!ok) return panel.say('Không nạp được atlas ' + key);
+      tr.atlas = key; tr.anim = tag && a.tags.includes(tag) ? tag : a.tags[0];
+      lab.touch(); panel.render(); panel.say(`atlas ${key} / ${tr.anim}`);
+      lab.play();
     },
     // ---- phat
     target() {
@@ -78,6 +88,7 @@ export function setupFxLab(scene, demo) {
   };
   const panel = createPanel(lab);
   lab.panel = panel;
+  fetch('assets/fx/index.json').then(r => r.ok ? r.json() : { atlases: [] }).then(m => { lab.atlases = m.atlases || []; lab.dead || panel.render(); }).catch(() => { /* khong co manifest: o chon atlas rong */ });
 
   // ---- do FPS / ngan sach hat; con tro thoi gian
   lab.baseFps = scene.game.loop.actualFps;

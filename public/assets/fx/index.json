@@ -1,0 +1,24 @@
+{
+ "atlases": [
+  {
+   "key": "vocab-strike",
+   "image": "vocab-strike.png",
+   "json": "vocab-strike.json",
+   "tags": [
+    "vocab-strike"
+   ],
+   "fps": 30,
+   "frames": 61,
+   "loop": false,
+   "size": [
+    509,
+    239
+   ],
+   "pivot": [
+    44,
+    100
+   ],
+   "source": "vocab/vocab-strike"
+  }
+ ]
+}

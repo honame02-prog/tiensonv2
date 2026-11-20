@@ -29,6 +29,7 @@ export const NEW_TRACK = {
   hitstop: { at: 0, type: 'hitstop', dur: 70 },
   dim: { at: 0, type: 'dim', to: 0.5, in: 150, hold: 600, out: 300 },
   event: { at: 0, type: 'event', name: 'hit' },
+  anim: { at: 0, type: 'anim', atlas: 'vocab-strike', anim: 'vocab-strike', layer: 'body', blend: 'normal' },
 };
 // [min, max, step] cho 1 tham so: theo ten khoa (duong dan cuoi), neu la so thi mo rong de chua gia tri hien co
 export function rangeOf(key, v) {

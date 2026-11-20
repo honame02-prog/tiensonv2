@@ -118,7 +118,7 @@ export function createPanel(lab) {
   function fields(box, o, parentKey = '') {
     for (const k of Object.keys(o)) {
       const v = o[k], rk = (k === 'min' || k === 'max') ? parentKey : k, label = parentKey ? `${parentKey}.${k}` : k;
-      if (!parentKey && (k === 'type' || k === 'off')) continue;
+      if (!parentKey && (k === 'type' || k === 'off' || (o.type === 'anim' && (k === 'atlas' || k === 'anim')))) continue;
       if (k === 'color' && typeof v === 'string') { const [s, sw] = colorSel(v, x => { o.color = x; }); box.append(h('div', { class: 'f' }, h('label', { text: 'màu' }), s, sw)); }
       else if (k === 'color' && Array.isArray(v)) {
         const g = h('div', { class: 'grp' }, h('div', { class: 'gl', text: 'màu hạt (đầu → cuối)' }));
@@ -140,6 +140,17 @@ export function createPanel(lab) {
     }
   }
 
+  // track anim: o chon atlas (index.json) + tag; doi xong nap atlas, phat lai
+  function atlasPick(tr) {
+    const list = lab.atlases, cur = list.find(a => a.key === tr.atlas);
+    const sa = h('select', { class: 'atlas-sel' }, ...list.map(a => opt(a.key, `${a.key} (${a.frames}f)`))), st = h('select', { class: 'tag-sel' }, ...(cur ? cur.tags : [tr.anim]).map(t => opt(t)));
+    if (!cur) sa.append(opt(tr.atlas));
+    sa.value = tr.atlas; st.value = tr.anim;
+    sa.onchange = () => lab.pickAtlas(tr, sa.value);
+    st.onchange = () => lab.pickAtlas(tr, tr.atlas, st.value);
+    return h('div', { class: 'f' }, h('label', { text: 'atlas / tag' }), sa, st);
+  }
+
   // ---- khoi track
   function trackBlock(tr, i) {
     const meta = h('span', { class: 'm' }), box = h('div', { class: 'tb' });
@@ -150,6 +161,7 @@ export function createPanel(lab) {
       h('button', { text: '⧉', title: 'nhân bản', onclick: () => lab.dupTrack(i) }),
       h('button', { text: '×', title: 'xoá track', onclick: () => lab.delTrack(i) }));
     blk.append(th, box);
+    if (tr.type === 'anim') box.append(atlasPick(tr));
     fields(box, tr);
     blk._upd = () => { meta.textContent = `at ${tr.at} · dur ${tr.dur ?? '-'}`; };
     blk._upd();

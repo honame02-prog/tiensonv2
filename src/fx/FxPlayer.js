@@ -24,9 +24,14 @@ function kf(v, t, fb) {
 }
 
 export class FxPlayer {
+  // GD4: atlas Aseprite (SkillFX tools/phaser-atlas.mjs) o assets/fx/<atlas>.{png,json}; cue co the ghi atlasUrl/atlasJson de doi duong dan.
+  static atlasUrls(tr) { const k = tr.atlas; return { img: tr.atlasUrl || `assets/fx/${k}.png`, json: tr.atlasJson || `assets/fx/${k}.json` }; }
   static preload(scene, cueList = []) {
-    // GD4: nap atlas ma cue can (track anim, neu cue ghi atlasUrl/atlasJson). GD2 chi dung texture thu tuc.
-    for (const c of cueList) for (const tr of (c.tracks || [])) if (tr.type === 'anim' && tr.atlasUrl) scene.load.atlas(tr.atlas, tr.atlasUrl, tr.atlasJson);
+    for (const c of cueList) for (const tr of (c.tracks || [])) {
+      if (tr.type !== 'anim' || !tr.atlas || tr.off || scene.textures.exists(tr.atlas)) continue;
+      const u = FxPlayer.atlasUrls(tr);
+      scene.load.aseprite(tr.atlas, u.img, u.json);
+    }
   }
 
   constructor(scene, { palette = FX_PALETTE, maxParticles = 300, depths = {}, isNight = () => false } = {}) {
@@ -37,10 +42,44 @@ export class FxPlayer {
     this.runs = new Set(); this._free = []; this._inUse = 0; this._emitters = new Set();
     this._dims = new Set(); this._dimTargets = null; this._dimV = 255;
     this._hitUntil = 0; this._frozen = false; this._capped = false; this._alive = 0; this._warned = new Set();
+    this._atlasOk = new Set(); this._atlasWait = new Map();
     makeFxTextures(scene);
     for (const c of Object.values(this.cues)) this.warm(c);
     scene.events.on(Phaser.Scenes.Events.UPDATE, this._update, this);
     scene.events.once(Phaser.Scenes.Events.SHUTDOWN, this.destroy, this);
+  }
+
+
+  // ---- atlas anim (GD4). Sau khi nap xong, tao anim 1 lan / atlas (anim key = ten frameTag, toan cuc).
+  hasAtlas(key) {
+    if (this._atlasOk.has(key)) return true;
+    const sc = this.scene;
+    if (!sc.textures.exists(key) || !sc.cache.json.exists(key)) return false;
+    for (const t of (sc.cache.json.get(key).meta?.frameTags || [])) if (!sc.anims.exists(t.name)) sc.anims.createFromAseprite(key, [t.name]);
+    this._atlasOk.add(key);
+    return true;
+  }
+  // nap atlas luc chay (FxLab chon atlas khac); tra Promise<boolean>
+  ensureAtlas(key, urls) {
+    if (this.hasAtlas(key)) return Promise.resolve(true);
+    if (this._atlasWait.has(key)) return this._atlasWait.get(key);
+    const sc = this.scene, u = urls || FxPlayer.atlasUrls({ atlas: key });
+    const p = new Promise(res => {
+      const done = () => { this._atlasWait.delete(key); res(this.hasAtlas(key)); };
+      sc.load.aseprite(key, u.img, u.json);
+      sc.load.once('complete', done);
+      sc.load.start();
+    });
+    this._atlasWait.set(key, p);
+    return p;
+  }
+  // do dai (ms) cua track anim: tr.dur, hoac do dai tag (theo tr.fps neu co)
+  animDur(tr) {
+    if (tr.dur !== undefined) return tr.dur;
+    if (!this.hasAtlas(tr.atlas)) return 0;
+    const a = this.scene.anims.get(tr.anim);
+    if (!a) return 0;
+    return tr.fps ? a.frames.length / tr.fps * 1000 : a.duration;
   }
 
   lightDepth() { return this.isNight() ? this.D.light : this.D.lightDay; }
@@ -55,6 +94,7 @@ export class FxPlayer {
         const [a, b] = tr.grow || [tr.rx, tr.rx];
         for (let r = this._q(Math.min(a, b)); r <= this._q(Math.max(a, b)); r += 4) ringTex(this.scene, r, tr.width || 2);
       } else if (tr.type === 'column') columnTex(this.scene, tr.ramp || ramp, tr.w, tr.h, this.palette);
+      else if (tr.type === 'anim') this.hasAtlas(tr.atlas);   // tao anim tu atlas da nap (neu chua nap: bo qua)
     }
   }
   _q(r) { return Math.max(8, Math.round(r / 4) * 4); }
@@ -163,7 +203,7 @@ class Run {
     this.x = Math.round(opts.x ?? 0); this.y = Math.round(opts.y ?? 0);
     this.t = 0; this.live = []; this.dead = false;
     this.pending = cue.tracks.filter(t => !t.off).sort((a, b) => (a.at || 0) - (b.at || 0));
-    this.duration = cue.duration ?? Math.max(0, ...cue.tracks.filter(t => !t.off).map(t => (t.at || 0) + (t.dur || 0)));
+    this.duration = cue.duration ?? Math.max(0, ...cue.tracks.filter(t => !t.off).map(t => (t.at || 0) + (t.type === 'anim' ? fx.animDur(t) : (t.dur || 0))));
     this.done = new Promise(r => { this._res = r; });
     this.handle = { id: cue.id, done: this.done, stop: () => this.kill() };
     fx.runs.add(this);
@@ -253,16 +293,22 @@ class Run {
       }
       case 'emitter': return this.startEmitter(tr, ax, ay);
       case 'anim': {
-        if (!fx.scene.textures.exists(tr.atlas)) {
+        if (!fx.hasAtlas(tr.atlas)) {
           if (!fx._warned.has(tr.atlas)) { fx._warned.add(tr.atlas); console.warn(`FX: thieu atlas "${tr.atlas}" (track anim)`); }
           return null;
         }
-        const sp = fx.scene.add.sprite(ax, ay, tr.atlas).setOrigin(0.5, tr.originY ?? 1).setDepth(this.depth(tr.layer, 'body')).setScale(S).setBlendMode(blend);
+        const key = tr.anim || tr.atlas;
+        if (!fx.scene.anims.exists(key)) { console.warn(`FX: atlas "${tr.atlas}" khong co anim "${key}"`); return null; }
+        // goc: meta.pivot / sourceSize (diem goc hieu ung lay tu SkillFX); cue dat originX/originY thi uu tien
+        const data = fx.scene.cache.json.get(tr.atlas), pv = data.meta?.pivot, sz = data.frames['0']?.sourceSize;
+        const ox = tr.originX ?? (pv && sz ? pv.x / sz.w : 0.5), oy = tr.originY ?? (pv && sz ? pv.y / sz.h : 1);
+        const sp = fx.scene.add.sprite(ax, ay, tr.atlas).setOrigin(ox, oy).setDepth(this.depth(tr.layer, 'body')).setScale(S).setBlendMode(blend);
         sp.__fx = true; fx._inUse++;
         if (tr.color !== undefined) sp.setTint(this.color(tr.color));
         if (tr.rotate) sp.setAngle(this.opts.angle || 0);
-        sp.play({ key: tr.anim, frameRate: tr.fps });
-        return { dur: tr.dur, update: p => sp.setAlpha(kf(tr.alpha, ease(p), 1)), release: () => { fx._inUse--; sp.destroy(); } };
+        sp.play({ key, ...(tr.fps ? { frameRate: tr.fps } : {}), repeat: tr.loop ? -1 : 0 });
+        if (!tr.loop) sp.once('animationcomplete', () => sp.setVisible(false));
+        return { dur: fx.animDur(tr), update: p => sp.setAlpha(kf(tr.alpha, ease(p), 1)), release: () => { fx._inUse--; sp.destroy(); } };
       }
       case 'shake': fx.scene.cameras.main.shake(tr.dur, tr.intensity ?? 0.004); return null;
       case 'flash': {
