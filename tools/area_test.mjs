@@ -76,7 +76,7 @@ try {
   await tele(140, 300); await hold('ArrowLeft', 2500); let p = await stats();
   check('khong xuyen bien rung trai (x >= 62)', p.px >= 62 && p.px < 100, `x=${p.px}`);
   await tele(520, 470); await hold('ArrowRight', 2500); p = await stats();
-  check('khong xuyen bien rung phai (x <= 584)', p.px <= 584 && p.px > 540, `x=${p.px}`);
+  check('khong xuyen bien rung phai (x <= 608: luoi chan 32 px)', p.px <= 608 && p.px > 540, `x=${p.px}`);
   // (2) day vao 1 da / cay: lay prop, dat o phia nam, day len
   for (const kind of ['rock', 'pine']) {
     const t = await page.evaluate((kind) => { const FOOT = { rock_a: [26, 9], rock_b: [22, 8], rock_c: [16, 6], pine_a: [26, 10], pine_b: [26, 10] };
