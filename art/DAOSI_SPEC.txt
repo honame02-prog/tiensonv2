@@ -1,0 +1,38 @@
+ĐẠO SĨ TRẺ – BỘ 8 HƯỚNG ĐÃ CHỐT (pixel art, góc nhìn 3/4 từ trên xuống)
+
+1. THÔNG SỐ CHUNG
+- Kích thước khung: 64 x 64 px, nền trong suốt, mỗi khung không cắt viền (untrimmed).
+- Điểm neo (pivot) = chân nhân vật tại (32, 61) -> Phaser: sprite.setOrigin(0.5, 61/64) (= 0.953).
+- Chiều cao nhân vật ~57 px (đỉnh đầu y≈5, đế giày y=61). Bảng màu chung 48 màu (dao_si-48).
+- 8 hướng (tên dùng trong tag): down, down_right, right, up_right, up, up_left, left, down_left.
+
+2. ĐỘNG TÁC VÀ THỜI LƯỢNG
+| Động tác  | Tag              | Số khung | ms/khung | Một vòng | Lặp |
+| Đứng thở  | idle_<hướng>     | 6        | 150      | 900 ms   | lặp vô hạn |
+| Đi bộ     | walk_<hướng>     | 8        | 100      | 800 ms   | lặp vô hạn (khung 0 = chân phải chạm đất) |
+| Chạy      | run_<hướng>      | 8        | 75       | 600 ms   | lặp vô hạn (khung 0 = chân phải chạm đất) |
+| Tương tác | interact_<hướng> | 8        | 90       | 720 ms   | chạy 1 lần |
+Tương tác: khung 0 nghỉ, 1-2 giơ lên, 3 đỉnh, 4 giữ, 5-6 hạ xuống, 7 nghỉ (= khung 0). Giơ tay phải ra phía trước, ngang ngực.
+Tổng: 32 tag, 240 khung.
+
+3. THƯ MỤC
+- Spritesheet/dao_si.png + dao_si.json: atlas gộp cả 32 tag (định dạng Aseprite JSON array, 521x2081, mỗi khung có duration riêng).
+- Spritesheet/theo_huong/<động tác>_<hướng>_sheet.png: dải ngang từng động tác từng hướng, khung 64x64 xếp liền từ trái sang phải
+  (idle 384x64, walk/run/interact 512x64). Dùng được với this.load.spritesheet(key, file, {frameWidth:64, frameHeight:64}).
+- GIF/<hướng>.gif: mỗi hướng một GIF, phóng 4 lần, hiển thị cùng lúc Đứng thở | Đi bộ | Chạy | Tương tác (chỉ để xem trước).
+- GIF/theo_dong_tac/<hướng>_<động tác>.gif: GIF riêng từng động tác từng hướng, 4x (interact chạy rồi nghỉ 180 ms).
+- Video nguon/: các video AI gốc đã dùng, đặt tên theo <động tác>_<hướng>.mp4; DANH_SACH_VIDEO.txt ghi tên gốc và các hướng lật gương.
+
+4. DÙNG TRONG PHASER
+  preload: this.load.aseprite('dao_si', 'dao_si.png', 'dao_si.json');
+  create : this.anims.createFromAseprite('dao_si');
+           const p = this.add.sprite(x, y, 'dao_si').setOrigin(0.5, 61/64);
+           p.play({ key: 'walk_down', repeat: -1 });   // walk/idle/run phải truyền repeat: -1
+           p.play('interact_up');                      // tương tác chạy 1 lần, nghe sự kiện 'animationcomplete' để quay về idle
+  Lưu ý: createFromAseprite mặc định cho mọi tag chạy 1 lần, nên cần repeat: -1 cho idle/walk/run.
+  Pixel art: bật pixelArt: true (hoặc roundPixels) trong config để không bị nhòe.
+  Tên khung trong atlas: dao_si_<tag>_<số 2 chữ số>, ví dụ dao_si_walk_down_00.
+
+5. HƯỚNG LẬT GƯƠNG
+  run_right (từ run_left), interact_down_right (từ interact_down_left), interact_up_left (từ interact_up_right).
+  Các hướng này đã được xuất sẵn thành khung riêng trong atlas, KHÔNG cần setFlipX trong game.
