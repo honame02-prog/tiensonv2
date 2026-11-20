@@ -167,9 +167,10 @@ export class SectScene extends Phaser.Scene {
     this.scale.on('resize', this.onResize, this);
     this.applyNight();
     window.__scene = this;
-    // ---------- FX: bo phat hieu ung skill (depth: ground -60, light 9100 tren lop dem, overlay 9500); che do thu chi khi ?fx=1
-    this.fx = new FxPlayer(this, { maxParticles: 300 });
-    if (sp.get('fx') === '1') this.fxDemo = setupFxDemo(this);
+    // ---------- FX: bo phat hieu ung skill (depth: ground -60, light ngay -59 / dem 9100 theo this.night, overlay 9500); che do thu chi khi ?fx=1; ?fxlab=1 ngu y fx=1
+    this.fx = new FxPlayer(this, { maxParticles: 300, isNight: () => this.night });
+    const lab = sp.get('fxlab') === '1';
+    if (lab || sp.get('fx') === '1') this.fxDemo = setupFxDemo(this);
   }
 
   makeAnims() {

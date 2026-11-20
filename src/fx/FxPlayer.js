@@ -7,7 +7,8 @@ import { CUES } from './cues/index.js';
 // Do sau cho SectScene (Tien Son day du): ground -100, bong -70, actor = y, suong 8600-9000, lop dem MULTIPLY 9000, den long 9001, UI la DOM (z-index 10).
 // ground: tren bong (-70), duoi moi actor. light: ADD tren lop dem de phat sang ban dem. overlay: tren lop dem, duoi UI (UI la DOM nen luon tren canvas).
 // dimBelow: dim chi to cac doi tuong co depth < gia tri nay (suong the gioi 8600+, lop dem, den long, overlay bi loai).
-const DEFAULT_DEPTHS = { ground: -60, light: 9100, overlay: 9500, dimBelow: 8600 };
+// lightDay: ban ngay anh sang cong nam ngay tren ground, duoi actor; ban dem (isNight() true) len light (tren lop dem). Doi theo tung khung hinh nen dung ca khi dang phat.
+const DEFAULT_DEPTHS = { ground: -60, lightDay: -59, light: 9100, overlay: 9500, dimBelow: 8600 };
 const BLEND = { add: Phaser.BlendModes.ADD, normal: Phaser.BlendModes.NORMAL };
 const easeFn = e => Phaser.Tweens.Builders.GetEaseFunction(e || 'Linear');
 const lerp = (a, b, t) => a + (b - a) * t;
@@ -28,7 +29,8 @@ export class FxPlayer {
     for (const c of cueList) for (const tr of (c.tracks || [])) if (tr.type === 'anim' && tr.atlasUrl) scene.load.atlas(tr.atlas, tr.atlasUrl, tr.atlasJson);
   }
 
-  constructor(scene, { palette = FX_PALETTE, maxParticles = 300, depths = {} } = {}) {
+  constructor(scene, { palette = FX_PALETTE, maxParticles = 300, depths = {}, isNight = () => false } = {}) {
+    this.isNight = isNight;
     this.D = { ...DEFAULT_DEPTHS, ...depths };
     this.scene = scene; this.palette = palette; this.maxParticles = maxParticles;
     this.cues = { ...CUES };
@@ -40,6 +42,8 @@ export class FxPlayer {
     scene.events.on(Phaser.Scenes.Events.UPDATE, this._update, this);
     scene.events.once(Phaser.Scenes.Events.SHUTDOWN, this.destroy, this);
   }
+
+  lightDepth() { return this.isNight() ? this.D.light : this.D.lightDay; }
 
   register(cue) { this.cues[cue.id] = cue; this.warm(cue); }
 
@@ -168,7 +172,7 @@ class Run {
   depth(layer, def, type) {
     const l = layer || def, D = this.fx.D;
     if (l === 'overlay') return D.overlay;
-    if (type === 'light') return D.light;   // anh sang cong luon tren lop dem (ban dem moi thay phat sang)
+    if (type === 'light') return this.fx.lightDepth();   // ngay: tren ground, duoi actor; dem: tren lop dem
     return l === 'ground' ? D.ground : this.y + 0.5;
   }
 
@@ -216,9 +220,10 @@ class Run {
         const ground = (tr.layer || 'ground') === 'ground';
         const rx = tr.rx * S, ry = (tr.ry ?? (ground ? tr.rx * 0.5 : tr.rx)) * S;
         const size = tr.rx > 40 ? 128 : 64, power = tr.power ?? 1;
-        const im = mkImg(lightTex(fx.scene, size), tr.layer, 'ground');
+        const im = mkImg(lightTex(fx.scene, size), tr.layer, 'ground'), ov = tr.layer === 'overlay';
         return { dur: tr.dur, release: () => fx._put(im), update: p => {
           const q = ease(p), s = kf(tr.scale, q, 1);
+          if (!ov) im.setDepth(fx.lightDepth());
           im.setAlpha(Math.min(1, kf(tr.alpha, q, [0, 1, 0]) * power)).setScale(rx * 2 / size * s, ry * 2 / size * s);
         } };
       }
