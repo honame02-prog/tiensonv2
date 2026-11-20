@@ -1316,6 +1316,10 @@
     140
    ],
    "palette": "tienson-fx.gpl"
+  },
+  "impact": {
+   "x": 101,
+   "y": 75
   }
  }
 }

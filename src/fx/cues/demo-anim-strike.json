@@ -1,4 +1,4 @@
 { "id": "demo-anim-strike", "ramp": "hoa", "duration": 2050,
   "tracks": [
-    { "at": 0, "type": "anim", "atlas": "vocab-strike", "anim": "vocab-strike", "layer": "body", "blend": "normal" }
+    { "at": 0, "type": "anim", "atlas": "vocab-strike", "anim": "vocab-strike", "layer": "body", "anchor": "impact", "blend": "normal" }
   ] }

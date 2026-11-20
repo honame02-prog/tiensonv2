@@ -41,10 +41,10 @@ try {
   // 2. phim 5 phat anim
   await page.keyboard.press('5');
   await page.waitForTimeout(100);
-  const s1 = await page.evaluate(() => ({ st: __fx.stats(), n: __scene.children.list.filter(o => o.__fx && o.type === 'Sprite' && o.texture.key === 'vocab-strike').map(o => ({ ox: o.originX, oy: o.originY, depth: o.depth, x: o.x, y: o.y, blend: o.blendMode, playing: o.anims.isPlaying })), py: __scene.player.y, px: __scene.player.x }));
+  const s1 = await page.evaluate(() => ({ st: __fx.stats(), n: __scene.children.list.filter(o => o.__fx && o.type === 'Sprite' && o.texture.key === 'vocab-strike').map(o => ({ ox: o.originX, oy: o.originY, depth: o.depth, x: o.x, y: o.y, blend: o.blendMode, playing: o.anims.isPlaying })), py: __scene.player.y, px: __scene.player.x, dx: __fxdemo.dummy.x, dy: __fxdemo.dummy.y }));
   check('phim 5: 1 run active, 1 sprite anim dang phat', s1.st.active === 1 && s1.n.length === 1 && s1.n[0].playing, JSON.stringify(s1.n));
-  check('origin theo meta.pivot (44/176, 100/140)', Math.abs(s1.n[0].ox - 0.25) < 1e-6 && Math.abs(s1.n[0].oy - 100 / 140) < 1e-6, `${s1.n[0].ox},${s1.n[0].oy}`);
-  check('depth = y+0.5 (lop body), vi tri = chan nguoi choi', s1.n[0].depth === Math.round(s1.py) + 0.5 && s1.n[0].x === Math.round(s1.px), `depth ${s1.n[0].depth} y ${s1.py}`);
+  check('origin theo meta.impact (101/176, 75/140; cue anchor impact, GD5-center)', Math.abs(s1.n[0].ox - 101 / 176) < 1e-6 && Math.abs(s1.n[0].oy - 75 / 140) < 1e-6, `${s1.n[0].ox},${s1.n[0].oy}`);
+  check('depth = y+0.5 (lop body), vi tri = diem trung = than hinh nom (x nom, y chan nom - 28)', s1.n[0].depth === s1.dy - 28 + 0.5 && s1.n[0].x === s1.dx, `depth ${s1.n[0].depth} nom ${s1.dx},${s1.dy}`);
   check('blend normal (0)', s1.n[0].blend === 0, String(s1.n[0].blend));
   await page.waitForTimeout(550);   // ~750 ms tinh ca chup: dang o cu dam nang (khung 22)
   const mid = await page.evaluate(() => { const s = __scene.children.list.find(o => o.__fx && o.type === 'Sprite' && o.texture.key === 'vocab-strike'); return s ? s.anims.currentFrame.index : -1; });

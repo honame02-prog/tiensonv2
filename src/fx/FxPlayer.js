@@ -305,7 +305,9 @@ class Run {
         if (!fx.scene.anims.exists(key)) { console.warn(`FX: atlas "${tr.atlas}" khong co anim "${key}"`); return null; }
         // goc: meta.pivot / sourceSize (diem goc hieu ung lay tu SkillFX); cue dat originX/originY thi uu tien
         const data = fx.scene.cache.json.get(tr.atlas), pv = data.meta?.pivot, sz = data.frames['0']?.sourceSize;
-        const ox = tr.originX ?? (pv && sz ? pv.x / sz.w : 0.5), oy = tr.originY ?? (pv && sz ? pv.y / sz.h : 1);
+        // tr.anchor === 'impact' va atlas co meta.impact {x,y}: goc = diem trung (vd vu no cu dam) => diem dat cue chinh la diem trung, khong phai chan nguoi ra don
+        const im = tr.anchor === 'impact' && data.meta?.impact && sz ? data.meta.impact : null;
+        const ox = tr.originX ?? (im ? im.x / sz.w : pv && sz ? pv.x / sz.w : 0.5), oy = tr.originY ?? (im ? im.y / sz.h : pv && sz ? pv.y / sz.h : 1);
         const sp = fx.scene.add.sprite(ax, ay, tr.atlas).setOrigin(ox, oy).setDepth(this.depth(tr.layer, 'body')).setScale(S).setBlendMode(blend);
         sp.__fx = true; fx._inUse++;
         if (tr.color !== undefined) sp.setTint(this.color(tr.color));

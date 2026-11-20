@@ -1,4 +1,4 @@
-// Che do thu FX trong SectScene, chi bat khi URL co ?fx=1. Phim 1/2/3 = cue mau (chan / truoc mat nguoi choi), 4 = ca ba quanh nguoi choi, 5 = cue anim (atlas, GD4) tai chan, 6 = Cot Linh Lanh Hoa (GD5, 3 atlas floor/back/front) len hinh nom dung truoc mat Dao Si, R = lap moi 2 s.
+// Che do thu FX trong SectScene, chi bat khi URL co ?fx=1. Hinh nom luon co; moi phim 1-6 phat tai chan nom: 1/2/3 = cue mau, 4 = ca ba quanh nom, 5 = cue anim (atlas, GD4, anchor impact: vu no vao than nom), 6 = Cot Linh Lanh Hoa (GD5, 3 atlas), R = lap moi 2 s.
 // Hien FPS + fx.stats() goc man hinh (DOM, tren canvas, duoi UI cua game). Khong co co thi file nay khong duoc goi.
 export const CUE_IDS = ['demo-bang-vong', 'demo-hoa-cot', 'demo-kim-giang'];
 export const ANIM_ID = 'demo-anim-strike';
@@ -8,32 +8,37 @@ const DIR_ANGLE = { right: 0, down_right: 45, down: 90, down_left: 135, left: 18
 export function setupFxDemo(scene) {
   const fx = scene.fx;
   const front = d => { const a = (DIR_ANGLE[scene.facing] ?? 90) * Math.PI / 180; return { x: Math.cos(a) * d, y: Math.sin(a) * d }; };
-  // chan nguoi choi = (x, y) vi origin sprite o chan; diem truoc mat = lech 36 px theo huong nhin
-  const cast = (i) => {
-    const p = scene.player, f = front(i === 0 ? 0 : 36);
-    return fx.play(CUE_IDS[i], { x: p.x + f.x, y: p.y + f.y, onEvent: n => { scene.lastFxEvent = n; } });
-  };
-  const castAnim = () => fx.play(ANIM_ID, { x: scene.player.x, y: scene.player.y, onEvent: n => { scene.lastFxEvent = n; } });
-  // GD5: hinh nom = sprite Dao Si idle_down to mau cam, dung yen truoc mat nguoi choi 56 px; depth = y nhu moi actor; chan = (x, y) vi origin cung (32/64, 61/64)
+  // GD5-center: hinh nom (sprite Dao Si idle_down to mau cam, origin chan (32/64, 61/64), depth = y) luon co trong ?fx=1; MOI phim 1-6 phat tai chan nom
+  // (phim 5 = vu no cu dam dat vao than nom: anchor 'impact', y = than ~ chan - 28). Nom dung truoc mat Dao Si 56 px theo huong nhin luc tao; chi dat lai khi Dao Si di xa > 100 px hoac dung len nom (< 24 px).
+  const BODY = 28;
   let dummy = null;
-  const castTd = () => {
-    const p = scene.player, f = front(56);
+  const place = (force) => {
+    const p = scene.player;
+    if (dummy && !force) { const d = Math.hypot(dummy.x - p.x, dummy.y - p.y); if (d <= 100 && d >= 24) return dummy; }
+    const f = front(56);
+    dummy.setPosition(Math.round(p.x + f.x), Math.round(p.y + f.y)).setDepth(dummy.y);
+    return dummy;
+  };
+  const ensureDummy = () => {
     if (!dummy || !dummy.scene) {
       dummy = scene.add.sprite(0, 0, 'hero', 'dao_si_idle_down_00').setOrigin(32 / 64, 61 / 64).setTint(0xffb070);
-      dummy.anims.play('idle_down'); demo.dummy = dummy;
-    }
-    dummy.setPosition(Math.round(p.x + f.x), Math.round(p.y + f.y)).setDepth(dummy.y);
-    return fx.play(TD_ID, { x: dummy.x, y: dummy.y, target: dummy, onEvent: n => { scene.lastFxEvent = n; (scene.fxEvents ||= []).push(n); } });
+      dummy.anims.play('idle_down'); demo.dummy = dummy; place(true);
+    } else place(false);
+    return dummy;
   };
+  const ev = n => { scene.lastFxEvent = n; };
+  const cast = (i) => { const d = ensureDummy(); return fx.play(CUE_IDS[i], { x: d.x, y: d.y, onEvent: ev }); };
+  const castAnim = () => { const d = ensureDummy(); return fx.play(ANIM_ID, { x: d.x, y: d.y - BODY, onEvent: ev }); };
+  const castTd = () => { const d = ensureDummy(); return fx.play(TD_ID, { x: d.x, y: d.y, target: d, onEvent: n => { ev(n); (scene.fxEvents ||= []).push(n); } }); };
   const castAll = () => {
-    const p = scene.player;
+    const d = ensureDummy();
     return Promise.all(CUE_IDS.map((id, i) => {
-      const a = (-90 + i * 120) * Math.PI / 180;   // 3 cue cach deu quanh nguoi choi, ban kinh 40
-      return fx.play(id, { x: p.x + Math.cos(a) * 40, y: p.y + Math.sin(a) * 28 }).done;
+      const a = (-90 + i * 120) * Math.PI / 180;   // 3 cue cach deu quanh nom, ban kinh 40 (tam = chan nom)
+      return fx.play(id, { x: d.x + Math.cos(a) * 40, y: d.y + Math.sin(a) * 28 }).done;
     }));
   };
   const frontPoint = d => { const p = scene.player, f = front(d); return { x: p.x + f.x, y: p.y + f.y }; };
-  const demo = { cast, castAll, castAnim, castTd, frontPoint, looping: false, loopTimer: null };
+  const demo = { cast, castAll, castAnim, castTd, frontPoint, ensureDummy, dummy: null, looping: false, loopTimer: null };
   demo.setLoop = on => {
     demo.looping = on; demo.loopTimer?.remove(); demo.loopTimer = null;
     if (on) { castAll(); demo.loopTimer = scene.time.addEvent({ delay: 2000, loop: true, callback: castAll }); }
@@ -66,6 +71,7 @@ export function setupFxDemo(scene) {
     hud.textContent = `FPS ${Math.round(scene.game.loop.actualFps)}  fx: active ${s.active} hat ${s.particles} obj ${s.objects}${demo.looping ? '  [R: lap]' : ''}`;
   } });
   scene.events.once('shutdown', () => { dummy?.destroy(); t.remove(); hud.remove(); bar.remove(); demo.setLoop(false); });
+  ensureDummy();
   window.__fxdemo = demo; window.__fx = fx;
   return demo;
 }

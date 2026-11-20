@@ -12,3 +12,9 @@
 - Hitstop 50 ms dung toan bo anim/tween (ke ca sprite FX) theo thiet ke chung.
 - Test gd5 bo qua canh bao `CONTEXT_LOST_WEBGL: loseContext` luc khoi dong (co san, swiftshader) va nhieu hieu nang `GL Driver Message`.
 - FPS do tren swiftshader headless (khong phai GPU that, chua do mobile).
+
+## GD5-center: moi chieu phat dung tam hinh nom
+- Hinh nom (`__fxdemo.dummy`) luon co ngay khi vao `?fx=1`; phim/nut 1-6 deu phat tai chan nom (4 = 3 cue quanh nom, ban kinh 40; 5 = vu no vao than nom, y = chan - 28). Nom chi dat lai khi Dao Si cach > 100 px hoac < 24 px.
+- Nguyen nhan lech: cue 1-5 truoc day dat o diem cach hero 36 px / chan hero; atlas vocab-strike co pivot = chan nguoi ra don, vu no cach pivot ~(+57, -25) nen lech phai ~57 px.
+- Cach tong quat: atlas JSON co `meta.impact {x,y}` (px nguon; xuat bang `phaser-atlas.mjs ... --impact 101,75`; vocab-strike da them tay cung gia tri, khong doi PNG); track anim trong cue dat `"anchor": "impact"` thi FxPlayer lay origin = impact/sourceSize (originX/originY trong cue van uu tien nhat; khong co anchor hoac khong co impact thi dung pivot nhu cu).
+- Test: `npm run build` roi `node tools/center_test.mjs` (preview cong 8098; do lech x tam chieu so voi nom <= 2 px, anh shots/center_1..6.png); `node tools/center_measure.mjs` in toa do tho. gd4_test sua 2 dong (origin = impact, vi tri = than nom) theo hanh vi moi.
