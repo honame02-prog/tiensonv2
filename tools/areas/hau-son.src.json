@@ -1,0 +1,1481 @@
+{
+ "materials": "tools/area_materials.json",
+ "area": {
+ "id": "hau-son",
+ "name": "Hậu Sơn",
+ "sub": "Rừng trúc sau núi",
+ "backdrop": "none",
+ "bg": "#16221a",
+ "atlases": [
+ "cliff",
+ "forest",
+ "bamboo",
+ "bamboofloor"
+ ],
+ "spawns": {
+ "default": [
+ 46,
+ 320,
+ "right"
+ ],
+ "west": [
+ 46,
+ 320,
+ "right"
+ ]
+ },
+ "portals": [
+ {
+ "id": "to-son-dao",
+ "rect": [
+ 0,
+ 292,
+ 18,
+ 56
+ ],
+ "to": {
+ "area": "son-dao",
+ "spawn": "east"
+ },
+ "label": "Sơn Đạo"
+ }
+ ],
+ "features": {},
+ "texts": {}
+ },
+ "bake": {
+ "width": 640,
+ "height": 640,
+ "seed": 31,
+ "paths": {
+ "walk": {
+ "pts": [
+ [
+ 30,
+ 320
+ ],
+ [
+ 100,
+ 330
+ ],
+ [
+ 170,
+ 316
+ ],
+ [
+ 240,
+ 304
+ ],
+ [
+ 300,
+ 306
+ ],
+ [
+ 350,
+ 312
+ ]
+ ],
+ "width": [
+ 46,
+ 46,
+ 44,
+ 44,
+ 44,
+ 44
+ ]
+ }
+ },
+ "regions": [
+ {
+ "material": "leaflitter",
+ "fill": true
+ },
+ {
+ "material": "forest",
+ "poly": [
+ [
+ 0,
+ 470
+ ],
+ [
+ 120,
+ 450
+ ],
+ [
+ 210,
+ 520
+ ],
+ [
+ 250,
+ 640
+ ],
+ [
+ 0,
+ 640
+ ]
+ ],
+ "smooth": true,
+ "dither": 8,
+ "wobble": 10,
+ "seed": 3
+ },
+ {
+ "material": "forest",
+ "poly": [
+ [
+ 640,
+ 80
+ ],
+ [
+ 520,
+ 90
+ ],
+ [
+ 470,
+ 140
+ ],
+ [
+ 500,
+ 220
+ ],
+ [
+ 640,
+ 250
+ ]
+ ],
+ "smooth": true,
+ "dither": 8,
+ "wobble": 10,
+ "seed": 4
+ },
+ {
+ "material": "grass",
+ "poly": [
+ [
+ 440,
+ 560
+ ],
+ [
+ 560,
+ 540
+ ],
+ [
+ 640,
+ 570
+ ],
+ [
+ 640,
+ 640
+ ],
+ [
+ 420,
+ 640
+ ]
+ ],
+ "smooth": true,
+ "dither": 8,
+ "wobble": 9,
+ "seed": 5
+ },
+ {
+ "material": "dirt",
+ "path": "walk",
+ "dither": 3,
+ "wobble": 3,
+ "seed": 6
+ },
+ {
+ "material": "dirt",
+ "poly": [
+ [
+ 300,
+ 262
+ ],
+ [
+ 390,
+ 236
+ ],
+ [
+ 468,
+ 262
+ ],
+ [
+ 478,
+ 330
+ ],
+ [
+ 420,
+ 376
+ ],
+ [
+ 340,
+ 372
+ ],
+ [
+ 296,
+ 330
+ ]
+ ],
+ "smooth": true,
+ "dither": 6,
+ "wobble": 5,
+ "seed": 7
+ }
+ ],
+ "blocks": [
+ {
+ "poly": [
+ [
+ 0,
+ 0
+ ],
+ [
+ 640,
+ 0
+ ],
+ [
+ 640,
+ 64
+ ],
+ [
+ 0,
+ 64
+ ]
+ ]
+ },
+ {
+ "poly": [
+ [
+ 0,
+ 0
+ ],
+ [
+ 56,
+ 0
+ ],
+ [
+ 56,
+ 288
+ ],
+ [
+ 0,
+ 288
+ ]
+ ]
+ },
+ {
+ "poly": [
+ [
+ 0,
+ 352
+ ],
+ [
+ 56,
+ 352
+ ],
+ [
+ 56,
+ 640
+ ],
+ [
+ 0,
+ 640
+ ]
+ ]
+ },
+ {
+ "poly": [
+ [
+ 584,
+ 0
+ ],
+ [
+ 640,
+ 0
+ ],
+ [
+ 640,
+ 640
+ ],
+ [
+ 584,
+ 640
+ ]
+ ]
+ },
+ {
+ "poly": [
+ [
+ 0,
+ 584
+ ],
+ [
+ 640,
+ 584
+ ],
+ [
+ 640,
+ 640
+ ],
+ [
+ 0,
+ 640
+ ]
+ ]
+ }
+ ],
+ "props": [
+ {
+ "key": "bamboofloor:stone_path_0",
+ "x": 31,
+ "y": 338
+ },
+ {
+ "key": "bamboofloor:stone_path_1",
+ "x": 56,
+ "y": 341
+ },
+ {
+ "key": "bamboofloor:stone_path_2",
+ "x": 83,
+ "y": 341
+ },
+ {
+ "key": "bamboofloor:stone_path_3",
+ "x": 109,
+ "y": 344
+ },
+ {
+ "key": "bamboofloor:stone_path_0",
+ "x": 136,
+ "y": 341
+ },
+ {
+ "key": "bamboofloor:stone_path_1",
+ "x": 161,
+ "y": 333
+ },
+ {
+ "key": "bamboofloor:stone_path_2",
+ "x": 191,
+ "y": 327
+ },
+ {
+ "key": "bamboofloor:stone_path_3",
+ "x": 215,
+ "y": 326
+ },
+ {
+ "key": "bamboofloor:stone_path_0",
+ "x": 243,
+ "y": 323
+ },
+ {
+ "key": "bamboofloor:stone_path_1",
+ "x": 271,
+ "y": 321
+ },
+ {
+ "key": "bamboofloor:stone_path_2",
+ "x": 298,
+ "y": 322
+ },
+ {
+ "key": "bamboofloor:stone_path_3",
+ "x": 325,
+ "y": 325
+ },
+ {
+ "key": "bamboofloor:stone_path_1",
+ "x": 318,
+ "y": 316
+ },
+ {
+ "key": "bamboofloor:stone_path_1",
+ "x": 352,
+ "y": 336
+ },
+ {
+ "key": "bamboofloor:stone_path_0",
+ "x": 392,
+ "y": 330
+ },
+ {
+ "key": "bamboofloor:stone_path_3",
+ "x": 428,
+ "y": 318
+ },
+ {
+ "key": "bamboofloor:mossrock_1",
+ "x": 316,
+ "y": 262
+ },
+ {
+ "key": "bamboofloor:mossrock_1_shadow",
+ "x": 319,
+ "y": 263
+ },
+ {
+ "key": "bamboofloor:mossrock_0",
+ "x": 446,
+ "y": 344
+ },
+ {
+ "key": "bamboofloor:mossrock_0_shadow",
+ "x": 449,
+ "y": 345
+ },
+ {
+ "key": "bamboofloor:mossrock_2",
+ "x": 414,
+ "y": 258
+ },
+ {
+ "key": "bamboofloor:mossrock_2_shadow",
+ "x": 417,
+ "y": 259
+ },
+ {
+ "key": "bamboofloor:fence_bamboo_h_1",
+ "x": 110,
+ "y": 362
+ },
+ {
+ "key": "bamboofloor:fence_bamboo_h_1",
+ "x": 174,
+ "y": 362
+ },
+ {
+ "key": "bamboofloor:fence_bamboo_h_1",
+ "x": 238,
+ "y": 362
+ },
+ {
+ "key": "bamboofloor:fence_bamboo_post",
+ "x": 78,
+ "y": 363
+ },
+ {
+ "key": "bamboofloor:fence_bamboo_post",
+ "x": 142,
+ "y": 363
+ },
+ {
+ "key": "bamboofloor:fence_bamboo_post",
+ "x": 206,
+ "y": 363
+ },
+ {
+ "key": "bamboofloor:fence_bamboo_post",
+ "x": 270,
+ "y": 363
+ },
+ {
+ "key": "bamboo:bamboo_clump_0",
+ "x": 66,
+ "y": 296
+ },
+ {
+ "key": "bamboo:bamboo_clump_1",
+ "x": 132,
+ "y": 284
+ },
+ {
+ "key": "bamboo:bamboo_clump_2",
+ "x": 200,
+ "y": 272
+ },
+ {
+ "key": "bamboo:bamboo_clump_0",
+ "x": 274,
+ "y": 336
+ },
+ {
+ "key": "bamboo:bamboo_clump_1",
+ "x": 258,
+ "y": 276
+ },
+ {
+ "key": "bamboo:bamboo_clump_2",
+ "x": 118,
+ "y": 392
+ },
+ {
+ "key": "bamboo:bamboo_clump_0",
+ "x": 322,
+ "y": 366
+ },
+ {
+ "key": "cliff:cliff_n_0",
+ "x": 32,
+ "y": 64
+ },
+ {
+ "key": "cliff:cliff_n_1",
+ "x": 96,
+ "y": 64
+ },
+ {
+ "key": "cliff:cliff_n_2",
+ "x": 160,
+ "y": 64
+ },
+ {
+ "key": "cliff:cliff_n_3",
+ "x": 224,
+ "y": 64
+ },
+ {
+ "key": "cliff:cliff_n_0",
+ "x": 288,
+ "y": 64
+ },
+ {
+ "key": "cliff:cliff_n_1",
+ "x": 352,
+ "y": 64
+ },
+ {
+ "key": "cliff:cliff_n_2",
+ "x": 416,
+ "y": 64
+ },
+ {
+ "key": "cliff:cliff_n_3",
+ "x": 480,
+ "y": 64
+ },
+ {
+ "key": "cliff:cliff_n_0",
+ "x": 544,
+ "y": 64
+ },
+ {
+ "key": "cliff:cliff_n_1",
+ "x": 608,
+ "y": 64
+ },
+ {
+ "key": "cliff:cliff_nw",
+ "x": 20,
+ "y": 64
+ },
+ {
+ "key": "cliff:cliff_ne",
+ "x": 620,
+ "y": 64
+ },
+ {
+ "key": "forest:canopy_0",
+ "x": 0,
+ "y": 112
+ },
+ {
+ "key": "forest:canopy_3",
+ "x": 636,
+ "y": 112
+ },
+ {
+ "key": "forest:trunkrow_0",
+ "x": 40,
+ "y": 140
+ },
+ {
+ "key": "forest:trunkrow_1",
+ "x": 602,
+ "y": 140
+ },
+ {
+ "key": "forest:canopy_3",
+ "x": 5,
+ "y": 163
+ },
+ {
+ "key": "forest:canopy_4",
+ "x": 637,
+ "y": 163
+ },
+ {
+ "key": "forest:trunkrow_1",
+ "x": 40,
+ "y": 191
+ },
+ {
+ "key": "forest:trunkrow_0",
+ "x": 602,
+ "y": 191
+ },
+ {
+ "key": "forest:canopy_1",
+ "x": 2,
+ "y": 213
+ },
+ {
+ "key": "forest:canopy_4",
+ "x": 637,
+ "y": 213
+ },
+ {
+ "key": "forest:trunkrow_1",
+ "x": 40,
+ "y": 241
+ },
+ {
+ "key": "forest:trunkrow_1",
+ "x": 602,
+ "y": 241
+ },
+ {
+ "key": "forest:canopy_5",
+ "x": 5,
+ "y": 263
+ },
+ {
+ "key": "forest:canopy_5",
+ "x": 633,
+ "y": 263
+ },
+ {
+ "key": "forest:trunkrow_1",
+ "x": 40,
+ "y": 291
+ },
+ {
+ "key": "forest:trunkrow_1",
+ "x": 602,
+ "y": 291
+ },
+ {
+ "key": "forest:canopy_1",
+ "x": 638,
+ "y": 321
+ },
+ {
+ "key": "forest:trunkrow_0",
+ "x": 602,
+ "y": 349
+ },
+ {
+ "key": "forest:canopy_5",
+ "x": 638,
+ "y": 369
+ },
+ {
+ "key": "forest:trunkrow_0",
+ "x": 602,
+ "y": 397
+ },
+ {
+ "key": "forest:canopy_4",
+ "x": 635,
+ "y": 423
+ },
+ {
+ "key": "forest:trunkrow_1",
+ "x": 602,
+ "y": 451
+ },
+ {
+ "key": "forest:canopy_4",
+ "x": 9,
+ "y": 474
+ },
+ {
+ "key": "forest:canopy_3",
+ "x": 635,
+ "y": 474
+ },
+ {
+ "key": "forest:trunkrow_1",
+ "x": 40,
+ "y": 502
+ },
+ {
+ "key": "forest:trunkrow_0",
+ "x": 602,
+ "y": 502
+ },
+ {
+ "key": "forest:canopy_1",
+ "x": 2,
+ "y": 532
+ },
+ {
+ "key": "forest:canopy_4",
+ "x": 636,
+ "y": 532
+ },
+ {
+ "key": "forest:trunkrow_0",
+ "x": 40,
+ "y": 560
+ },
+ {
+ "key": "forest:trunkrow_1",
+ "x": 602,
+ "y": 560
+ },
+ {
+ "key": "forest:canopy_4",
+ "x": 5,
+ "y": 576
+ },
+ {
+ "key": "forest:canopy_4",
+ "x": 636,
+ "y": 576
+ },
+ {
+ "key": "forest:trunkrow_1",
+ "x": 40,
+ "y": 604
+ },
+ {
+ "key": "forest:trunkrow_0",
+ "x": 602,
+ "y": 604
+ },
+ {
+ "key": "forest:canopy_2",
+ "x": 0,
+ "y": 637
+ },
+ {
+ "key": "forest:canopy_5",
+ "x": 632,
+ "y": 637
+ },
+ {
+ "key": "forest:trunkrow_1",
+ "x": 40,
+ "y": 665
+ },
+ {
+ "key": "forest:trunkrow_0",
+ "x": 602,
+ "y": 665
+ },
+ {
+ "key": "forest:canopy_0",
+ "x": 6,
+ "y": 679
+ },
+ {
+ "key": "forest:canopy_1",
+ "x": 35,
+ "y": 650
+ },
+ {
+ "key": "forest:canopy_2",
+ "x": 68,
+ "y": 626
+ },
+ {
+ "key": "forest:canopy_3",
+ "x": 107,
+ "y": 652
+ },
+ {
+ "key": "forest:canopy_0",
+ "x": 140,
+ "y": 625
+ },
+ {
+ "key": "forest:canopy_5",
+ "x": 176,
+ "y": 651
+ },
+ {
+ "key": "forest:canopy_0",
+ "x": 209,
+ "y": 627
+ },
+ {
+ "key": "forest:canopy_1",
+ "x": 232,
+ "y": 655
+ },
+ {
+ "key": "forest:canopy_2",
+ "x": 265,
+ "y": 628
+ },
+ {
+ "key": "forest:canopy_2",
+ "x": 301,
+ "y": 654
+ },
+ {
+ "key": "forest:canopy_1",
+ "x": 334,
+ "y": 628
+ },
+ {
+ "key": "forest:canopy_0",
+ "x": 367,
+ "y": 650
+ },
+ {
+ "key": "forest:canopy_0",
+ "x": 400,
+ "y": 628
+ },
+ {
+ "key": "forest:canopy_2",
+ "x": 432,
+ "y": 654
+ },
+ {
+ "key": "forest:canopy_2",
+ "x": 465,
+ "y": 624
+ },
+ {
+ "key": "forest:canopy_1",
+ "x": 504,
+ "y": 651
+ },
+ {
+ "key": "forest:canopy_3",
+ "x": 537,
+ "y": 628
+ },
+ {
+ "key": "forest:canopy_5",
+ "x": 564,
+ "y": 651
+ },
+ {
+ "key": "forest:canopy_2",
+ "x": 597,
+ "y": 628
+ },
+ {
+ "key": "forest:canopy_5",
+ "x": 629,
+ "y": 650
+ },
+ {
+ "key": "forest:canopy_1",
+ "x": 662,
+ "y": 626
+ },
+ {
+ "key": "forest:bush_0",
+ "x": 20,
+ "y": 392
+ },
+ {
+ "key": "forest:bush_2",
+ "x": 36,
+ "y": 420
+ },
+ {
+ "key": "forest:bush_0",
+ "x": 14,
+ "y": 452
+ },
+ {
+ "key": "bamboo:bamboo_stem_5",
+ "x": 150,
+ "y": 123
+ },
+ {
+ "key": "bamboo:bamboo_stem_4",
+ "x": 172,
+ "y": 126
+ },
+ {
+ "key": "bamboo:bamboo_stem_1",
+ "x": 196,
+ "y": 111
+ },
+ {
+ "key": "bamboo:bamboo_stem_0",
+ "x": 49,
+ "y": 211
+ },
+ {
+ "key": "bamboo:bamboo_stem_5",
+ "x": 18,
+ "y": 207
+ },
+ {
+ "key": "bamboo:bamboo_stem_5",
+ "x": 36,
+ "y": 229
+ },
+ {
+ "key": "bamboo:bamboo_stem_5",
+ "x": 512,
+ "y": 595
+ },
+ {
+ "key": "bamboo:bamboo_stem_5",
+ "x": 496,
+ "y": 624
+ },
+ {
+ "key": "bamboo:bamboo_stem_4",
+ "x": 472,
+ "y": 599
+ },
+ {
+ "key": "bamboo:bamboo_stem_2",
+ "x": 374,
+ "y": 153
+ },
+ {
+ "key": "bamboo:bamboo_stem_1",
+ "x": 389,
+ "y": 168
+ },
+ {
+ "key": "bamboo:bamboo_stem_2",
+ "x": 354,
+ "y": 143
+ },
+ {
+ "key": "bamboo:bamboo_stem_5",
+ "x": 31,
+ "y": 107
+ },
+ {
+ "key": "bamboo:bamboo_stem_1",
+ "x": 53,
+ "y": 94
+ },
+ {
+ "key": "bamboo:bamboo_stem_0",
+ "x": 15,
+ "y": 94
+ },
+ {
+ "key": "bamboo:bamboo_stem_3",
+ "x": 117,
+ "y": 580
+ },
+ {
+ "key": "bamboo:bamboo_stem_1",
+ "x": 86,
+ "y": 594
+ },
+ {
+ "key": "bamboo:bamboo_stem_1",
+ "x": 111,
+ "y": 604
+ },
+ {
+ "key": "bamboo:bamboo_stem_2",
+ "x": 530,
+ "y": 96
+ },
+ {
+ "key": "bamboo:bamboo_stem_0",
+ "x": 556,
+ "y": 100
+ },
+ {
+ "key": "bamboo:bamboo_stem_0",
+ "x": 541,
+ "y": 116
+ },
+ {
+ "key": "bamboo:bamboo_stem_2",
+ "x": 356,
+ "y": 540
+ },
+ {
+ "key": "bamboo:bamboo_stem_5",
+ "x": 331,
+ "y": 553
+ },
+ {
+ "key": "bamboo:bamboo_stem_5",
+ "x": 377,
+ "y": 550
+ },
+ {
+ "key": "bamboo:bamboo_stem_0",
+ "x": 49,
+ "y": 479
+ },
+ {
+ "key": "bamboo:bamboo_stem_4",
+ "x": 93,
+ "y": 493
+ },
+ {
+ "key": "bamboo:bamboo_stem_3",
+ "x": 71,
+ "y": 501
+ },
+ {
+ "key": "bamboo:bamboo_stem_2",
+ "x": 564,
+ "y": 315
+ },
+ {
+ "key": "bamboo:bamboo_stem_4",
+ "x": 552,
+ "y": 290
+ },
+ {
+ "key": "bamboo:bamboo_stem_2",
+ "x": 540,
+ "y": 309
+ },
+ {
+ "key": "bamboo:bamboo_stem_3",
+ "x": 22,
+ "y": 472
+ },
+ {
+ "key": "bamboo:bamboo_stem_4",
+ "x": 42,
+ "y": 455
+ },
+ {
+ "key": "bamboo:bamboo_stem_0",
+ "x": 444,
+ "y": 505
+ },
+ {
+ "key": "bamboo:bamboo_stem_5",
+ "x": 474,
+ "y": 515
+ },
+ {
+ "key": "bamboo:bamboo_stem_4",
+ "x": 625,
+ "y": 543
+ },
+ {
+ "key": "bamboo:bamboo_stem_4",
+ "x": 629,
+ "y": 566
+ },
+ {
+ "key": "bamboo:bamboo_stem_1",
+ "x": 608,
+ "y": 570
+ },
+ {
+ "key": "bamboo:bamboo_stem_4",
+ "x": 173,
+ "y": 595
+ },
+ {
+ "key": "bamboo:bamboo_stem_5",
+ "x": 207,
+ "y": 585
+ },
+ {
+ "key": "bamboo:bamboo_stem_0",
+ "x": 204,
+ "y": 607
+ },
+ {
+ "key": "bamboo:bamboo_stem_3",
+ "x": 261,
+ "y": 480
+ },
+ {
+ "key": "bamboo:bamboo_stem_2",
+ "x": 288,
+ "y": 470
+ },
+ {
+ "key": "bamboo:bamboo_stem_2",
+ "x": 34,
+ "y": 422
+ },
+ {
+ "key": "bamboo:bamboo_stem_2",
+ "x": 13,
+ "y": 412
+ },
+ {
+ "key": "bamboo:bamboo_stem_1",
+ "x": 53,
+ "y": 408
+ },
+ {
+ "key": "bamboo:bamboo_stem_0",
+ "x": 458,
+ "y": 85
+ },
+ {
+ "key": "bamboo:bamboo_stem_5",
+ "x": 451,
+ "y": 111
+ },
+ {
+ "key": "bamboo:bamboo_stem_2",
+ "x": 414,
+ "y": 107
+ },
+ {
+ "key": "bamboo:bamboo_stem_1",
+ "x": 145,
+ "y": 88
+ },
+ {
+ "key": "bamboo:bamboo_stem_3",
+ "x": 120,
+ "y": 78
+ },
+ {
+ "key": "bamboo:bamboo_stem_1",
+ "x": 164,
+ "y": 78
+ },
+ {
+ "key": "bamboo:bamboo_stem_0",
+ "x": 586,
+ "y": 248
+ },
+ {
+ "key": "bamboo:bamboo_stem_4",
+ "x": 619,
+ "y": 263
+ },
+ {
+ "key": "bamboo:bamboo_stem_1",
+ "x": 592,
+ "y": 272
+ },
+ {
+ "key": "bamboo:bamboo_stem_0",
+ "x": 533,
+ "y": 523
+ },
+ {
+ "key": "bamboo:bamboo_stem_2",
+ "x": 525,
+ "y": 504
+ },
+ {
+ "key": "bamboo:bamboo_stem_2",
+ "x": 560,
+ "y": 512
+ },
+ {
+ "key": "bamboo:bamboo_stem_2",
+ "x": 564,
+ "y": 205
+ },
+ {
+ "key": "bamboo:bamboo_stem_0",
+ "x": 531,
+ "y": 215
+ },
+ {
+ "key": "bamboo:bamboo_stem_5",
+ "x": 541,
+ "y": 197
+ },
+ {
+ "key": "bamboo:bamboo_stem_2",
+ "x": 364,
+ "y": 606
+ },
+ {
+ "key": "bamboo:bamboo_stem_5",
+ "x": 404,
+ "y": 624
+ },
+ {
+ "key": "bamboo:bamboo_stem_4",
+ "x": 381,
+ "y": 624
+ },
+ {
+ "key": "bamboo:bamboo_stem_2",
+ "x": 607,
+ "y": 315
+ },
+ {
+ "key": "bamboo:bamboo_stem_1",
+ "x": 587,
+ "y": 318
+ },
+ {
+ "key": "bamboo:bamboo_stem_1",
+ "x": 611,
+ "y": 337
+ },
+ {
+ "key": "bamboo:bamboo_stem_2",
+ "x": 262,
+ "y": 102
+ },
+ {
+ "key": "bamboo:bamboo_stem_0",
+ "x": 230,
+ "y": 97
+ },
+ {
+ "key": "bamboo:bamboo_stem_4",
+ "x": 259,
+ "y": 122
+ },
+ {
+ "key": "bamboo:bamboo_stem_3",
+ "x": 586,
+ "y": 450
+ },
+ {
+ "key": "bamboo:bamboo_stem_5",
+ "x": 569,
+ "y": 434
+ },
+ {
+ "key": "bamboo:bamboo_stem_4",
+ "x": 608,
+ "y": 450
+ },
+ {
+ "key": "bamboo:bamboo_stem_1",
+ "x": 45,
+ "y": 542
+ },
+ {
+ "key": "bamboo:bamboo_stem_2",
+ "x": 29,
+ "y": 529
+ },
+ {
+ "key": "bamboo:bamboo_stem_2",
+ "x": 27,
+ "y": 555
+ },
+ {
+ "key": "bamboo:bamboo_stem_2",
+ "x": 572,
+ "y": 156
+ },
+ {
+ "key": "bamboo:bamboo_stem_3",
+ "x": 577,
+ "y": 134
+ },
+ {
+ "key": "bamboo:bamboo_stem_2",
+ "x": 610,
+ "y": 139
+ },
+ {
+ "key": "bamboo:bamboo_stem_2",
+ "x": 565,
+ "y": 587
+ },
+ {
+ "key": "bamboo:bamboo_stem_1",
+ "x": 543,
+ "y": 581
+ },
+ {
+ "key": "bamboo:bamboo_stem_3",
+ "x": 581,
+ "y": 598
+ },
+ {
+ "key": "bamboo:bamboo_stem_4",
+ "x": 449,
+ "y": 180
+ },
+ {
+ "key": "bamboo:bamboo_stem_2",
+ "x": 409,
+ "y": 191
+ },
+ {
+ "key": "bamboo:bamboo_stem_5",
+ "x": 52,
+ "y": 617
+ },
+ {
+ "key": "bamboo:bamboo_stem_1",
+ "x": 28,
+ "y": 604
+ },
+ {
+ "key": "bamboo:bamboo_stem_4",
+ "x": 52,
+ "y": 595
+ },
+ {
+ "key": "bamboo:bamboo_stem_5",
+ "x": 307,
+ "y": 113
+ },
+ {
+ "key": "bamboo:bamboo_stem_2",
+ "x": 337,
+ "y": 107
+ },
+ {
+ "key": "bamboo:bamboo_stem_5",
+ "x": 292,
+ "y": 97
+ },
+ {
+ "key": "bamboo:bamboo_stem_0",
+ "x": 90,
+ "y": 76
+ },
+ {
+ "key": "bamboo:bamboo_stem_4",
+ "x": 87,
+ "y": 97
+ },
+ {
+ "key": "bamboo:bamboo_stem_4",
+ "x": 69,
+ "y": 78
+ },
+ {
+ "key": "bamboo:bamboo_stem_2",
+ "x": 291,
+ "y": 226
+ },
+ {
+ "key": "bamboo:bamboo_stem_1",
+ "x": 122,
+ "y": 180
+ },
+ {
+ "key": "bamboo:bamboo_stem_1",
+ "x": 105,
+ "y": 169
+ },
+ {
+ "key": "bamboo:bamboo_stem_5",
+ "x": 140,
+ "y": 195
+ }
+ ],
+ "scatter": [
+ {
+ "soft": true,
+ "keys": [
+ "forest:bush_0",
+ "forest:bush_1",
+ "forest:bush_2",
+ "forest:bush_3"
+ ],
+ "count": 14,
+ "in": {
+ "rect": [
+ 60,
+ 90,
+ 520,
+ 500
+ ]
+ },
+ "on": [
+ "leaflitter",
+ "forest",
+ "grass"
+ ],
+ "avoidPaths": [
+ {
+ "path": "walk",
+ "dist": 26
+ }
+ ],
+ "keepClear": [
+ [
+ 380,
+ 308,
+ 100
+ ],
+ [
+ 46,
+ 320,
+ 60
+ ]
+ ],
+ "minDist": 40,
+ "seed": 8
+ },
+ {
+ "soft": true,
+ "keys": [
+ "forest:tallgrass_0",
+ "forest:tallgrass_1",
+ "forest:tallgrass_2",
+ "forest:tallgrass_3"
+ ],
+ "count": 24,
+ "in": {
+ "rect": [
+ 60,
+ 90,
+ 520,
+ 500
+ ]
+ },
+ "on": [
+ "leaflitter",
+ "forest",
+ "grass"
+ ],
+ "avoidPaths": [
+ {
+ "path": "walk",
+ "dist": 18
+ }
+ ],
+ "keepClear": [
+ [
+ 380,
+ 308,
+ 80
+ ]
+ ],
+ "minDist": 26,
+ "seed": 9
+ },
+ {
+ "kind": "decal",
+ "keys": [
+ "tuft1",
+ "tuft2",
+ "tuft3",
+ "tuft4",
+ "tuft5",
+ "tuft6"
+ ],
+ "count": 22,
+ "on": [
+ "forest",
+ "grass"
+ ],
+ "minDist": 30,
+ "seed": 4
+ },
+ {
+ "kind": "decal",
+ "keys": [
+ "ground1",
+ "ground2",
+ "ground3",
+ "ground4",
+ "ground5",
+ "ground6",
+ "ground7",
+ "ground8",
+ "ground9"
+ ],
+ "count": 10,
+ "on": [
+ "dirt"
+ ],
+ "minDist": 36,
+ "seed": 6
+ }
+ ]
+ }
+}

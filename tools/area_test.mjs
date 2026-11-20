@@ -88,6 +88,61 @@ try {
     await tele(t.x, t.y + 36); await hold('ArrowUp', 1800); const r = await stats();
     check(`khong xuyen ${t.key} tai (${t.x},${Math.round(t.y)}): chan lai o y >= ${Math.round(t.y + 5)}`, r.py >= t.y + 5 && Math.abs(r.px - t.x) < 14, `chan o (${r.px},${r.py})`);
   }
+  // Son Dao <-> Hau Son: qua - ve 2 lan (di bo that), spawn west/east dung, ten khu, nhan cong
+  await page.goto(base + '?area=son-dao&x=560&y=416&face=right', { waitUntil: 'load' }); await inArea('son-dao'); await page.waitForTimeout(900);
+  await tele(596, 416); await page.waitForTimeout(600);
+  const lbE = await page.evaluate(() => { const q = document.querySelector('#ui .prompt'); return { disp: q.style.display, txt: q.textContent }; });
+  check('nhan cong Son Dao -> Hau Son hien khi lai gan', lbE.disp === 'block' && /Hậu Sơn/.test(lbE.txt), JSON.stringify(lbE));
+  await tele(560, 416);
+  const hsArr = [];
+  for (let n = 1; n <= 2; n++) {
+    await page.keyboard.down('ArrowRight'); await page.waitForFunction(() => __scene.busy, null, { timeout: 8000 }).catch(() => {}); await page.keyboard.up('ArrowRight');
+    await inArea('hau-son'); await page.waitForTimeout(900);
+    const a = await stats(); hsArr.push(a); out.push(`Son Dao->Hau Son lan ${n}: ` + JSON.stringify(a));
+    check(`lan ${n}: vao Hau Son dung spawn west`, a.area === 'hau-son' && Math.abs(a.px - 46) < 8 && Math.abs(a.py - 320) < 8, `(${a.px},${a.py})`);
+    if (n === 1) {
+      const t = await page.evaluate(() => document.querySelector('#ui .title b').textContent); check('ten khu hien khi vao: Hau Son', t === 'Hậu Sơn', t);
+      await tele(40, 320); await page.waitForTimeout(600);
+      const l3 = await page.evaluate(() => { const q = document.querySelector('#ui .prompt'); return { disp: q.style.display, txt: q.textContent }; });
+      check('nhan cong Hau Son hien khi lai gan', l3.disp === 'block' && /Sơn Đạo/.test(l3.txt), JSON.stringify(l3));
+      await tele(46, 320); await page.waitForTimeout(300);
+      await page.locator('canvas').screenshot({ path: 'shots/area_hau-son_player.png' });
+    }
+    await tele(50, 320); await page.waitForTimeout(300);
+    await page.keyboard.down('ArrowLeft'); await page.waitForFunction(() => __scene.busy, null, { timeout: 8000 }).catch(() => {}); await page.keyboard.up('ArrowLeft');
+    await inArea('son-dao'); await page.waitForTimeout(900);
+    const b = await stats(); out.push(`Hau Son->Son Dao lan ${n}: ` + JSON.stringify(b));
+    check(`lan ${n}: ve Son Dao dung spawn east`, b.area === 'son-dao' && Math.abs(b.px - 572) < 8 && Math.abs(b.py - 416) < 8, `(${b.px},${b.py})`);
+    await tele(572, 416); await page.waitForTimeout(200);
+  }
+  check('Hau Son: objs/tex/anims/dom/ui/tweens khong doi qua 2 lan', ['objs', 'tex', 'anims', 'dom', 'ui', 'tweens'].every(f => hsArr[0][f] === hsArr[1][f]), JSON.stringify([hsArr[0], hsArr[1]]));
+  // Hau Son: FPS, va cham, anh
+  await page.goto(base + '?area=hau-son', { waitUntil: 'load' }); await inArea('hau-son'); await page.waitForTimeout(1200);
+  const fpsHs = await fps(); out.push(`FPS Hau Son (swiftshader, 960x540): ${fpsHs}`);
+  check('FPS Hau Son >= 0.8 x FPS HVQ', fpsHs >= fpsHvq * 0.8, `${fpsHs} vs ${fpsHvq}`);
+  await tele(520, 450); await hold('ArrowRight', 2500); p = await stats();
+  check('khong xuyen bien dong Hau Son (x <= 592)', p.px <= 592 && p.px > 440, `x=${p.px}`);
+  await tele(300, 540); await hold('ArrowDown', 2500); p = await stats();
+  check('khong xuyen bien nam Hau Son (y <= 600)', p.py <= 600 && p.py > 480, `y=${p.py}`);
+  await tele(200, 100); await hold('ArrowUp', 2500); p = await stats();
+  check('khong xuyen vach bac Hau Son (y >= 62)', p.py >= 62 && p.py < 140, `y=${p.py}`);
+  {
+    const t = await page.evaluate(() => { const ps = __scene.meta.props, c = ps.filter(q => /^bamboo:bamboo_stem/.test(q.key)); const free = (x, y) => !(__scene.meta.col[Math.floor(y / 32)] || [])[Math.floor(x / 32)];
+      const q = c.find(q => q.x > 120 && q.x < 540 && q.y > 130 && q.y < 540 && free(q.x, q.y + 36) && free(q.x, q.y + 20) && !ps.some(o => o !== q && /bamboo|mossrock|fence/.test(o.key) && !/shadow/.test(o.key) && Math.abs(o.x - q.x) < 36 && o.y > q.y - 12 && o.y < q.y + 60)); return q || null; });
+    if (!t) check('va cham than truc: tim duoc cum de thu', false);
+    else { await tele(t.x, t.y + 36); await hold('ArrowUp', 1800); const r = await stats();
+      check(`khong xuyen ${t.key} tai (${t.x},${t.y}): chan lai o y >= ${t.y + 4}`, r.py >= t.y + 4 && Math.abs(r.px - t.x) < 16, `chan o (${r.px},${r.py})`); }
+  }
+  const page3 = await ctx.newPage(); const errs3 = [];
+  page3.on('pageerror', e => errs3.push(e.message));
+  await page3.setViewportSize({ width: 960, height: 960 });
+  await page3.goto(base + '?area=hau-son', { waitUntil: 'load' });
+  await page3.waitForFunction(() => window.__scene?.meta?.id === 'hau-son' && window.__scene.player?.active, null, { timeout: 20000 });
+  await page3.waitForTimeout(1200);
+  await page3.evaluate(() => { const c = __scene.cameras.main; c.stopFollow(); c.setBounds(-200, -200, 1040, 1040); c.setZoom(0.7); c.centerOn(320, 320); document.getElementById('ui').style.visibility = 'hidden'; });
+  await page3.waitForTimeout(500);
+  await page3.locator('canvas').screenshot({ path: 'shots/area_hau-son.png' });
+  errs.push(...errs3);
   // anh toan canh (thu nho) bang camera zoom, khung dung
   const page2 = await ctx.newPage(); const errs2 = [];
   page2.on('pageerror', e => errs2.push(e.message));

@@ -5,6 +5,7 @@
   "grass": {"type": "terrain", "set": "grass", "src": "public/assets/terrain/terrain.json", "ghi_chu": "o lat lien 128 px (khong lat guong), chon bien the theo hash(o, seed), wrap modulo"},
   "forest": {"type": "terrain", "set": "forest", "src": "public/assets/terrain/terrain.json", "ghi_chu": "nhu grass, bo forest"},
   "dirt": {"type": "terrain", "set": "dirt", "src": "public/assets/terrain/terrain.json", "ghi_chu": "nhu grass, bo dirt"},
+  "leaflitter": {"type": "terrain", "set": "leaflitter", "src": "public/assets/terrain/terrain.json", "ghi_chu": "nhu grass, bo leaflitter (la rung kho, Hau Son)"},
   "cobble": {"type": "tile", "rect": [330, 40, 340, 240], "ghi_chu": "da lat san tren (x330-670, y40-280), tranh vet do o dinh (y<20) va mep"},
   "slab": {"type": "tile", "rect": [458, 380, 76, 330], "ghi_chu": "dai da phien giua san (x458-534, y380-710), giua hai thanh thang"},
   "grass_mirror": {"type": "tile", "rect": [140, 24, 148, 260], "ghi_chu": "ban cu (lat guong) cua grass; forest_shade/dirt_recolor dua tren no. Khong khu nao dung neu khong goi ten"},

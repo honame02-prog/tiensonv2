@@ -2,8 +2,9 @@
  "materials": "tools/area_materials.json",
  "area": {
   "id": "son-dao", "name": "Sơn Đạo", "sub": "Đường núi ngoài sơn môn", "backdrop": "none", "bg": "#1c2a1e", "atlases": ["cliff", "forest"],
-  "spawns": { "default": [330, 44, "down"], "north": [330, 44, "down"] },
-  "portals": [{ "id": "to-huyen-van-quan", "rect": [262, 0, 136, 20], "to": { "area": "huyen-van-quan", "spawn": "gate" }, "label": "Huyền Vân Quan" }],
+  "spawns": { "default": [330, 44, "down"], "north": [330, 44, "down"], "east": [572, 416, "left"] },
+  "portals": [{ "id": "to-huyen-van-quan", "rect": [262, 0, 136, 20], "to": { "area": "huyen-van-quan", "spawn": "gate" }, "label": "Huyền Vân Quan" },
+   { "id": "to-hau-son", "rect": [618, 388, 22, 56], "to": { "area": "hau-son", "spawn": "west" }, "label": "Hậu Sơn" }],
   "features": { "mist": [[0, 600, 640, 200, 0.26]] },
   "exits": [{ "rect": [330, 772, 120, 28], "title": "Chân núi", "text": "Đường xuống chân núi đang được xây dựng.", "to": { "x": 385, "y": 700, "face": "up" } }],
   "texts": {
@@ -16,12 +17,15 @@
   "width": 640, "height": 800, "seed": 20,
   "paths": {
    "main": { "pts": [[330, -10], [330, 80], [306, 190], [252, 290], [240, 380], [270, 470], [350, 560], [410, 650], [392, 740], [385, 810]], "width": [96, 96, 92, 88, 96, 90, 92, 96, 96, 100] },
-   "north": { "pts": [[330, -10], [330, 80], [312, 170]], "width": [84, 84, 80] }
+   "north": { "pts": [[330, -10], [330, 80], [312, 170]], "width": [84, 84, 80] },
+   "east": { "pts": [[340, 432], [420, 426], [500, 418], [570, 416], [652, 416]], "width": [60, 58, 56, 56, 56] }
   },
   "regions": [
    { "material": "forest", "fill": true },
    { "material": "grass", "path": "main", "width": 230, "dither": 8, "wobble": 10, "seed": 3 },
    { "material": "dirt", "path": "main", "dither": 3, "wobble": 3, "seed": 4 },
+   { "material": "grass", "path": "east", "width": 120, "dither": 8, "wobble": 8, "seed": 10 },
+   { "material": "dirt", "path": "east", "dither": 3, "wobble": 3, "seed": 11 },
    { "material": "cobble", "path": "north", "dither": 3, "wobble": 2, "seed": 5 },
    { "material": "cobble", "poly": [[222, 292], [250, 284], [276, 296], [270, 316], [240, 322], [220, 310]], "smooth": true, "dither": 2, "wobble": 2, "seed": 6 },
    { "material": "cobble", "poly": [[330, 540], [362, 532], [380, 552], [366, 574], [338, 576]], "smooth": true, "dither": 2, "wobble": 2, "seed": 7 },
@@ -30,7 +34,8 @@
   ],
   "blocks": [
    { "poly": [[0, 0], [60, 0], [48, 150], [66, 300], [40, 450], [70, 600], [46, 740], [60, 800], [0, 800]] },
-   { "poly": [[640, 0], [584, 0], [596, 160], [574, 320], [600, 470], [570, 620], [596, 760], [584, 800], [640, 800]] },
+   { "poly": [[640, 0], [584, 0], [596, 160], [574, 320], [586, 384], [640, 384]] },
+   { "poly": [[640, 448], [590, 448], [600, 470], [570, 620], [596, 760], [584, 800], [640, 800]] },
    { "poly": [[0, 0], [288, 0], [288, 64], [0, 64]] },
    { "poly": [[384, 0], [640, 0], [640, 64], [384, 64]] },
    { "poly": [[0, 736], [320, 736], [320, 800], [0, 800]] },
@@ -59,7 +64,6 @@
    { "key": "cliff:cliff_w_0", "x": 20, "y": 768 },
    { "key": "cliff:cliff_sw", "x": 20, "y": 800 },
    { "key": "cliff:cliff_e_0", "x": 620, "y": 384 },
-   { "key": "cliff:cliff_e_1", "x": 620, "y": 448 },
    { "key": "cliff:cliff_e_2", "x": 620, "y": 512 },
    { "key": "cliff:cliff_e_0", "x": 620, "y": 576 },
    { "key": "forest:canopy_2", "x": 11, "y": 362 },
@@ -97,12 +101,12 @@
    { "key": "forest:canopy_1", "x": 601, "y": 787 }
   ],
   "scatter": [
-   { "keys": ["pine_a", "pine_b"], "in": { "rect": [72, 96, 496, 630] }, "count": 16, "on": ["forest", "grass"], "avoidPaths": [{ "path": "main", "dist": 60 }], "keepClear": [[330, 44, 70], [262, 425, 110], [100, 300, 46], [560, 470, 46]], "minDist": 90, "seed": 1 },
-   { "keys": ["rock_a", "rock_b", "rock_c"], "in": { "rect": [72, 96, 496, 630] }, "count": 10, "on": ["forest", "grass"], "avoidPaths": [{ "path": "main", "dist": 30 }], "keepClear": [[330, 44, 70], [262, 425, 110], [100, 300, 46], [560, 470, 46]], "minDist": 50, "seed": 2 },
-   { "keys": ["fern_a", "fern_b", "fern_c"], "in": { "rect": [72, 96, 496, 630] }, "count": 16, "on": ["forest", "grass"], "avoidPaths": [{ "path": "main", "dist": 14 }], "keepClear": [[330, 44, 50]], "minDist": 44, "seed": 3 },
-   { "soft": true, "keys": ["cliff:boulder_0", "cliff:boulder_1", "cliff:boulder_2"], "count": 7, "in": { "rect": [72, 96, 496, 630] }, "on": ["forest", "grass"], "avoidPaths": [{ "path": "main", "dist": 44 }], "keepClear": [[330, 44, 70], [262, 425, 110], [100, 300, 46], [560, 470, 46]], "minDist": 70, "seed": 7 },
-   { "soft": true, "keys": ["forest:bush_0", "forest:bush_1", "forest:bush_2", "forest:bush_3"], "count": 16, "in": { "rect": [72, 96, 496, 630] }, "on": ["forest", "grass"], "avoidPaths": [{ "path": "main", "dist": 22 }], "keepClear": [[330, 44, 60], [262, 425, 100]], "minDist": 34, "seed": 8 },
-   { "soft": true, "keys": ["forest:tallgrass_0", "forest:tallgrass_1", "forest:tallgrass_2", "forest:tallgrass_3"], "count": 26, "in": { "rect": [72, 96, 496, 630] }, "on": ["grass", "forest"], "avoidPaths": [{ "path": "main", "dist": 6 }], "keepClear": [[330, 44, 50]], "minDist": 26, "seed": 9 },
+   { "keys": ["pine_a", "pine_b"], "in": { "rect": [72, 96, 496, 630] }, "count": 16, "on": ["forest", "grass"], "avoidPaths": [{ "path": "main", "dist": 60 }, { "path": "east", "dist": 46 }], "keepClear": [[330, 44, 70], [262, 425, 110], [100, 300, 46], [560, 470, 46]], "minDist": 80, "seed": 1 },
+   { "keys": ["rock_a", "rock_b", "rock_c"], "in": { "rect": [72, 96, 496, 630] }, "count": 10, "on": ["forest", "grass"], "avoidPaths": [{ "path": "main", "dist": 30 }, { "path": "east", "dist": 36 }], "keepClear": [[330, 44, 70], [262, 425, 110], [100, 300, 46], [560, 470, 46]], "minDist": 50, "seed": 2 },
+   { "keys": ["fern_a", "fern_b", "fern_c"], "in": { "rect": [72, 96, 496, 630] }, "count": 16, "on": ["forest", "grass"], "avoidPaths": [{ "path": "main", "dist": 14 }, { "path": "east", "dist": 32 }], "keepClear": [[330, 44, 50]], "minDist": 44, "seed": 3 },
+   { "soft": true, "keys": ["cliff:boulder_0", "cliff:boulder_1", "cliff:boulder_2"], "count": 7, "in": { "rect": [72, 96, 496, 630] }, "on": ["forest", "grass"], "avoidPaths": [{ "path": "main", "dist": 44 }, { "path": "east", "dist": 46 }], "keepClear": [[330, 44, 70], [262, 425, 110], [100, 300, 46], [560, 470, 46]], "minDist": 70, "seed": 7 },
+   { "soft": true, "keys": ["forest:bush_0", "forest:bush_1", "forest:bush_2", "forest:bush_3"], "count": 16, "in": { "rect": [72, 96, 496, 630] }, "on": ["forest", "grass"], "avoidPaths": [{ "path": "main", "dist": 22 }, { "path": "east", "dist": 32 }], "keepClear": [[330, 44, 60], [262, 425, 100]], "minDist": 34, "seed": 8 },
+   { "soft": true, "keys": ["forest:tallgrass_0", "forest:tallgrass_1", "forest:tallgrass_2", "forest:tallgrass_3"], "count": 26, "in": { "rect": [72, 96, 496, 630] }, "on": ["grass", "forest"], "avoidPaths": [{ "path": "main", "dist": 6 }, { "path": "east", "dist": 32 }], "keepClear": [[330, 44, 50]], "minDist": 26, "seed": 9 },
    { "kind": "decal", "keys": ["tuft1", "tuft2", "tuft3", "tuft4", "tuft5", "tuft6", "tuft7", "tuft8", "tuft9", "tuft10", "tuft11"], "count": 46, "on": ["forest", "grass"], "minDist": 30, "seed": 4 },
    { "kind": "decal", "keys": ["flower1", "flower2", "flower3", "flower4", "flower5", "flower6", "flower7", "flower8", "flower9", "flower10"], "count": 6, "on": ["grass"], "minDist": 34, "seed": 5 },
    { "kind": "decal", "keys": ["ground1", "ground2", "ground3", "ground4", "ground5", "ground6", "ground7", "ground8", "ground9"], "count": 16, "on": ["dirt"], "minDist": 36, "seed": 6 }

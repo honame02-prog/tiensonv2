@@ -79,9 +79,15 @@ export class AreaScene extends Phaser.Scene {
     for (const p of meta.props || []) {
       const k = p.key, x = Math.round(p.x), y = Math.round(p.y), ci = k.indexOf(':');
       if (ci > 0) {   // khoa dang "atlas:frame" (vd cliff:cliff_n_0, forest:canopy_2): kich thuoc/foot tu <atlas>_sprites.json, pivot giua mep duoi
-        const at = k.slice(0, ci), fr = k.slice(ci + 1), sm = this.cache.json.get('spr:' + at)?.sprites?.[fr];
+        const at = k.slice(0, ci), fr = k.slice(ci + 1), sj = this.cache.json.get('spr:' + at), sm = sj?.sprites?.[fr];
         if (!sm) throw new Error('khong co sprite ' + k);
-        this.add.image(x - Math.round(sm.w / 2), y - sm.h, at, fr).setOrigin(0).setDepth(sm.role === 'ground-decoration' ? y - sm.h - 10 : y);
+        // ground-decal (da lat duong, bong): ve phang duoi nguoi choi, thu tu theo y; ground-decoration: tren nen, duoi vat khac
+        this.add.image(x - Math.round(sm.w / 2), y - sm.h, at, fr).setOrigin(0).setDepth(sm.role === 'ground-decal' ? -80 + y * 1e-4 : sm.role === 'ground-decoration' ? y - sm.h - 10 : y);
+        // tan la tach roi (bamboo_stem_N -> bamboo_leaf_N, khai bao trong <atlas>_sprites.json "layers"): ve tren nguoi choi, lay nhe
+        sj?.layers?.[fr]?.clusters?.forEach((c, i) => {
+          const img = this.add.image(x - Math.round(sm.w / 2) + c.x, y - sm.h + c.y, at, c.name).setOrigin(0).setDepth(y + 0.5);
+          this.foliage.push({ img, x0: img.x, y0: img.y, ph: Math.random() * 6.28 + i, f: 0.9 + Math.random() * 0.5, amp: 0.5 + (1 - c.cy / sm.h) * 1.0 });
+        });
         if (sm.foot && sm.foot[0] > 0 && sm.foot[1] > 0) solid(x, y - sm.foot[1] / 2, sm.foot[0], sm.foot[1]);
         continue;
       }
