@@ -1,4 +1,4 @@
-"""H-BAMB: whole-object imagegen source -> cell median -> hall palette.
+"""H-BAMB round 3: dense round-one geometry -> cell median -> warm hall palette.
 Run with Python 3 + Pillow + numpy; --verify --repro validates saved outputs.
 Never samples vegetation from the scene concept or another kit.
 """
@@ -9,11 +9,12 @@ import json
 import math
 import numpy as np
 from PIL import Image, ImageDraw
+from geometry import draw_bamboo
 
 ROOT = Path(__file__).resolve().parents[3]
 HERE = Path(__file__).resolve().parent
 OUT = ROOT / 'public/assets/kits/H-BAMB'
-REC = ROOT / 'records/S1-BAMB2'
+REC = ROOT / 'records/S1-BAMB3r'
 SRC = HERE / 'src'
 PAL = np.array(json.loads((SRC / 'palette.json').read_text(encoding='utf-8')), dtype=np.int32)
 PIECES = {}
@@ -21,7 +22,7 @@ FULL = {}
 
 
 
-# Generated whole-object sources; no concept foliage pixels are used.
+# Complete-object procedural geometry; no concept foliage pixels are used.
 # Material subset of hall: warm gray / moss olive, excluding cold blue-grays.
 VEG_PAL = np.array([c for c in PAL.tolist() if tuple(c) in {
     (20,17,13),(31,29,25),(37,36,30),(43,41,34),(51,49,34),
@@ -30,23 +31,24 @@ VEG_PAL = np.array([c for c in PAL.tolist() if tuple(c) in {
 MANIFEST = json.loads((OUT / 'kit.json').read_text(encoding='utf-8'))
 MANIFEST_SHA = hashlib.sha256((OUT / 'kit.json').read_bytes()).hexdigest()
 ACTOR_STATS = {}
+CANOPY_STATS = {}
+NODE_STATS = {}
 
 
-def source_sprite(filename, size, inset=2, shift=0, shade=1.0):
-    src = Image.open(SRC / filename).convert('RGBA')
-    a = np.array(src)
-    # Ignore only the generator's low-alpha fringe; median makes binary alpha.
-    a[a[...,3] < 128] = 0
-    a[..., :3] = np.minimum(255, a[..., :3].astype(float)*shade).astype('uint8')
-    src = Image.fromarray(a)
-    src = src.crop(src.getbbox())
-    w,h = size
-    target = (w-2*inset-abs(shift), h-2*inset)
-    obj = clean(median(src, target))
-    obj = quant(obj, VEG_PAL)
-    canvas = Image.new('RGBA', size)
-    canvas.alpha_composite(obj, (inset+max(0,shift),inset))
-    return canvas
+def dense_sprite(w, h, seed, kind='grove'):
+    """Round-one forest mass with round-two warm material and node lighting."""
+    if kind == 'left':
+        density = lambda x: max(.08, 1-x/w*.9)
+    elif kind == 'right':
+        density = lambda x: max(.08, x/w*.9)
+    else:
+        density = lambda x: 1.0
+    im = quant(clean(median(draw_bamboo(w,h,seed,density,kind),(w,h))),VEG_PAL)
+    a = np.array(im)
+    # Complete pieces have a clean, transparent one-pixel perimeter.
+    a[0]=a[-1]=0
+    a[:,0]=a[:,-1]=0
+    return Image.fromarray(a)
 
 
 def clean(im):
@@ -118,12 +120,16 @@ def path_centre(y, phase):
 
 
 def path_tile(phase):
-    im = Image.new('RGBA', (64,64), (46,44,40,255))
+    im = Image.new('RGBA', (64,64))
     d = ImageDraw.Draw(im)
     for y in range(64):
         c = round(path_centre(y,phase))
-        d.line((c-16,y,c+16,y), fill=(43,41,34,255))
-        d.line((c-13,y,c+13,y), fill=(51,49,34,255))
+        # Binary alpha, with an irregular curved moss fringe rather than a tile
+        # background. Broad value bands soften the stone shadows without dither.
+        fringe = round(2*math.sin(2*math.pi*y/63)**2 + math.sin(4*math.pi*y/63)**2)
+        d.line((c-14-fringe,y,c+13+fringe,y), fill=(62,58,52,255))
+        d.line((c-14,y,c+14,y), fill=(51,49,34,255))
+        d.line((c-12,y,c+12,y), fill=(43,41,34,255))
     # Small worn stepping stones follow the curve instead of a straight strip.
     for i,cy in enumerate([0,11,22,33,44,55]):
         c = round(path_centre(cy,phase)) + (0 if i==0 else (-3 if i%2 else 3))
@@ -135,7 +141,7 @@ def path_tile(phase):
             d.polygon(poly,fill=(74,70,62,255) if i%2 else (67,64,58,255))
             d.line((c-rw+3,sy-5,c+rw-3,sy-5),fill=(90,87,80,255))
             d.line((c-rw+5,sy-1,c-rw+8,sy,c-rw+8,sy+2),fill=(56,53,47,255))
-    for x,y in [(6,18),(55,40),(8,51),(54,8)]:
+    for x,y in [(17,18),(47,40),(18,51),(46,8)]:
         d.polygon([(x,y),(x+5,y+2),(x+2,y+3)],fill=(51,49,34,255))
     return im
 
@@ -204,12 +210,14 @@ def assemble():
     ACTOR_STATS.update(total=total,hidden=hidden,visible_pct=round(100*(1-hidden/total),2),
                        upper_only=True,position=[actor_x,actor_y],foreground=[x,y])
     scene.convert('RGB').save(REC/'assembly-scene.png')
-    board=Image.new('RGB',(960,294),'#24241f')
+    board=Image.new('RGB',(1440,294),'#24241f')
     board.paste(concept,(0,24))
-    board.paste(scene.convert('RGB'),(480,24))
+    board.paste(Image.open(SRC/'baseline-v1/assembly-scene.png').convert('RGB'),(480,24))
+    board.paste(scene.convert('RGB'),(960,24))
     d=ImageDraw.Draw(board)
     d.text((8,7),'Concept C / V1 - native 480x270',fill='#d8d2c4')
-    d.text((488,7),f'H-BAMB2 / Dao Si visible {ACTOR_STATS["visible_pct"]}%',fill='#d8d2c4')
+    d.text((488,7),'Round 1 / ada254d / native 480x270',fill='#d8d2c4')
+    d.text((968,7),f'Round 3 / Dao Si visible {ACTOR_STATS["visible_pct"]}%',fill='#d8d2c4')
     board.save(REC/'assembly.png')
     return hidden
 
@@ -217,12 +225,11 @@ def assemble():
 def build():
     OUT.mkdir(parents=True,exist_ok=True)
     REC.mkdir(parents=True,exist_ok=True)
-    gA=source_sprite('grove-imagegen-v2.png',(128,160))
-    gB=source_sprite('grove-imagegen-v2.png',(128,160),inset=3,shift=7,shade=.92)
-    eL=source_sprite('edge-imagegen-v2.png',(64,128),inset=2)
-    # Use a complete grove for the opposite edge: no mirror that reverses light.
-    eR=source_sprite('grove-imagegen-v2.png',(64,128),inset=3,shift=3)
-    wl=source_sprite('grove-imagegen-v2.png',(128,96),inset=2,shade=.8)
+    gA=dense_sprite(128,160,11)
+    gB=dense_sprite(128,160,23)
+    eL=dense_sprite(64,128,31,'left')
+    eR=dense_sprite(64,128,37,'right')
+    wl=dense_sprite(128,96,41,'wall')
     split('bamboo_grove_a',gA,[128,24])
     split('bamboo_grove_b',gB,[128,24])
     split('bamboo_edge_L',eL,[64,20])
@@ -265,8 +272,31 @@ def verify(hidden):
         a=np.array(full); mask=a[...,3]>0
         assert not mask[0].any() and not mask[-1].any()
         assert not mask[:,0].any() and not mask[:,-1].any(), name+' clipped edge'
-    (REC/'metrics.json').write_text(json.dumps({'actor':ACTOR_STATS,'manifest_sha256':MANIFEST_SHA,'sprites':{name:{'size':list(Image.open(OUT/p['file']).size),'anchor':p['anchor']} for name,p in PIECES.items()}},indent=2)+'\n',encoding='utf-8')
-    return f'PASS H-BAMB: sprites={len(files)} K-A5={off} alpha_intermediate={semi} pairs=5 seamless_paths=2 actor_occluded_pixels={hidden} actor_visible_pct={ACTOR_STATS['visible_pct']} upper_tips_only=YES manifest_unchanged=YES'
+        bright=np.all(a[...,:3]==[81,77,70],axis=2)&mask
+        dark=np.all(a[...,:3]==[20,17,13],axis=2)&mask
+        # A readable node has a 3-wide, 2-high light lip above its dark ring.
+        count=sum(bright[y:y+2,x:x+3].all() and dark[y+2,x:x+3].all()
+                  for y in range(a.shape[0]-3) for x in range(a.shape[1]-2))
+        NODE_STATS[name]=int(count)
+        assert count>0, name+' missing two-pixel node highlight'
+    for name in ['bamboo_grove_a','bamboo_grove_b']:
+        mask=np.array(FULL[name])[...,3]>0
+        baseline=np.array(Image.open(SRC/'baseline-v1'/(name+'.png')))[...,3]>0
+        canopy_h=int(mask.shape[0]*.71)
+        CANOPY_STATS[name]={
+            'whole_frame_pct':round(float(mask.mean()*100),4),
+            'v1_whole_frame_pct':round(float(baseline.mean()*100),4),
+            'canopy_upper71_pct':round(float(mask[:canopy_h].mean()*100),4),
+            'v1_canopy_upper71_pct':round(float(baseline[:canopy_h].mean()*100),4)}
+        assert mask.mean()>=.85 and mask.sum()>=baseline.sum(), (name,CANOPY_STATS[name])
+        assert mask[:canopy_h].sum()>=baseline[:canopy_h].sum(), (name,'canopy below v1')
+    for letter in 'ab':
+        a=np.array(Image.open(OUT/f'garden_path_{letter}.png'))
+        assert not a[:,0,3].any() and not a[:,-1,3].any(), 'Opaque rectangular path edge'
+        assert a[...,3].mean()/255<.75, 'Path needs open floor around moss fringe'
+    (REC/'metrics.json').write_text(json.dumps({'actor':ACTOR_STATS,'canopy':CANOPY_STATS,'node_2px_highlight_matches':NODE_STATS,'manifest_sha256':MANIFEST_SHA,'sprites':{name:{'size':list(Image.open(OUT/p['file']).size),'anchor':p['anchor']} for name,p in PIECES.items()}},indent=2)+'\n',encoding='utf-8')
+    coverage='/'.join(str(CANOPY_STATS[n]['whole_frame_pct']) for n in CANOPY_STATS)
+    return f'PASS H-BAMB: sprites={len(files)} K-A5={off} alpha_intermediate={semi} pairs=5 seamless_paths=2 actor_occluded_pixels={hidden} actor_visible_pct={ACTOR_STATS['visible_pct']} upper_tips_only=YES manifest_unchanged=YES grove_frame_coverage_pct={coverage} canopy_ge_v1=YES nodes_2px=YES path_rectangle=NO'
 
 
 if __name__=='__main__':
