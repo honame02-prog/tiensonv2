@@ -203,4 +203,7 @@ def main():
     verify(ims,whole)
     if '--compare' in sys.argv: compare()
 
+from walls import install
+install(globals())
+
 if __name__=='__main__': main()

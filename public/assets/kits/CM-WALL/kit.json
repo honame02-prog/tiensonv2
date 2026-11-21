@@ -215,7 +215,7 @@
           ]
         },
         "method": "median occupied cells; exact STYLE5 + V1 crop + C-B3 source palette; binary silhouette; ellipse aperture",
-        "seam_donor": "C-B3/cwall_h_2 + cwall_h_2_roof, 34px ends, exact 70px height",
+        "seam_donor": "CM-WALL/cwall_h_2; source-cell plaster and flattened gate tiles; only 34x70 ends replaced",
         "ring_repair_pixels": 0,
         "inner_source_ellipse": [
           307.5,
@@ -288,7 +288,7 @@
           ]
         },
         "method": "median occupied cells; exact STYLE5 + V1 crop + C-B3 source palette; binary silhouette; ellipse aperture",
-        "seam_donor": "C-B3/cwall_h_2 + cwall_h_2_roof, 34px ends, exact 70px height",
+        "seam_donor": "CM-WALL/cwall_h_2; source-cell plaster and flattened gate tiles; only 34x70 ends replaced",
         "ring_repair_pixels": 0,
         "inner_source_ellipse": [
           307.5,
@@ -302,6 +302,776 @@
           183.0,
           185.0
         ]
+      }
+    },
+    "cwall_h_2": {
+      "file": "cwall_h_2.png",
+      "layer": "base",
+      "anchor": [
+        0,
+        70
+      ],
+      "footprint": [
+        64,
+        16
+      ],
+      "collide": [
+        [
+          0,
+          -16,
+          64,
+          16
+        ]
+      ],
+      "pair": "cwall_h_2_roof",
+      "source": {
+        "file": ".agents/refs/CM/V1-original.png",
+        "crops": {
+          "left_plaster": [
+            0,
+            619,
+            108,
+            735
+          ],
+          "right_plaster": [
+            514,
+            619,
+            618,
+            735
+          ],
+          "plinth": [
+            0,
+            735,
+            108,
+            759
+          ],
+          "tiles": [
+            185,
+            289,
+            425,
+            394
+          ]
+        },
+        "method": "median source cells; gate ridge unbending; material calibration to V1; exact palette; controlled boundary fill; 14px rotated tile roof for verticals"
+      }
+    },
+    "cwall_h_2_roof": {
+      "file": "cwall_h_2_roof.png",
+      "layer": "roof",
+      "anchor": [
+        0,
+        70
+      ],
+      "footprint": [
+        64,
+        16
+      ],
+      "collide": [],
+      "source": {
+        "file": ".agents/refs/CM/V1-original.png",
+        "crops": {
+          "left_plaster": [
+            0,
+            619,
+            108,
+            735
+          ],
+          "right_plaster": [
+            514,
+            619,
+            618,
+            735
+          ],
+          "plinth": [
+            0,
+            735,
+            108,
+            759
+          ],
+          "tiles": [
+            185,
+            289,
+            425,
+            394
+          ]
+        },
+        "method": "median source cells; gate ridge unbending; material calibration to V1; exact palette; controlled boundary fill; 14px rotated tile roof for verticals"
+      }
+    },
+    "cwall_h_4": {
+      "file": "cwall_h_4.png",
+      "layer": "base",
+      "anchor": [
+        0,
+        70
+      ],
+      "footprint": [
+        128,
+        16
+      ],
+      "collide": [
+        [
+          0,
+          -16,
+          128,
+          16
+        ]
+      ],
+      "pair": "cwall_h_4_roof",
+      "source": {
+        "file": ".agents/refs/CM/V1-original.png",
+        "crops": {
+          "left_plaster": [
+            0,
+            619,
+            108,
+            735
+          ],
+          "right_plaster": [
+            514,
+            619,
+            618,
+            735
+          ],
+          "plinth": [
+            0,
+            735,
+            108,
+            759
+          ],
+          "tiles": [
+            185,
+            289,
+            425,
+            394
+          ]
+        },
+        "method": "median source cells; gate ridge unbending; material calibration to V1; exact palette; controlled boundary fill; 14px rotated tile roof for verticals"
+      }
+    },
+    "cwall_h_4_roof": {
+      "file": "cwall_h_4_roof.png",
+      "layer": "roof",
+      "anchor": [
+        0,
+        70
+      ],
+      "footprint": [
+        128,
+        16
+      ],
+      "collide": [],
+      "source": {
+        "file": ".agents/refs/CM/V1-original.png",
+        "crops": {
+          "left_plaster": [
+            0,
+            619,
+            108,
+            735
+          ],
+          "right_plaster": [
+            514,
+            619,
+            618,
+            735
+          ],
+          "plinth": [
+            0,
+            735,
+            108,
+            759
+          ],
+          "tiles": [
+            185,
+            289,
+            425,
+            394
+          ]
+        },
+        "method": "median source cells; gate ridge unbending; material calibration to V1; exact palette; controlled boundary fill; 14px rotated tile roof for verticals"
+      }
+    },
+    "cwall_h_6": {
+      "file": "cwall_h_6.png",
+      "layer": "base",
+      "anchor": [
+        0,
+        70
+      ],
+      "footprint": [
+        192,
+        16
+      ],
+      "collide": [
+        [
+          0,
+          -16,
+          192,
+          16
+        ]
+      ],
+      "pair": "cwall_h_6_roof",
+      "source": {
+        "file": ".agents/refs/CM/V1-original.png",
+        "crops": {
+          "left_plaster": [
+            0,
+            619,
+            108,
+            735
+          ],
+          "right_plaster": [
+            514,
+            619,
+            618,
+            735
+          ],
+          "plinth": [
+            0,
+            735,
+            108,
+            759
+          ],
+          "tiles": [
+            185,
+            289,
+            425,
+            394
+          ]
+        },
+        "method": "median source cells; gate ridge unbending; material calibration to V1; exact palette; controlled boundary fill; 14px rotated tile roof for verticals"
+      }
+    },
+    "cwall_h_6_roof": {
+      "file": "cwall_h_6_roof.png",
+      "layer": "roof",
+      "anchor": [
+        0,
+        70
+      ],
+      "footprint": [
+        192,
+        16
+      ],
+      "collide": [],
+      "source": {
+        "file": ".agents/refs/CM/V1-original.png",
+        "crops": {
+          "left_plaster": [
+            0,
+            619,
+            108,
+            735
+          ],
+          "right_plaster": [
+            514,
+            619,
+            618,
+            735
+          ],
+          "plinth": [
+            0,
+            735,
+            108,
+            759
+          ],
+          "tiles": [
+            185,
+            289,
+            425,
+            394
+          ]
+        },
+        "method": "median source cells; gate ridge unbending; material calibration to V1; exact palette; controlled boundary fill; 14px rotated tile roof for verticals"
+      }
+    },
+    "cwall_post": {
+      "file": "cwall_post.png",
+      "layer": "base",
+      "anchor": [
+        0,
+        70
+      ],
+      "footprint": [
+        20,
+        16
+      ],
+      "collide": [
+        [
+          0,
+          -16,
+          20,
+          16
+        ]
+      ],
+      "pair": "cwall_post_roof",
+      "source": {
+        "file": ".agents/refs/CM/V1-original.png",
+        "crops": {
+          "left_plaster": [
+            0,
+            619,
+            108,
+            735
+          ],
+          "right_plaster": [
+            514,
+            619,
+            618,
+            735
+          ],
+          "plinth": [
+            0,
+            735,
+            108,
+            759
+          ],
+          "tiles": [
+            185,
+            289,
+            425,
+            394
+          ]
+        },
+        "method": "median source cells; gate ridge unbending; material calibration to V1; exact palette; controlled boundary fill; 14px rotated tile roof for verticals"
+      }
+    },
+    "cwall_post_roof": {
+      "file": "cwall_post_roof.png",
+      "layer": "roof",
+      "anchor": [
+        0,
+        70
+      ],
+      "footprint": [
+        20,
+        16
+      ],
+      "collide": [],
+      "source": {
+        "file": ".agents/refs/CM/V1-original.png",
+        "crops": {
+          "left_plaster": [
+            0,
+            619,
+            108,
+            735
+          ],
+          "right_plaster": [
+            514,
+            619,
+            618,
+            735
+          ],
+          "plinth": [
+            0,
+            735,
+            108,
+            759
+          ],
+          "tiles": [
+            185,
+            289,
+            425,
+            394
+          ]
+        },
+        "method": "median source cells; gate ridge unbending; material calibration to V1; exact palette; controlled boundary fill; 14px rotated tile roof for verticals"
+      }
+    },
+    "cwall_v": {
+      "file": "cwall_v.png",
+      "layer": "base",
+      "anchor": [
+        0,
+        32
+      ],
+      "footprint": [
+        16,
+        32
+      ],
+      "collide": [
+        [
+          0,
+          -32,
+          16,
+          32
+        ]
+      ],
+      "pair": "cwall_v_roof",
+      "source": {
+        "file": ".agents/refs/CM/V1-original.png",
+        "crops": {
+          "left_plaster": [
+            0,
+            619,
+            108,
+            735
+          ],
+          "right_plaster": [
+            514,
+            619,
+            618,
+            735
+          ],
+          "plinth": [
+            0,
+            735,
+            108,
+            759
+          ],
+          "tiles": [
+            185,
+            289,
+            425,
+            394
+          ]
+        },
+        "method": "median source cells; gate ridge unbending; material calibration to V1; exact palette; controlled boundary fill; 14px rotated tile roof for verticals"
+      }
+    },
+    "cwall_v_roof": {
+      "file": "cwall_v_roof.png",
+      "layer": "roof",
+      "anchor": [
+        0,
+        32
+      ],
+      "footprint": [
+        16,
+        32
+      ],
+      "collide": [],
+      "source": {
+        "file": ".agents/refs/CM/V1-original.png",
+        "crops": {
+          "left_plaster": [
+            0,
+            619,
+            108,
+            735
+          ],
+          "right_plaster": [
+            514,
+            619,
+            618,
+            735
+          ],
+          "plinth": [
+            0,
+            735,
+            108,
+            759
+          ],
+          "tiles": [
+            185,
+            289,
+            425,
+            394
+          ]
+        },
+        "method": "median source cells; gate ridge unbending; material calibration to V1; exact palette; controlled boundary fill; 14px rotated tile roof for verticals"
+      }
+    },
+    "gate_v": {
+      "file": "gate_v.png",
+      "layer": "base",
+      "anchor": [
+        0,
+        80
+      ],
+      "footprint": [
+        16,
+        80
+      ],
+      "collide": [
+        [
+          0,
+          -80,
+          16,
+          16
+        ],
+        [
+          0,
+          -16,
+          16,
+          16
+        ]
+      ],
+      "pair": "gate_v_roof",
+      "source": {
+        "file": ".agents/refs/CM/V1-original.png",
+        "crops": {
+          "left_plaster": [
+            0,
+            619,
+            108,
+            735
+          ],
+          "right_plaster": [
+            514,
+            619,
+            618,
+            735
+          ],
+          "plinth": [
+            0,
+            735,
+            108,
+            759
+          ],
+          "tiles": [
+            185,
+            289,
+            425,
+            394
+          ]
+        },
+        "method": "median source cells; gate ridge unbending; material calibration to V1; exact palette; controlled boundary fill; 14px rotated tile roof for verticals"
+      }
+    },
+    "gate_v_roof": {
+      "file": "gate_v_roof.png",
+      "layer": "roof",
+      "anchor": [
+        0,
+        80
+      ],
+      "footprint": [
+        16,
+        80
+      ],
+      "collide": [],
+      "source": {
+        "file": ".agents/refs/CM/V1-original.png",
+        "crops": {
+          "left_plaster": [
+            0,
+            619,
+            108,
+            735
+          ],
+          "right_plaster": [
+            514,
+            619,
+            618,
+            735
+          ],
+          "plinth": [
+            0,
+            735,
+            108,
+            759
+          ],
+          "tiles": [
+            185,
+            289,
+            425,
+            394
+          ]
+        },
+        "method": "median source cells; gate ridge unbending; material calibration to V1; exact palette; controlled boundary fill; 14px rotated tile roof for verticals"
+      }
+    },
+    "corner_hv_L": {
+      "file": "corner_hv_L.png",
+      "layer": "base",
+      "anchor": [
+        0,
+        70
+      ],
+      "footprint": [
+        40,
+        32
+      ],
+      "collide": [
+        [
+          0,
+          -16,
+          40,
+          16
+        ],
+        [
+          0,
+          -32,
+          16,
+          16
+        ]
+      ],
+      "pair": "corner_hv_L_roof",
+      "source": {
+        "file": ".agents/refs/CM/V1-original.png",
+        "crops": {
+          "left_plaster": [
+            0,
+            619,
+            108,
+            735
+          ],
+          "right_plaster": [
+            514,
+            619,
+            618,
+            735
+          ],
+          "plinth": [
+            0,
+            735,
+            108,
+            759
+          ],
+          "tiles": [
+            185,
+            289,
+            425,
+            394
+          ]
+        },
+        "method": "median source cells; gate ridge unbending; material calibration to V1; exact palette; controlled boundary fill; 14px rotated tile roof for verticals"
+      }
+    },
+    "corner_hv_L_roof": {
+      "file": "corner_hv_L_roof.png",
+      "layer": "roof",
+      "anchor": [
+        0,
+        70
+      ],
+      "footprint": [
+        40,
+        32
+      ],
+      "collide": [],
+      "source": {
+        "file": ".agents/refs/CM/V1-original.png",
+        "crops": {
+          "left_plaster": [
+            0,
+            619,
+            108,
+            735
+          ],
+          "right_plaster": [
+            514,
+            619,
+            618,
+            735
+          ],
+          "plinth": [
+            0,
+            735,
+            108,
+            759
+          ],
+          "tiles": [
+            185,
+            289,
+            425,
+            394
+          ]
+        },
+        "method": "median source cells; gate ridge unbending; material calibration to V1; exact palette; controlled boundary fill; 14px rotated tile roof for verticals"
+      }
+    },
+    "corner_hv_R": {
+      "file": "corner_hv_R.png",
+      "layer": "base",
+      "anchor": [
+        0,
+        70
+      ],
+      "footprint": [
+        40,
+        32
+      ],
+      "collide": [
+        [
+          0,
+          -16,
+          40,
+          16
+        ],
+        [
+          24,
+          -32,
+          16,
+          16
+        ]
+      ],
+      "pair": "corner_hv_R_roof",
+      "source": {
+        "file": ".agents/refs/CM/V1-original.png",
+        "crops": {
+          "left_plaster": [
+            0,
+            619,
+            108,
+            735
+          ],
+          "right_plaster": [
+            514,
+            619,
+            618,
+            735
+          ],
+          "plinth": [
+            0,
+            735,
+            108,
+            759
+          ],
+          "tiles": [
+            185,
+            289,
+            425,
+            394
+          ]
+        },
+        "method": "median source cells; gate ridge unbending; material calibration to V1; exact palette; controlled boundary fill; 14px rotated tile roof for verticals"
+      }
+    },
+    "corner_hv_R_roof": {
+      "file": "corner_hv_R_roof.png",
+      "layer": "roof",
+      "anchor": [
+        0,
+        70
+      ],
+      "footprint": [
+        40,
+        32
+      ],
+      "collide": [],
+      "source": {
+        "file": ".agents/refs/CM/V1-original.png",
+        "crops": {
+          "left_plaster": [
+            0,
+            619,
+            108,
+            735
+          ],
+          "right_plaster": [
+            514,
+            619,
+            618,
+            735
+          ],
+          "plinth": [
+            0,
+            735,
+            108,
+            759
+          ],
+          "tiles": [
+            185,
+            289,
+            425,
+            394
+          ]
+        },
+        "method": "median source cells; gate ridge unbending; material calibration to V1; exact palette; controlled boundary fill; 14px rotated tile roof for verticals"
       }
     }
   }
