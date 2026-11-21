@@ -1,0 +1,18 @@
+{
+  "kit": "HVQ-floor",
+  "pieces": {
+    "continuity": {
+      "file": "ground-continuity.png",
+      "layer": "ground",
+      "anchor": [
+        0,
+        0
+      ],
+      "footprint": [
+        816,
+        6
+      ],
+      "collide": []
+    }
+  }
+}

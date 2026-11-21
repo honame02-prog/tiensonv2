@@ -22,7 +22,7 @@
         ]
       ],
       "pair": "cwall_h_2_roof",
-      "source": "V1 paint: plaster 153,174..176,210 stretched 36 to 42px; plinth 153,210..176,218; eaves 29,97..49,117"
+      "source": "C original continuous crop ('wall-source-selected.png', (530, 619, 614, 732), (530, 735, 614, 759)); source-window quilting at natural texture scale, hall palette; original eaves unchanged"
     },
     "cwall_h_2_roof": {
       "file": "cwall_h_2_roof.png",
@@ -36,7 +36,7 @@
         16
       ],
       "collide": [],
-      "source": "V1 paint: plaster 153,174..176,210 stretched 36 to 42px; plinth 153,210..176,218; eaves 29,97..49,117"
+      "source": "C original continuous crop ('wall-source-selected.png', (530, 619, 614, 732), (530, 735, 614, 759)); source-window quilting at natural texture scale, hall palette; original eaves unchanged"
     },
     "cwall_h_4": {
       "file": "cwall_h_4.png",
@@ -58,7 +58,7 @@
         ]
       ],
       "pair": "cwall_h_4_roof",
-      "source": "V1 paint: plaster 153,174..176,210 stretched 36 to 42px; plinth 153,210..176,218; eaves 29,97..49,117"
+      "source": "C original continuous crop ('wall-source-original.png', (0, 619, 108, 732), (0, 735, 108, 759)); source-window quilting at natural texture scale, hall palette; original eaves unchanged"
     },
     "cwall_h_4_roof": {
       "file": "cwall_h_4_roof.png",
@@ -72,7 +72,7 @@
         16
       ],
       "collide": [],
-      "source": "V1 paint: plaster 153,174..176,210 stretched 36 to 42px; plinth 153,210..176,218; eaves 29,97..49,117"
+      "source": "C original continuous crop ('wall-source-original.png', (0, 619, 108, 732), (0, 735, 108, 759)); source-window quilting at natural texture scale, hall palette; original eaves unchanged"
     },
     "cwall_h_6": {
       "file": "cwall_h_6.png",
@@ -94,7 +94,7 @@
         ]
       ],
       "pair": "cwall_h_6_roof",
-      "source": "V1 paint: plaster 153,174..176,210 stretched 36 to 42px; plinth 153,210..176,218; eaves 29,97..49,117"
+      "source": "C original continuous crop ('wall-source-selected.png', (0, 619, 90, 732), (0, 735, 90, 759)); source-window quilting at natural texture scale, hall palette; original eaves unchanged"
     },
     "cwall_h_6_roof": {
       "file": "cwall_h_6_roof.png",
@@ -108,7 +108,7 @@
         16
       ],
       "collide": [],
-      "source": "V1 paint: plaster 153,174..176,210 stretched 36 to 42px; plinth 153,210..176,218; eaves 29,97..49,117"
+      "source": "C original continuous crop ('wall-source-selected.png', (0, 619, 90, 732), (0, 735, 90, 759)); source-window quilting at natural texture scale, hall palette; original eaves unchanged"
     },
     "cwall_v": {
       "file": "cwall_v.png",

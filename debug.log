@@ -1,0 +1,189 @@
+[1121/195803.567:ERROR:ui\gl\init\gl_factory.cc:110] Requested GL implementation (gl=none,angle=none) not found in allowed implementations: [(gl=egl-angle,angle=default)].
+[1121/195803.574:ERROR:components\viz\service\main\viz_main_impl.cc:192] Exiting GPU process due to errors during initialization
+[1121/195803.705:ERROR:ui\gl\init\gl_factory.cc:110] Requested GL implementation (gl=none,angle=none) not found in allowed implementations: [(gl=egl-angle,angle=default)].
+[1121/195803.707:ERROR:components\viz\service\main\viz_main_impl.cc:192] Exiting GPU process due to errors during initialization
+[1121/195803.856:ERROR:ui\gl\angle_platform_impl.cc:34] vulkan_icd.cpp:157 (angle::vk::ScopedVkLoaderEnvironment::ScopedVkLoaderEnvironment): Error setting CWD for Vulkan layers init.
+[1121/195803.888:WARNING:ui\gl\angle_platform_impl.cc:39] vulkan_icd.cpp:391 (angle::vk::ChoosePhysicalDevice): Preferred device ICD not found. Using default physicalDevice instead.
+[1121/195803.950:ERROR:gpu\ipc\client\command_buffer_proxy_impl.cc:278] ContextResult::kTransientFailure: Failed to send GpuControl.CreateCommandBuffer.
+[1121/195804.827:ERROR:gpu\command_buffer\service\gl_utils.cc:431] [.WebGL-0x2c1c00629c00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels
+[1121/195804.867:ERROR:gpu\command_buffer\service\gl_utils.cc:431] [.WebGL-0x2c1c00629c00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels
+[1121/195804.881:ERROR:gpu\command_buffer\service\gl_utils.cc:431] [.WebGL-0x2c1c00629c00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels
+[1121/195804.903:ERROR:gpu\command_buffer\service\gl_utils.cc:431] [.WebGL-0x2c1c00629c00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)
+[1121/195822.061:ERROR:ui\gl\init\gl_factory.cc:110] Requested GL implementation (gl=none,angle=none) not found in allowed implementations: [(gl=egl-angle,angle=default)].
+[1121/195822.063:ERROR:components\viz\service\main\viz_main_impl.cc:192] Exiting GPU process due to errors during initialization
+[1121/195822.170:ERROR:ui\gl\init\gl_factory.cc:110] Requested GL implementation (gl=none,angle=none) not found in allowed implementations: [(gl=egl-angle,angle=default)].
+[1121/195822.173:ERROR:components\viz\service\main\viz_main_impl.cc:192] Exiting GPU process due to errors during initialization
+[1121/195822.294:ERROR:ui\gl\angle_platform_impl.cc:34] vulkan_icd.cpp:157 (angle::vk::ScopedVkLoaderEnvironment::ScopedVkLoaderEnvironment): Error setting CWD for Vulkan layers init.
+[1121/195822.312:WARNING:ui\gl\angle_platform_impl.cc:39] vulkan_icd.cpp:391 (angle::vk::ChoosePhysicalDevice): Preferred device ICD not found. Using default physicalDevice instead.
+[1121/195822.537:ERROR:gpu\command_buffer\service\gl_utils.cc:431] [.WebGL-0x493c0060be00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels
+[1121/195822.588:ERROR:gpu\command_buffer\service\gl_utils.cc:431] [.WebGL-0x493c0060be00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels
+[1121/195822.609:ERROR:gpu\command_buffer\service\gl_utils.cc:431] [.WebGL-0x493c0060be00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels
+[1121/195822.629:ERROR:gpu\command_buffer\service\gl_utils.cc:431] [.WebGL-0x493c0060be00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)
+[1121/195847.464:ERROR:ui\gl\init\gl_factory.cc:110] Requested GL implementation (gl=none,angle=none) not found in allowed implementations: [(gl=egl-angle,angle=default)].
+[1121/195847.467:ERROR:components\viz\service\main\viz_main_impl.cc:192] Exiting GPU process due to errors during initialization
+[1121/195847.584:ERROR:ui\gl\init\gl_factory.cc:110] Requested GL implementation (gl=none,angle=none) not found in allowed implementations: [(gl=egl-angle,angle=default)].
+[1121/195847.586:ERROR:components\viz\service\main\viz_main_impl.cc:192] Exiting GPU process due to errors during initialization
+[1121/195847.709:ERROR:ui\gl\angle_platform_impl.cc:34] vulkan_icd.cpp:157 (angle::vk::ScopedVkLoaderEnvironment::ScopedVkLoaderEnvironment): Error setting CWD for Vulkan layers init.
+[1121/195847.730:WARNING:ui\gl\angle_platform_impl.cc:39] vulkan_icd.cpp:391 (angle::vk::ChoosePhysicalDevice): Preferred device ICD not found. Using default physicalDevice instead.
+[1121/195848.158:ERROR:gpu\command_buffer\service\gl_utils.cc:431] [.WebGL-0x693c003f9c00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels
+[1121/195848.199:ERROR:gpu\command_buffer\service\gl_utils.cc:431] [.WebGL-0x693c003f9c00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels
+[1121/195848.210:ERROR:gpu\command_buffer\service\gl_utils.cc:431] [.WebGL-0x693c003f9c00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels
+[1121/195848.216:ERROR:gpu\command_buffer\service\gl_utils.cc:431] [.WebGL-0x693c003f9c00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)
+[1121/200006.238:ERROR:ui\gl\init\gl_factory.cc:110] Requested GL implementation (gl=none,angle=none) not found in allowed implementations: [(gl=egl-angle,angle=default)].
+[1121/200006.241:ERROR:components\viz\service\main\viz_main_impl.cc:192] Exiting GPU process due to errors during initialization
+[1121/200006.359:ERROR:ui\gl\init\gl_factory.cc:110] Requested GL implementation (gl=none,angle=none) not found in allowed implementations: [(gl=egl-angle,angle=default)].
+[1121/200006.362:ERROR:components\viz\service\main\viz_main_impl.cc:192] Exiting GPU process due to errors during initialization
+[1121/200006.471:ERROR:ui\gl\angle_platform_impl.cc:34] vulkan_icd.cpp:157 (angle::vk::ScopedVkLoaderEnvironment::ScopedVkLoaderEnvironment): Error setting CWD for Vulkan layers init.
+[1121/200006.497:WARNING:ui\gl\angle_platform_impl.cc:39] vulkan_icd.cpp:391 (angle::vk::ChoosePhysicalDevice): Preferred device ICD not found. Using default physicalDevice instead.
+[1121/200006.522:ERROR:gpu\ipc\client\command_buffer_proxy_impl.cc:278] ContextResult::kTransientFailure: Failed to send GpuControl.CreateCommandBuffer.
+[1121/200006.908:ERROR:gpu\command_buffer\service\gl_utils.cc:431] [.WebGL-0x41b400e56400]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels
+[1121/200006.943:ERROR:gpu\command_buffer\service\gl_utils.cc:431] [.WebGL-0x41b400e56400]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels
+[1121/200006.951:ERROR:gpu\command_buffer\service\gl_utils.cc:431] [.WebGL-0x41b400e56400]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels
+[1121/200006.973:ERROR:gpu\command_buffer\service\gl_utils.cc:431] [.WebGL-0x41b400e56400]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)
+[1121/200025.387:ERROR:ui\gl\init\gl_factory.cc:110] Requested GL implementation (gl=none,angle=none) not found in allowed implementations: [(gl=egl-angle,angle=default)].
+[1121/200025.466:ERROR:components\viz\service\main\viz_main_impl.cc:192] Exiting GPU process due to errors during initialization
+[1121/200025.958:ERROR:ui\gl\init\gl_factory.cc:110] Requested GL implementation (gl=none,angle=none) not found in allowed implementations: [(gl=egl-angle,angle=default)].
+[1121/200025.968:ERROR:components\viz\service\main\viz_main_impl.cc:192] Exiting GPU process due to errors during initialization
+[1121/200026.119:ERROR:ui\gl\angle_platform_impl.cc:34] vulkan_icd.cpp:157 (angle::vk::ScopedVkLoaderEnvironment::ScopedVkLoaderEnvironment): Error setting CWD for Vulkan layers init.
+[1121/200026.150:WARNING:ui\gl\angle_platform_impl.cc:39] vulkan_icd.cpp:391 (angle::vk::ChoosePhysicalDevice): Preferred device ICD not found. Using default physicalDevice instead.
+[1121/200026.179:ERROR:gpu\ipc\client\command_buffer_proxy_impl.cc:278] ContextResult::kTransientFailure: Failed to send GpuControl.CreateCommandBuffer.
+[1121/200026.401:ERROR:gpu\command_buffer\service\gl_utils.cc:431] [.WebGL-0x682c01541200]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels
+[1121/200026.446:ERROR:gpu\command_buffer\service\gl_utils.cc:431] [.WebGL-0x682c01541200]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels
+[1121/200026.460:ERROR:gpu\command_buffer\service\gl_utils.cc:431] [.WebGL-0x682c01541200]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels
+[1121/200026.497:ERROR:gpu\command_buffer\service\gl_utils.cc:431] [.WebGL-0x682c01541200]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)
+[1121/200034.916:ERROR:ui\gl\init\gl_factory.cc:110] Requested GL implementation (gl=none,angle=none) not found in allowed implementations: [(gl=egl-angle,angle=default)].
+[1121/200034.922:ERROR:components\viz\service\main\viz_main_impl.cc:192] Exiting GPU process due to errors during initialization
+[1121/200035.046:ERROR:ui\gl\init\gl_factory.cc:110] Requested GL implementation (gl=none,angle=none) not found in allowed implementations: [(gl=egl-angle,angle=default)].
+[1121/200035.048:ERROR:components\viz\service\main\viz_main_impl.cc:192] Exiting GPU process due to errors during initialization
+[1121/200035.185:ERROR:ui\gl\angle_platform_impl.cc:34] vulkan_icd.cpp:157 (angle::vk::ScopedVkLoaderEnvironment::ScopedVkLoaderEnvironment): Error setting CWD for Vulkan layers init.
+[1121/200035.201:WARNING:ui\gl\angle_platform_impl.cc:39] vulkan_icd.cpp:391 (angle::vk::ChoosePhysicalDevice): Preferred device ICD not found. Using default physicalDevice instead.
+[1121/200035.607:ERROR:gpu\command_buffer\service\gl_utils.cc:431] [.WebGL-0x32ac00db4c00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels
+[1121/200035.643:ERROR:gpu\command_buffer\service\gl_utils.cc:431] [.WebGL-0x32ac00db4c00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels
+[1121/200035.652:ERROR:gpu\command_buffer\service\gl_utils.cc:431] [.WebGL-0x32ac00db4c00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels
+[1121/200035.671:ERROR:gpu\command_buffer\service\gl_utils.cc:431] [.WebGL-0x32ac00db4c00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)
+[1121/200049.417:ERROR:ui\gl\init\gl_factory.cc:110] Requested GL implementation (gl=none,angle=none) not found in allowed implementations: [(gl=egl-angle,angle=default)].
+[1121/200049.421:ERROR:components\viz\service\main\viz_main_impl.cc:192] Exiting GPU process due to errors during initialization
+[1121/200049.531:ERROR:ui\gl\init\gl_factory.cc:110] Requested GL implementation (gl=none,angle=none) not found in allowed implementations: [(gl=egl-angle,angle=default)].
+[1121/200049.533:ERROR:components\viz\service\main\viz_main_impl.cc:192] Exiting GPU process due to errors during initialization
+[1121/200049.681:ERROR:ui\gl\angle_platform_impl.cc:34] vulkan_icd.cpp:157 (angle::vk::ScopedVkLoaderEnvironment::ScopedVkLoaderEnvironment): Error setting CWD for Vulkan layers init.
+[1121/200049.701:WARNING:ui\gl\angle_platform_impl.cc:39] vulkan_icd.cpp:391 (angle::vk::ChoosePhysicalDevice): Preferred device ICD not found. Using default physicalDevice instead.
+[1121/200049.956:ERROR:gpu\command_buffer\service\gl_utils.cc:431] [.WebGL-0x3e2400629600]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels
+[1121/200050.017:ERROR:gpu\command_buffer\service\gl_utils.cc:431] [.WebGL-0x3e2400629600]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels
+[1121/200050.029:ERROR:gpu\command_buffer\service\gl_utils.cc:431] [.WebGL-0x3e2400629600]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels
+[1121/200050.070:ERROR:gpu\command_buffer\service\gl_utils.cc:431] [.WebGL-0x3e2400629600]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)
+[1121/200125.214:ERROR:ui\gl\init\gl_factory.cc:110] Requested GL implementation (gl=none,angle=none) not found in allowed implementations: [(gl=egl-angle,angle=default)].
+[1121/200125.219:ERROR:components\viz\service\main\viz_main_impl.cc:192] Exiting GPU process due to errors during initialization
+[1121/200125.385:ERROR:ui\gl\init\gl_factory.cc:110] Requested GL implementation (gl=none,angle=none) not found in allowed implementations: [(gl=egl-angle,angle=default)].
+[1121/200125.388:ERROR:components\viz\service\main\viz_main_impl.cc:192] Exiting GPU process due to errors during initialization
+[1121/200125.526:ERROR:ui\gl\angle_platform_impl.cc:34] vulkan_icd.cpp:157 (angle::vk::ScopedVkLoaderEnvironment::ScopedVkLoaderEnvironment): Error setting CWD for Vulkan layers init.
+[1121/200125.545:WARNING:ui\gl\angle_platform_impl.cc:39] vulkan_icd.cpp:391 (angle::vk::ChoosePhysicalDevice): Preferred device ICD not found. Using default physicalDevice instead.
+[1121/200125.965:ERROR:gpu\command_buffer\service\gl_utils.cc:431] [.WebGL-0x369400613400]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels
+[1121/200126.013:ERROR:gpu\command_buffer\service\gl_utils.cc:431] [.WebGL-0x369400613400]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels
+[1121/200126.035:ERROR:gpu\command_buffer\service\gl_utils.cc:431] [.WebGL-0x369400613400]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels
+[1121/200126.057:ERROR:gpu\command_buffer\service\gl_utils.cc:431] [.WebGL-0x369400613400]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)
+[1121/200134.412:ERROR:ui\gl\init\gl_factory.cc:110] Requested GL implementation (gl=none,angle=none) not found in allowed implementations: [(gl=egl-angle,angle=default)].
+[1121/200134.414:ERROR:components\viz\service\main\viz_main_impl.cc:192] Exiting GPU process due to errors during initialization
+[1121/200134.519:ERROR:ui\gl\init\gl_factory.cc:110] Requested GL implementation (gl=none,angle=none) not found in allowed implementations: [(gl=egl-angle,angle=default)].
+[1121/200134.522:ERROR:components\viz\service\main\viz_main_impl.cc:192] Exiting GPU process due to errors during initialization
+[1121/200134.638:ERROR:ui\gl\angle_platform_impl.cc:34] vulkan_icd.cpp:157 (angle::vk::ScopedVkLoaderEnvironment::ScopedVkLoaderEnvironment): Error setting CWD for Vulkan layers init.
+[1121/200134.669:WARNING:ui\gl\angle_platform_impl.cc:39] vulkan_icd.cpp:391 (angle::vk::ChoosePhysicalDevice): Preferred device ICD not found. Using default physicalDevice instead.
+[1121/200134.691:ERROR:gpu\ipc\client\command_buffer_proxy_impl.cc:278] ContextResult::kTransientFailure: Failed to send GpuControl.CreateCommandBuffer.
+[1121/200135.067:ERROR:gpu\command_buffer\service\gl_utils.cc:431] [.WebGL-0x190401120000]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels
+[1121/200135.111:ERROR:gpu\command_buffer\service\gl_utils.cc:431] [.WebGL-0x190401120000]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels
+[1121/200135.139:ERROR:gpu\command_buffer\service\gl_utils.cc:431] [.WebGL-0x190401120000]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels
+[1121/200135.147:ERROR:gpu\command_buffer\service\gl_utils.cc:431] [.WebGL-0x190401120000]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)
+[1121/200209.773:ERROR:ui\gl\init\gl_factory.cc:110] Requested GL implementation (gl=none,angle=none) not found in allowed implementations: [(gl=egl-angle,angle=default)].
+[1121/200209.776:ERROR:components\viz\service\main\viz_main_impl.cc:192] Exiting GPU process due to errors during initialization
+[1121/200209.872:ERROR:ui\gl\init\gl_factory.cc:110] Requested GL implementation (gl=none,angle=none) not found in allowed implementations: [(gl=egl-angle,angle=default)].
+[1121/200209.875:ERROR:components\viz\service\main\viz_main_impl.cc:192] Exiting GPU process due to errors during initialization
+[1121/200209.984:ERROR:ui\gl\angle_platform_impl.cc:34] vulkan_icd.cpp:157 (angle::vk::ScopedVkLoaderEnvironment::ScopedVkLoaderEnvironment): Error setting CWD for Vulkan layers init.
+[1121/200210.008:WARNING:ui\gl\angle_platform_impl.cc:39] vulkan_icd.cpp:391 (angle::vk::ChoosePhysicalDevice): Preferred device ICD not found. Using default physicalDevice instead.
+[1121/200210.409:ERROR:gpu\command_buffer\service\gl_utils.cc:431] [.WebGL-0x12ec00609400]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels
+[1121/200210.440:ERROR:gpu\command_buffer\service\gl_utils.cc:431] [.WebGL-0x12ec00609400]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels
+[1121/200210.450:ERROR:gpu\command_buffer\service\gl_utils.cc:431] [.WebGL-0x12ec00609400]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels
+[1121/200210.469:ERROR:gpu\command_buffer\service\gl_utils.cc:431] [.WebGL-0x12ec00609400]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)
+[1121/200437.948:ERROR:ui\gl\init\gl_factory.cc:110] Requested GL implementation (gl=none,angle=none) not found in allowed implementations: [(gl=egl-angle,angle=default)].
+[1121/200437.951:ERROR:components\viz\service\main\viz_main_impl.cc:192] Exiting GPU process due to errors during initialization
+[1121/200438.101:ERROR:ui\gl\init\gl_factory.cc:110] Requested GL implementation (gl=none,angle=none) not found in allowed implementations: [(gl=egl-angle,angle=default)].
+[1121/200438.104:ERROR:components\viz\service\main\viz_main_impl.cc:192] Exiting GPU process due to errors during initialization
+[1121/200438.237:ERROR:ui\gl\angle_platform_impl.cc:34] vulkan_icd.cpp:157 (angle::vk::ScopedVkLoaderEnvironment::ScopedVkLoaderEnvironment): Error setting CWD for Vulkan layers init.
+[1121/200438.264:WARNING:ui\gl\angle_platform_impl.cc:39] vulkan_icd.cpp:391 (angle::vk::ChoosePhysicalDevice): Preferred device ICD not found. Using default physicalDevice instead.
+[1121/200438.295:ERROR:gpu\ipc\client\command_buffer_proxy_impl.cc:278] ContextResult::kTransientFailure: Failed to send GpuControl.CreateCommandBuffer.
+[1121/200438.762:ERROR:gpu\command_buffer\service\gl_utils.cc:431] [.WebGL-0x428c0060c400]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels
+[1121/200438.805:ERROR:gpu\command_buffer\service\gl_utils.cc:431] [.WebGL-0x428c0060c400]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels
+[1121/200438.814:ERROR:gpu\command_buffer\service\gl_utils.cc:431] [.WebGL-0x428c0060c400]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels
+[1121/200438.831:ERROR:gpu\command_buffer\service\gl_utils.cc:431] [.WebGL-0x428c0060c400]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)
+[1121/200505.772:ERROR:ui\gl\init\gl_factory.cc:110] Requested GL implementation (gl=none,angle=none) not found in allowed implementations: [(gl=egl-angle,angle=default)].
+[1121/200505.775:ERROR:components\viz\service\main\viz_main_impl.cc:192] Exiting GPU process due to errors during initialization
+[1121/200505.880:ERROR:ui\gl\init\gl_factory.cc:110] Requested GL implementation (gl=none,angle=none) not found in allowed implementations: [(gl=egl-angle,angle=default)].
+[1121/200505.882:ERROR:components\viz\service\main\viz_main_impl.cc:192] Exiting GPU process due to errors during initialization
+[1121/200505.987:ERROR:ui\gl\angle_platform_impl.cc:34] vulkan_icd.cpp:157 (angle::vk::ScopedVkLoaderEnvironment::ScopedVkLoaderEnvironment): Error setting CWD for Vulkan layers init.
+[1121/200506.005:WARNING:ui\gl\angle_platform_impl.cc:39] vulkan_icd.cpp:391 (angle::vk::ChoosePhysicalDevice): Preferred device ICD not found. Using default physicalDevice instead.
+[1121/200506.029:ERROR:gpu\ipc\client\command_buffer_proxy_impl.cc:278] ContextResult::kTransientFailure: Failed to send GpuControl.CreateCommandBuffer.
+[1121/200506.459:ERROR:gpu\command_buffer\service\gl_utils.cc:431] [.WebGL-0x24c00625a00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels
+[1121/200506.506:ERROR:gpu\command_buffer\service\gl_utils.cc:431] [.WebGL-0x24c00625a00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels
+[1121/200506.539:ERROR:gpu\command_buffer\service\gl_utils.cc:431] [.WebGL-0x24c00625a00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels
+[1121/200506.579:ERROR:gpu\command_buffer\service\gl_utils.cc:431] [.WebGL-0x24c00625a00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)
+[1121/200521.921:ERROR:ui\gl\init\gl_factory.cc:110] Requested GL implementation (gl=none,angle=none) not found in allowed implementations: [(gl=egl-angle,angle=default)].
+[1121/200521.928:ERROR:components\viz\service\main\viz_main_impl.cc:192] Exiting GPU process due to errors during initialization
+[1121/200522.055:ERROR:ui\gl\init\gl_factory.cc:110] Requested GL implementation (gl=none,angle=none) not found in allowed implementations: [(gl=egl-angle,angle=default)].
+[1121/200522.059:ERROR:components\viz\service\main\viz_main_impl.cc:192] Exiting GPU process due to errors during initialization
+[1121/200522.182:ERROR:ui\gl\angle_platform_impl.cc:34] vulkan_icd.cpp:157 (angle::vk::ScopedVkLoaderEnvironment::ScopedVkLoaderEnvironment): Error setting CWD for Vulkan layers init.
+[1121/200522.210:WARNING:ui\gl\angle_platform_impl.cc:39] vulkan_icd.cpp:391 (angle::vk::ChoosePhysicalDevice): Preferred device ICD not found. Using default physicalDevice instead.
+[1121/200522.249:ERROR:gpu\ipc\client\command_buffer_proxy_impl.cc:278] ContextResult::kTransientFailure: Failed to send GpuControl.CreateCommandBuffer.
+[1121/200522.506:ERROR:gpu\command_buffer\service\gl_utils.cc:431] [.WebGL-0x1b8c0062ba00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels
+[1121/200522.551:ERROR:gpu\command_buffer\service\gl_utils.cc:431] [.WebGL-0x1b8c0062ba00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels
+[1121/200522.575:ERROR:gpu\command_buffer\service\gl_utils.cc:431] [.WebGL-0x1b8c0062ba00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels
+[1121/200522.582:ERROR:gpu\command_buffer\service\gl_utils.cc:431] [.WebGL-0x1b8c0062ba00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)
+[1121/200522.964:ERROR:ui\gl\init\gl_factory.cc:110] Requested GL implementation (gl=none,angle=none) not found in allowed implementations: [(gl=egl-angle,angle=default)].
+[1121/200522.969:ERROR:components\viz\service\main\viz_main_impl.cc:192] Exiting GPU process due to errors during initialization
+[1121/200523.118:ERROR:ui\gl\init\gl_factory.cc:110] Requested GL implementation (gl=none,angle=none) not found in allowed implementations: [(gl=egl-angle,angle=default)].
+[1121/200523.121:ERROR:components\viz\service\main\viz_main_impl.cc:192] Exiting GPU process due to errors during initialization
+[1121/200523.288:ERROR:ui\gl\angle_platform_impl.cc:34] vulkan_icd.cpp:157 (angle::vk::ScopedVkLoaderEnvironment::ScopedVkLoaderEnvironment): Error setting CWD for Vulkan layers init.
+[1121/200523.316:WARNING:ui\gl\angle_platform_impl.cc:39] vulkan_icd.cpp:391 (angle::vk::ChoosePhysicalDevice): Preferred device ICD not found. Using default physicalDevice instead.
+[1121/200523.380:ERROR:gpu\ipc\client\command_buffer_proxy_impl.cc:278] ContextResult::kTransientFailure: Failed to send GpuControl.CreateCommandBuffer.
+[1121/200523.681:ERROR:gpu\command_buffer\service\gl_utils.cc:431] [.WebGL-0x134003f0800]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels
+[1121/200523.789:ERROR:gpu\command_buffer\service\gl_utils.cc:431] [.WebGL-0x134003f0800]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels
+[1121/200523.797:ERROR:gpu\command_buffer\service\gl_utils.cc:431] [.WebGL-0x134003f0800]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels
+[1121/200523.836:ERROR:gpu\command_buffer\service\gl_utils.cc:431] [.WebGL-0x134003f0800]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)
+[1121/200613.510:ERROR:ui\gl\init\gl_factory.cc:110] Requested GL implementation (gl=none,angle=none) not found in allowed implementations: [(gl=egl-angle,angle=default)].
+[1121/200613.512:ERROR:components\viz\service\main\viz_main_impl.cc:192] Exiting GPU process due to errors during initialization
+[1121/200613.606:ERROR:ui\gl\init\gl_factory.cc:110] Requested GL implementation (gl=none,angle=none) not found in allowed implementations: [(gl=egl-angle,angle=default)].
+[1121/200613.608:ERROR:components\viz\service\main\viz_main_impl.cc:192] Exiting GPU process due to errors during initialization
+[1121/200613.722:ERROR:ui\gl\angle_platform_impl.cc:34] vulkan_icd.cpp:157 (angle::vk::ScopedVkLoaderEnvironment::ScopedVkLoaderEnvironment): Error setting CWD for Vulkan layers init.
+[1121/200613.749:WARNING:ui\gl\angle_platform_impl.cc:39] vulkan_icd.cpp:391 (angle::vk::ChoosePhysicalDevice): Preferred device ICD not found. Using default physicalDevice instead.
+[1121/200614.185:ERROR:gpu\command_buffer\service\gl_utils.cc:431] [.WebGL-0x1bdc0060ca00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels
+[1121/200614.230:ERROR:gpu\command_buffer\service\gl_utils.cc:431] [.WebGL-0x1bdc0060ca00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels
+[1121/200614.248:ERROR:gpu\command_buffer\service\gl_utils.cc:431] [.WebGL-0x1bdc0060ca00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels
+[1121/200614.267:ERROR:gpu\command_buffer\service\gl_utils.cc:431] [.WebGL-0x1bdc0060ca00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)
+[1121/200636.782:ERROR:ui\gl\init\gl_factory.cc:110] Requested GL implementation (gl=none,angle=none) not found in allowed implementations: [(gl=egl-angle,angle=default)].
+[1121/200636.788:ERROR:components\viz\service\main\viz_main_impl.cc:192] Exiting GPU process due to errors during initialization
+[1121/200636.892:ERROR:ui\gl\init\gl_factory.cc:110] Requested GL implementation (gl=none,angle=none) not found in allowed implementations: [(gl=egl-angle,angle=default)].
+[1121/200636.894:ERROR:components\viz\service\main\viz_main_impl.cc:192] Exiting GPU process due to errors during initialization
+[1121/200637.009:ERROR:ui\gl\angle_platform_impl.cc:34] vulkan_icd.cpp:157 (angle::vk::ScopedVkLoaderEnvironment::ScopedVkLoaderEnvironment): Error setting CWD for Vulkan layers init.
+[1121/200637.025:WARNING:ui\gl\angle_platform_impl.cc:39] vulkan_icd.cpp:391 (angle::vk::ChoosePhysicalDevice): Preferred device ICD not found. Using default physicalDevice instead.
+[1121/200637.463:ERROR:gpu\command_buffer\service\gl_utils.cc:431] [.WebGL-0x2e40062ba00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels
+[1121/200637.494:ERROR:gpu\command_buffer\service\gl_utils.cc:431] [.WebGL-0x2e40062ba00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels
+[1121/200637.497:ERROR:gpu\command_buffer\service\gl_utils.cc:431] [.WebGL-0x2e40062ba00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels
+[1121/200637.520:ERROR:gpu\command_buffer\service\gl_utils.cc:431] [.WebGL-0x2e40062ba00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)
+[1121/200858.520:ERROR:ui\gl\init\gl_factory.cc:110] Requested GL implementation (gl=none,angle=none) not found in allowed implementations: [(gl=egl-angle,angle=default)].
+[1121/200858.522:ERROR:components\viz\service\main\viz_main_impl.cc:192] Exiting GPU process due to errors during initialization
+[1121/200858.631:ERROR:ui\gl\init\gl_factory.cc:110] Requested GL implementation (gl=none,angle=none) not found in allowed implementations: [(gl=egl-angle,angle=default)].
+[1121/200858.634:ERROR:components\viz\service\main\viz_main_impl.cc:192] Exiting GPU process due to errors during initialization
+[1121/200858.740:ERROR:ui\gl\angle_platform_impl.cc:34] vulkan_icd.cpp:157 (angle::vk::ScopedVkLoaderEnvironment::ScopedVkLoaderEnvironment): Error setting CWD for Vulkan layers init.
+[1121/200858.764:WARNING:ui\gl\angle_platform_impl.cc:39] vulkan_icd.cpp:391 (angle::vk::ChoosePhysicalDevice): Preferred device ICD not found. Using default physicalDevice instead.
+[1121/200858.790:ERROR:gpu\ipc\client\command_buffer_proxy_impl.cc:278] ContextResult::kTransientFailure: Failed to send GpuControl.CreateCommandBuffer.
+[1121/200859.222:ERROR:gpu\command_buffer\service\gl_utils.cc:431] [.WebGL-0x62a4003f8a00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels
+[1121/200859.259:ERROR:gpu\command_buffer\service\gl_utils.cc:431] [.WebGL-0x62a4003f8a00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels
+[1121/200859.263:ERROR:gpu\command_buffer\service\gl_utils.cc:431] [.WebGL-0x62a4003f8a00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels
+[1121/200859.274:ERROR:gpu\command_buffer\service\gl_utils.cc:431] [.WebGL-0x62a4003f8a00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)
+[1121/200946.170:ERROR:ui\gl\init\gl_factory.cc:110] Requested GL implementation (gl=none,angle=none) not found in allowed implementations: [(gl=egl-angle,angle=default)].
+[1121/200946.174:ERROR:components\viz\service\main\viz_main_impl.cc:192] Exiting GPU process due to errors during initialization
+[1121/200946.308:ERROR:ui\gl\init\gl_factory.cc:110] Requested GL implementation (gl=none,angle=none) not found in allowed implementations: [(gl=egl-angle,angle=default)].
+[1121/200946.312:ERROR:components\viz\service\main\viz_main_impl.cc:192] Exiting GPU process due to errors during initialization
+[1121/200946.427:ERROR:ui\gl\angle_platform_impl.cc:34] vulkan_icd.cpp:157 (angle::vk::ScopedVkLoaderEnvironment::ScopedVkLoaderEnvironment): Error setting CWD for Vulkan layers init.
+[1121/200946.444:WARNING:ui\gl\angle_platform_impl.cc:39] vulkan_icd.cpp:391 (angle::vk::ChoosePhysicalDevice): Preferred device ICD not found. Using default physicalDevice instead.
+[1121/200946.884:ERROR:gpu\command_buffer\service\gl_utils.cc:431] [.WebGL-0x52040060c400]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels
+[1121/200946.915:ERROR:gpu\command_buffer\service\gl_utils.cc:431] [.WebGL-0x52040060c400]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels
+[1121/200946.925:ERROR:gpu\command_buffer\service\gl_utils.cc:431] [.WebGL-0x52040060c400]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels
+[1121/200946.947:ERROR:gpu\command_buffer\service\gl_utils.cc:431] [.WebGL-0x52040060c400]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)

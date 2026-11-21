@@ -1,0 +1,227 @@
+{
+  "kit": "C-P",
+  "tile": 32,
+  "pieces": {
+    "bamboo_a": {
+      "file": "bamboo_a.png",
+      "layer": "base",
+      "anchor": [
+        0,
+        140
+      ],
+      "footprint": [
+        92,
+        20
+      ],
+      "collide": [
+        [
+          23,
+          -12,
+          16,
+          12
+        ],
+        [
+          46,
+          -15,
+          16,
+          13
+        ],
+        [
+          69,
+          -11,
+          5,
+          8
+        ]
+      ],
+      "pair": "bamboo_a_roof",
+      "source": "V1 grove leaf sprays and visible culms; extraction coordinates in tools/build.py"
+    },
+    "bamboo_a_roof": {
+      "file": "bamboo_a_roof.png",
+      "layer": "roof",
+      "anchor": [
+        0,
+        140
+      ],
+      "footprint": [
+        92,
+        20
+      ],
+      "collide": [],
+      "source": "V1 grove leaf sprays and visible culms; extraction coordinates in tools/build.py"
+    },
+    "bamboo_b": {
+      "file": "bamboo_b.png",
+      "layer": "base",
+      "anchor": [
+        0,
+        129
+      ],
+      "footprint": [
+        84,
+        20
+      ],
+      "collide": [
+        [
+          17,
+          -12,
+          5,
+          9
+        ],
+        [
+          31,
+          -14,
+          18,
+          14
+        ],
+        [
+          58,
+          -12,
+          5,
+          9
+        ]
+      ],
+      "pair": "bamboo_b_roof",
+      "source": "V1 grove leaf sprays and visible culms; extraction coordinates in tools/build.py"
+    },
+    "bamboo_b_roof": {
+      "file": "bamboo_b_roof.png",
+      "layer": "roof",
+      "anchor": [
+        0,
+        129
+      ],
+      "footprint": [
+        84,
+        20
+      ],
+      "collide": [],
+      "source": "V1 grove leaf sprays and visible culms; extraction coordinates in tools/build.py"
+    },
+    "bamboo_edge": {
+      "file": "bamboo_edge.png",
+      "layer": "base",
+      "anchor": [
+        0,
+        63
+      ],
+      "footprint": [
+        64,
+        20
+      ],
+      "collide": [
+        [
+          18,
+          -9,
+          15,
+          9
+        ],
+        [
+          42,
+          -8,
+          5,
+          7
+        ]
+      ],
+      "pair": "bamboo_edge_roof",
+      "source": "V1 grove leaf sprays and visible culms; extraction coordinates in tools/build.py"
+    },
+    "bamboo_edge_roof": {
+      "file": "bamboo_edge_roof.png",
+      "layer": "roof",
+      "anchor": [
+        0,
+        63
+      ],
+      "footprint": [
+        64,
+        20
+      ],
+      "collide": [],
+      "source": "V1 grove leaf sprays and visible culms; extraction coordinates in tools/build.py"
+    },
+    "garden_path_64": {
+      "file": "garden_path_64.png",
+      "layer": "ground",
+      "anchor": [
+        0,
+        0
+      ],
+      "footprint": [
+        64,
+        64
+      ],
+      "collide": [],
+      "source": "V1 moon opening (70,142)-(120,206); vertical stone-row closure"
+    },
+    "ding_big": {
+      "file": "ding_big.png",
+      "layer": "base",
+      "anchor": [
+        0,
+        55
+      ],
+      "footprint": [
+        56,
+        20
+      ],
+      "collide": [
+        [
+          10,
+          -13,
+          10,
+          8
+        ],
+        [
+          25,
+          -6,
+          10,
+          9
+        ],
+        [
+          42,
+          -15,
+          9,
+          9
+        ]
+      ],
+      "source": "V2 (210,84)-(290,142), same size as concept; three feet + source cast shadow"
+    },
+    "paper_burner": {
+      "file": "paper_burner.png",
+      "layer": "base",
+      "anchor": [
+        0,
+        71
+      ],
+      "footprint": [
+        49,
+        18
+      ],
+      "collide": [
+        [
+          7,
+          -15,
+          43,
+          15
+        ]
+      ],
+      "pair": "paper_burner_roof",
+      "source": "V2 (351,69)-(432,144); roof/body split at scene y=105; original cast shadow"
+    },
+    "paper_burner_roof": {
+      "file": "paper_burner_roof.png",
+      "layer": "roof",
+      "anchor": [
+        0,
+        71
+      ],
+      "footprint": [
+        49,
+        18
+      ],
+      "collide": [],
+      "source": "V2 (351,69)-(432,144); roof/body split at scene y=105; original cast shadow"
+    }
+  }
+}
