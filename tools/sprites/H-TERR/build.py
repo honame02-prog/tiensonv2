@@ -1,4 +1,4 @@
-"""S1-TERR3: R2 ImageGen stone with deterministic clustered weathering.
+"""S1-TERR4: clustered foot moss, damp washes and worn warm stone.
 Run from any directory: python -X utf8 tools/sprites/H-TERR/build.py [--verify|--repro]
 Native join geometry is retained; source texture is sampled by area median.
 Only the assembly's paving is sampled from the approved concept.
@@ -14,7 +14,7 @@ from PIL import Image, ImageDraw
 ROOT = Path(__file__).resolve().parents[3]
 DESIGN = Path('D:/SkillFX_TuThienChi_HoaLien/design/tienson')
 OUT = ROOT/'public/assets/kits/H-TERR'
-REC = ROOT/'records/S1-TERR3'
+REC = ROOT/'records/S1-TERR4'
 SRC = Path(__file__).resolve().parent/'src'
 HALL = DESIGN/'tam-thanh/TT2/src/hall-reference.png'
 CONCEPT = DESIGN/'hvq-scene/C/V1.png'
@@ -201,79 +201,110 @@ def moss_pixels(a):
             (a[...,:3]==C['olive'][:3]).all(2)) & (a[...,3]>0)
 
 
-def weather(name, im):
-    """R2 silhouette is immutable. All marks are connected 2px+ clusters.
+def moss_clump(d, x, y, width, height, phase=0):
+    """Connected jagged two-tone deposit; large silhouette, sparse inner lobes."""
+    pts=[(x,y+height),(x,y+height//2),(x+2,y+height//2),
+         (x+2+phase%2,y+2),(x+width//3,y+2),(x+width//3+1,y+phase%2),
+         (x+width//2+2,y+1),(x+width-3,y+2+phase%3),
+         (x+width-3,y+height//2),(x+width,y+height//2+1),
+         (x+width,y+height)]
+    d.polygon(pts,fill=C['moss'])
+    d.polygon([(x+2,y+height-2),(x+3,y+3),(x+width//3,y+3),
+               (x+width//3+1,y+2),(x+width//2+1,y+3),
+               (x+width//2,y+height-2)],fill=C['olive'])
+    if width>=12:
+        d.rectangle((x+width-5,y+height//2+1,x+width-2,y+height-1),fill=C['olive'])
 
-    The low band follows the foot, joints gather olive deposits, and rain
-    drips start at the coping. No stochastic pixels or copied concept pixels.
-    """
+
+def weather(name, im):
+    """Keep join/alpha contract; age the material with connected native clusters."""
     a=np.array(im); h,w=a.shape[:2]; mask=a[...,3]>0
     if name.startswith('rwall'):
         y0=h-50
-        # Reserve readable stone planes: soften R2's deep source flecks into
-        # warm mineral midtones before adding strongly localised damp areas.
-        face=a[y0+6:y0+48]
+        # Retain source's offset masonry, displacing its edges by 1-2 pixels.
+        src=a.copy()
+        for yy in range(y0+6,h-2):
+            shift=(0,0,1,1,0,-1,-1,0,2,1,0,0)[(yy-y0)//2%12]
+            for xx in range(1,w-1):
+                sx=min(w-1,max(0,xx+shift))
+                if mask[yy,xx] and mask[yy,sx]: a[yy,xx,:3]=src[yy,sx,:3]
+        face=a[y0+6:h]
         lum=face[...,:3].mean(2)
-        face[(lum<70)&(lum>=50),:3]=C['stone'][:3]
-        # The body has four mineral levels; strongest chalk is coping only.
-        face[(face[...,:3]==C['top'][:3]).all(2),:3]=C['edge'][:3]
-        # Lower irregular moss shelf, with short lobes and exposed stone gaps.
-        for x in range(w):
-            depth=(4,6,5,7,4,5,3,6)[(x//5)%8]
-            for y in range(h-depth,h):
-                if mask[y,x]:
-                    a[y,x,:3]=C['moss' if y>=h-3 else 'olive'][:3]
-        # Damp olive collects in existing mortar in patches, not on every block.
-        original=np.array(im)
-        for y in range(y0+19,h-7):
-            for x in range(w):
-                if mask[y,x] and original[y,x,:3].mean()<58 and (x//12)%4 in (0,1):
-                    a[y,x,:3]=C['olive'][:3]
+        # Remove blanket green mortar from R3: deposits are reintroduced locally.
+        oldgreen=moss_pixels(face)
+        face[oldgreen,:3]=C['stone'][:3]
+        face[(lum>=50)&(lum<70)&~oldgreen,:3]=C['stone'][:3]
+        # Reserve four face tones, including a visibly warmer brown mineral.
+        face[(face[...,:3]==C['edge'][:3]).all(2),:3]=C['light'][:3]
+        face[(face[...,:3]==C['top'][:3]).all(2),:3]=C['light'][:3]
         im=Image.fromarray(a); d=ImageDraw.Draw(im)
-        # 2-3 runoff stains / 128px; narrow and tapering under the coping.
+        for i,x in enumerate(range(8,w,37)):
+            yy=y0+(13,32,25,10)[i%4]
+            d.polygon([(x,yy+2),(x+3,yy),(x+10,yy+1),(x+12,yy+5),
+                       (x+8,yy+7),(x+1,yy+6)],fill=color((74,70,62)))
+            d.line([(x+1,yy+1),(x+5,yy+1),(x+7,yy+2)],fill=C['mid'],width=2)
+        # Foot is an irregular 4-10px high shelf, with visible 6-20px lobes.
+        depths=(4,4,5,7,10,9,6,4,5,8,9,6,4,4,7,8,5)
+        for xx in range(w):
+            dep=depths[(xx//3)%len(depths)]
+            d.line((xx,h-dep,xx,h-1),fill=C['moss'])
+        for i,x in enumerate(range(-3,w,23)):
+            moss_clump(d,x,h-(8,10,7,9)[i%4],(17,12,20,14)[i%4],9,i)
+        # Only selected mortar reaches carry growth: 12px of each 34px run.
+        for i,x in enumerate(range(7,w,34)):
+            yy=y0+(26,28,25)[i%3]
+            moss_clump(d,x,yy,(9,12,8)[i%3],4,i)
+        # Two-three separated runoff stains / 128px, 2-4px wide, 12-30px long.
+        # Wide dark shoulder narrows and lightens at its tail, so it reads wet.
         for i,x in enumerate(range(16,w-4,48)):
-            length=(20,14,25,17)[i%4]
-            d.line([(x,y0+6),(x,y0+12),(x+1,y0+length)],fill=C['olive'],width=3)
-            d.line([(x,y0+6),(x,y0+length-3)],fill=C['moss'],width=2)
-        # A few connected cracks in face stones, with a worn light lip.
+            length=(28,22,30,25)[i%4]
+            d.line([(x,y0+6),(x,y0+length-3)],fill=C['shade'],width=4)
+            d.rectangle((x-1,y0+6,x+1,y0+length-7),fill=C['moss'])
+            d.rectangle((x-1,y0+length-6,x,y0+length-3),fill=C['olive'])
+            d.line((x,y0+length-2,x,y0+length),fill=C['olive'],width=1)
+            # Deposit overhang under coping is a local 6-12px colony.
+            moss_clump(d,x-4,y0+6,9,5,i)
+        # Broken diagonal fissures with short light chips on their left edge.
         for x in range(37,w-6,79):
-            d.line([(x,y0+13),(x-2,y0+17),(x,y0+20)],fill=C['dark'],width=2)
-            d.line([(x+2,y0+13),(x,y0+17)],fill=C['light'],width=2)
-        # Shallow chips do not cut through the closed coping silhouette.
-        for x in range(12,w-3,43):
-            d.rectangle((x,y0+1,x+3,y0+2),fill=C['mid'])
-            d.line((x+2,y0+3,x+5,y0+3),fill=C['light'],width=1)
-        # 1-2 thin sparse hanging vines, only on the _b variants.
+            d.line([(x+3,y0+14),(x,y0+17),(x+1,y0+20),(x-3,y0+23)],fill=C['joint'],width=2)
+            d.line([(x+1,y0+14),(x-2,y0+17)],fill=C['light'],width=2)
+        for i,x in enumerate(range(12,w-3,43)):
+            d.polygon([(x,y0+1),(x+3,y0+1),(x+3,y0+3),(x+6,y0+3),
+                       (x+5,y0+4),(x+1,y0+3)],fill=C['mid'])
         if name.endswith('_b'):
             for x in ([w//2] if w<160 else [55,151]):
                 d.line([(x,y0+3),(x,y0+12),(x-2,y0+20),(x-2,y0+29),(x-4,y0+34)],fill=C['moss'],width=2)
                 for yy,xx in [(10,x-4),(18,x),(27,x-6)]:
                     d.polygon([(xx,y0+yy),(xx+4,y0+yy),(xx+3,y0+yy+2),(xx,y0+yy+3)],fill=C['olive'])
-        # Returns also carry humidity at their inside seam and upper ledge.
         if 'corner' in name:
-            x=12 if name.endswith('L') else 18
-            d.line((x,9,x,30),fill=C['olive'],width=2)
-            d.rectangle((x-2,28,x+2,34),fill=C['moss'])
+            x=9 if name.endswith('L') else 19
+            moss_clump(d,x,22,9,12)
+            d.line((x+3,9,x+3,25),fill=C['olive'],width=2)
     else:
         im=Image.fromarray(a); d=ImageDraw.Draw(im)
         centres=[6] if name=='balus_post' else list(range(6,w-5,32))
         for i,x in enumerate(centres):
-            # Chipped cap colour, not a hole through the vertical post.
-            d.rectangle((x+1,3,x+3,5),fill=C['dark'])
-            d.rectangle((x-3,3,x-1,4),fill=C['top'])
-            # Foot moss wraps the plinth and grows into its inside corner.
-            d.rectangle((x-4,25,x+3,29),fill=C['olive'])
+            # Different stepped fracture on each cap, visible 1-3px deep.
+            if i%3==0:
+                d.polygon([(x+1,2),(x+3,2),(x+4,6),(x+1,5)],fill=C['shade'])
+                d.line((x,3,x+1,4),fill=C['light'],width=1)
+            elif i%3==1:
+                d.polygon([(x-5,3),(x-2,3),(x-1,5),(x-4,6)],fill=C['dark'])
+            else:
+                d.rectangle((x-1,2,x+2,3),fill=C['dark'])
+                d.rectangle((x+2,4,x+4,6),fill=C['shade'])
+            moss_clump(d,x-5,22,10,7,i)
             d.rectangle((x-3,28,x+4,29),fill=C['moss'])
-            d.rectangle((x-3,22,x-1,26),fill=C['olive'])
             if i%2==0:
-                d.rectangle((x,15,x+2,18),fill=C['olive'])
+                d.polygon([(x,13),(x+2,12),(x+3,15),(x+1,18),(x,16)],fill=C['olive'])
         if name!='balus_post':
-            for x in range(17,w-12,32):
-                d.rectangle((x,25,x+7,27),fill=C['olive'])
-                d.rectangle((x+2,12,x+6,14),fill=C['olive'])
+            for i,x in enumerate(range(17,w-12,29)):
+                moss_clump(d,x,23,12,4,i)
+                d.polygon([(x,11),(x+3,10),(x+6,11),(x+8,14),(x+1,14)],fill=C['olive' if i%2 else 'moss'])
+                d.line((x+2,11,x+4,11),fill=C['mid'],width=1)
     a=np.array(im)
-    # Restore the exact R2 alpha mask even where a mark crosses an open slot.
-    a[...,3]=np.array(mask,dtype=np.uint8)*255
+    # Unchanged closed ends and slots: all damage is surface relief, not holes.
+    a[...,3]=mask.astype(np.uint8)*255
     a[~mask]=0
     return Image.fromarray(a)
 
@@ -329,7 +360,7 @@ def assembly():
     together.paste(canvas,(496,24))
     d=ImageDraw.Draw(together)
     d.text((8,7),'APPROVED TARGET C / V1 / 1x',fill='#b9b1a9')
-    d.text((504,7),'H-TERR R3 / 1x / joined H-STAIR',fill='#b9b1a9')
+    d.text((504,7),'H-TERR R4 / 1x / joined H-STAIR',fill='#b9b1a9')
     together.save(REC/'assembly.png')
     (REC/'placements.json').write_text(json.dumps(placements,indent=2)+'\n',encoding='utf-8')
 
@@ -355,7 +386,7 @@ def compare():
     ref=ROOT/'.agents/refs/S1/H-TERR'
     board=Image.new('RGB',(2072,854),'#24241f'); d=ImageDraw.Draw(board)
     d.text((12,10),'ILLUSTRATION / 4x / 192px crop',fill='#b9b1a9')
-    d.text((800,10),'H-TERR R3 / 4x nearest',fill='#b9b1a9')
+    d.text((800,10),'H-TERR R4 / 4x nearest',fill='#b9b1a9')
     d.text((1580,10),'ASSEMBLY / 1x / 480 x 270',fill='#b9b1a9')
     for row,version in enumerate(('v1','v2')):
         original=Image.open(ref/(version+'_rwall_balus_1x.png')).convert('RGBA')
@@ -379,12 +410,12 @@ def compare():
     board.paste(small,(1580,394),small)
     d.text((1580,520),'SPRITES / 1x',fill='#b9b1a9')
     board.paste(native,(1580,544),native)
-    d.text((1580,656),'Before R2 / 1x',fill='#b9b1a9')
+    d.text((1580,656),'Before R3 / 1x',fill='#b9b1a9')
     before=REC/'before-rwall_6_b.png'
     if before.exists():
         old=Image.open(before).convert('RGBA')
         board.paste(old,(1580,680),old)
-    d.text((12,805),'Weathering pass 2 / R2 geometry, palette, anchors and closed ends preserved',fill='#b9b1a9')
+    d.text((12,805),'R4 / clustered foot and ledge moss, warm chipped stones, tapered damp stains / join geometry preserved',fill='#b9b1a9')
     board.save(REC/'compare.png')
 
 

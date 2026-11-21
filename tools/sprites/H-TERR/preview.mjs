@@ -6,7 +6,7 @@ import { validateKit, resolveKitPieces } from '../../../src/areaKits.js';
 import { decodePng } from '../../png.mjs';
 const root=resolve(dirname(fileURLToPath(import.meta.url)),'../../..');
 process.chdir(root);
-const rec=resolve(root,'records/S1-TERR3'); mkdirSync(rec,{recursive:true});
+const rec=resolve(root,'records/S1-TERR4'); mkdirSync(rec,{recursive:true});
 process.env.CHROME_LOG_FILE=resolve(rec,'chromium.log');
 const { chromium }=await import('../../area_tool_runtime.mjs');
 const json=p=>JSON.parse(readFileSync(p,'utf8'));
