@@ -1,0 +1,75 @@
+{
+  "kit": "CM-TERR",
+  "pieces": {
+    "rwall_6": {
+      "file": "rwall_6.png",
+      "layer": "ground",
+      "anchor": [
+        0,
+        0
+      ],
+      "footprint": [
+        192,
+        6
+      ],
+      "collide": [],
+      "source": "V1-original median cells x618..1240 y586..757 -> 56px (Opus CM-TERR)"
+    },
+    "rwall_4": {
+      "file": "rwall_4.png",
+      "layer": "ground",
+      "anchor": [
+        0,
+        0
+      ],
+      "footprint": [
+        128,
+        6
+      ],
+      "collide": [],
+      "source": "V1-original median cells x618..1240 y586..757 -> 56px (Opus CM-TERR)"
+    },
+    "rwall_2": {
+      "file": "rwall_2.png",
+      "layer": "ground",
+      "anchor": [
+        0,
+        0
+      ],
+      "footprint": [
+        64,
+        6
+      ],
+      "collide": [],
+      "source": "V1-original median cells x618..1240 y586..757 -> 56px (Opus CM-TERR)"
+    },
+    "rwall_end_R": {
+      "file": "rwall_end_R.png",
+      "layer": "ground",
+      "anchor": [
+        0,
+        0
+      ],
+      "footprint": [
+        32,
+        6
+      ],
+      "collide": [],
+      "source": "V1-original median cells x618..1240 y586..757 -> 56px (Opus CM-TERR)"
+    },
+    "rwall_end_L": {
+      "file": "rwall_end_L.png",
+      "layer": "ground",
+      "anchor": [
+        0,
+        0
+      ],
+      "footprint": [
+        32,
+        6
+      ],
+      "collide": [],
+      "source": "V1-original median cells x618..1240 y586..757 -> 56px (Opus CM-TERR)"
+    }
+  }
+}
