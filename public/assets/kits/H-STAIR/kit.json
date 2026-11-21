@@ -1,0 +1,124 @@
+{
+  "kit": "H-STAIR",
+  "pieces": {
+    "stair_3": {
+      "file": "stair_3.png",
+      "layer": "ground",
+      "anchor": [
+        0,
+        64
+      ],
+      "footprint": [
+        96,
+        64
+      ],
+      "collide": []
+    },
+    "stair_4": {
+      "file": "stair_4.png",
+      "layer": "ground",
+      "anchor": [
+        0,
+        96
+      ],
+      "footprint": [
+        128,
+        96
+      ],
+      "collide": []
+    },
+    "stair_low_2": {
+      "file": "stair_low_2.png",
+      "layer": "ground",
+      "anchor": [
+        0,
+        24
+      ],
+      "footprint": [
+        60,
+        24
+      ],
+      "collide": []
+    },
+    "stair_cheek_L": {
+      "file": "stair_cheek_L.png",
+      "layer": "base",
+      "anchor": [
+        0,
+        94
+      ],
+      "footprint": [
+        18,
+        64
+      ],
+      "collide": [
+        [
+          0,
+          -64,
+          18,
+          64
+        ]
+      ]
+    },
+    "stair_cheek_R": {
+      "file": "stair_cheek_R.png",
+      "layer": "base",
+      "anchor": [
+        0,
+        94
+      ],
+      "footprint": [
+        18,
+        64
+      ],
+      "collide": [
+        [
+          0,
+          -64,
+          18,
+          64
+        ]
+      ]
+    },
+    "stair_cheek_4_L": {
+      "file": "stair_cheek_4_L.png",
+      "layer": "base",
+      "anchor": [
+        0,
+        126
+      ],
+      "footprint": [
+        18,
+        96
+      ],
+      "collide": [
+        [
+          0,
+          -96,
+          18,
+          96
+        ]
+      ]
+    },
+    "stair_cheek_4_R": {
+      "file": "stair_cheek_4_R.png",
+      "layer": "base",
+      "anchor": [
+        0,
+        126
+      ],
+      "footprint": [
+        18,
+        96
+      ],
+      "collide": [
+        [
+          0,
+          -96,
+          18,
+          96
+        ]
+      ]
+    }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "pieces": 7,
+  "KA5": 0,
+  "alpha_partial": 0,
+  "gold_pixels": 0,
+  "structural_height": 44,
+  "wall_cap": 6,
+  "sha256": {
+    "stair_3": "87feff2f255f0417d72a6caa13c70f6a2a1e03a42f22b97122c0b3ac9f3ee2ec",
+    "stair_4": "496302fe0d0e8e1ac26f08f0f41fb749dff699be4773c67859bfedf5e32833d8",
+    "stair_low_2": "ba77f244566c3f64ffcb4611860a11b64cf7519b37d4897531e3f96a3572cb55",
+    "stair_cheek_L": "25a542a5c6428327f414fe0640a60c3f0892aa81cbf171ba2212cde457d0e3ad",
+    "stair_cheek_R": "3b525315d5c07ca087177d8cc5ef05b376ce88d6bb60e9d078822e589f3f9e4a",
+    "stair_cheek_4_L": "6fcbb20004172d7d0928546baef2a86ecb31451d4b7d7649772ed663f8a80bdd",
+    "stair_cheek_4_R": "4a9e8bd50c15e26dbd00e7e08a3f304012b7bfb8cb49c5660881baee9ff72db4"
+  }
+}
