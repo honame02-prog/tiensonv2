@@ -1,0 +1,18 @@
+{
+  "tool": "built-in image_gen.imagegen",
+  "date": "2026-11-21",
+  "reference": "Concept C / V1 visual target only; no source pixels from concept foliage",
+  "pipeline": "Whole isolated generated objects -> alpha threshold 128 -> per-cell median -> warm material subset of 48 hall colors -> binary-alpha cleanup; no dither, no mirrored lighting",
+  "sources": [
+    {
+      "file": "grove-imagegen-v2.png",
+      "sha256": "4b7c33a4e7fd64ac4bb91ace970775971903dfe52d4914d7848788b8482adb48",
+      "prompt_summary": "One complete isolated dense bamboo clump, oblique 3/4 from above, about nine jointed culms with three overlapping irregular leafy crowns, warm moss olive gray, deep warm interior and clearly lighter upper-left leaf rims on each crown, visible roots and low mossy shrubs, transparent background, all object edges visible; no scene, characters, noise or dither."
+    },
+    {
+      "file": "edge-imagegen-v2.png",
+      "sha256": "8df2cfa8896746ee849d64eadda84d276e8c005dc8042f6f414abc7b8c31416f",
+      "prompt_summary": "One complete isolated narrow bamboo clump, oblique 3/4 from above, five thin jointed culms, three layered crowns of slender pointed leaves fuller on left and tapering on right, warm muted moss olive gray, upper-left light on every crown, transparent margin, irregular small root base, no scene, text, characters or dither."
+    }
+  ]
+}
