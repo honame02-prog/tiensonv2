@@ -357,6 +357,144 @@
       ],
       "collide": [],
       "source": "V1-original upper court x880..1660 y118..500 (Opus CM-TERR)"
+    },
+    "bamboo_a": {
+      "file": "bamboo_a.png",
+      "layer": "base",
+      "anchor": [
+        0,
+        140
+      ],
+      "footprint": [
+        92,
+        20
+      ],
+      "collide": [
+        [
+          23,
+          -12,
+          16,
+          12
+        ],
+        [
+          46,
+          -15,
+          16,
+          13
+        ],
+        [
+          69,
+          -11,
+          5,
+          8
+        ]
+      ],
+      "pair": "bamboo_a_roof",
+      "source": "V1-original bamboo grove x0..280 y0.. canopy 95px (Opus CM-TERR)"
+    },
+    "bamboo_a_roof": {
+      "file": "bamboo_a_roof.png",
+      "layer": "roof",
+      "anchor": [
+        0,
+        140
+      ],
+      "footprint": [
+        92,
+        20
+      ],
+      "collide": [],
+      "source": "V1-original bamboo grove x0..280 y0.. canopy 95px (Opus CM-TERR)"
+    },
+    "bamboo_b": {
+      "file": "bamboo_b.png",
+      "layer": "base",
+      "anchor": [
+        0,
+        129
+      ],
+      "footprint": [
+        84,
+        20
+      ],
+      "collide": [
+        [
+          17,
+          -12,
+          5,
+          9
+        ],
+        [
+          31,
+          -14,
+          18,
+          14
+        ],
+        [
+          58,
+          -12,
+          5,
+          9
+        ]
+      ],
+      "pair": "bamboo_b_roof",
+      "source": "V1-original bamboo grove x120..376 y0.. canopy 95px (Opus CM-TERR)"
+    },
+    "bamboo_b_roof": {
+      "file": "bamboo_b_roof.png",
+      "layer": "roof",
+      "anchor": [
+        0,
+        129
+      ],
+      "footprint": [
+        84,
+        20
+      ],
+      "collide": [],
+      "source": "V1-original bamboo grove x120..376 y0.. canopy 95px (Opus CM-TERR)"
+    },
+    "bamboo_edge": {
+      "file": "bamboo_edge.png",
+      "layer": "base",
+      "anchor": [
+        0,
+        63
+      ],
+      "footprint": [
+        64,
+        20
+      ],
+      "collide": [
+        [
+          18,
+          -9,
+          15,
+          9
+        ],
+        [
+          42,
+          -8,
+          5,
+          7
+        ]
+      ],
+      "pair": "bamboo_edge_roof",
+      "source": "V1-original bamboo grove x250..445 y40.. canopy 65px mirrored (Opus CM-TERR)"
+    },
+    "bamboo_edge_roof": {
+      "file": "bamboo_edge_roof.png",
+      "layer": "roof",
+      "anchor": [
+        0,
+        63
+      ],
+      "footprint": [
+        64,
+        20
+      ],
+      "collide": [],
+      "source": "V1-original bamboo grove x250..445 y40.. canopy 65px mirrored (Opus CM-TERR)"
     }
   }
 }
