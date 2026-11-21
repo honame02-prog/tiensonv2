@@ -329,6 +329,34 @@
         ]
       ],
       "source": "V1-original stairs x1241..1503 units 561..759 (8 px/bac), cheeks y599..766 (Opus CM-TERR)"
+    },
+    "slab_worn_128": {
+      "file": "slab_worn_128.png",
+      "layer": "ground",
+      "anchor": [
+        0,
+        0
+      ],
+      "footprint": [
+        128,
+        128
+      ],
+      "collide": [],
+      "source": "V1-original upper court x1240..1630 y112..502 (Opus CM-TERR)"
+    },
+    "slab_256": {
+      "file": "slab_256.png",
+      "layer": "ground",
+      "anchor": [
+        0,
+        0
+      ],
+      "footprint": [
+        256,
+        256
+      ],
+      "collide": [],
+      "source": "V1-original upper court x880..1660 y118..500 (Opus CM-TERR)"
     }
   }
 }
