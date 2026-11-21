@@ -85,7 +85,7 @@
   {"id":"moon-128","kind":"stairs","rect":[108,672,60,64],"dir":"up","lo":2,"hi":3},
   {"id":"moon-1152","kind":"stairs","rect":[1136,672,60,64],"dir":"up","lo":2,"hi":3}
  ],
- "kits": {"C-R1":"assets/kits/C-R1/kit.json","C-B3":"assets/kits/C-B3/kit.json","HVQ-existing":"assets/kits/HVQ-existing/kit.json","C-P":"assets/kits/C-P/kit.json","HVQ-floor":"assets/areas/huyen-van-quan-v2/floor-kit.json"},
+ "kits": {"CM-WALL":"assets/kits/CM-WALL/kit.json","C-R1":"assets/kits/C-R1/kit.json","C-B3":"assets/kits/C-B3/kit.json","HVQ-existing":"assets/kits/HVQ-existing/kit.json","C-P":"assets/kits/C-P/kit.json","HVQ-floor":"assets/areas/huyen-van-quan-v2/floor-kit.json"},
  "pieces": [
   {"k":"C-B3/cwall_v","x":224,"y":304},
   {"k":"C-B3/cwall_v","x":224,"y":336},
@@ -133,9 +133,9 @@
   {"k":"C-B3/cwall_post","x":1054,"y":736},
   {"k":"C-B3/cwall_post","x":1054,"y":864},
   {"k":"C-B3/cwall_post","x":1054,"y":1088},
-  {"k":"C-B3/moongate_h","x":46,"y":730},
+  {"k":"CM-WALL/moongate_h","x":46,"y":730},
   {"k":"C-B3/cwall_h_2","x":32,"y":730},
-  {"k":"C-B3/moongate_h","x":1074,"y":730},
+  {"k":"CM-WALL/moongate_h","x":1074,"y":730},
   {"k":"C-B3/cwall_h_2","x":1056,"y":730},
   {"k":"C-B3/cwall_h_2","x":1232,"y":730},
   {"k":"C-B3/corner_hv_R","x":200,"y":730},
