@@ -11,3 +11,8 @@ DONE_WHEN
 - public/assets/kits/<KIT>/*.png + kit.json; kit verify PASS; K-A5 = 0; alpha 0/255.
 - records/<ID>/sheet.png (mọi sprite 1× và 3×, có nhãn tên + kích thước) và records/<ID>/assembly.png: khung 480×270 lắp thử như vùng tương ứng của concept, có Đạo Sĩ, đặt CẠNH crop concept cùng tỉ lệ. Tự xem và sửa tối đa 3 vòng theo 3 câu ở thẻ mục 4.
 - report: danh sách sprite (tên, w×h, anchor), tự chấm 3 câu, lệnh đã chạy.
+
+ẢNH MINH HOẠ TỪ CONCEPT (người dùng đề xuất 21/11, BẮT BUỘC dùng)
+- .agents/refs/S1/<KIT>/*_1x.png và *_4x.png: ảnh cắt từ concept C đúng vùng của bộ mình. Mở và nhìn kỹ trước khi vẽ.
+- Dùng làm MINH HOẠ: đưa ảnh này làm ảnh tham chiếu cho imagegen (giữ dáng, tỉ lệ, chất, tông, chi tiết), rồi vẽ VẬT ĐƠN LẺ TRỌN VẸN (đủ phần bị che / ngoài khung, đầu, góc) ở cùng tỉ lệ 1×. So từng vòng sprite 1× cạnh ảnh minh hoạ 1×: hình dáng, độ dày mái, số hàng ngói, số bậc, nhịp trụ, mật độ lá phải khớp minh hoạ.
+- Vẫn KHÔNG dán điểm ảnh của minh hoạ vào sprite (vì vật trong concept bị che, chồng, ánh sáng nướng). Màu được lấy mẫu từ minh hoạ rồi lượng tử về bảng hall.
