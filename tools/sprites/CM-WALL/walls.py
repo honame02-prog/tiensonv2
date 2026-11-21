@@ -159,7 +159,9 @@ def install(g):
         rightcorner[:20,:22]=hs[2][:20,:22]
         wholes['corner_hv_R']=Image.fromarray(rightcorner)
         # ONLY permitted 34x70 end rectangles change. Every other layer byte stays.
-        gateims,_,repair=gate_build()
+        # 22/11: nguyet mon lam lai theo cong thuc CM-TERR (moongate.py); chi thay 2 dau 34x70 nhu cu.
+        import moongate
+        gateims,_=moongate.build(); repair=0
         for name,im in list(gateims.items()):
             a=np.array(im); rooflayer='_roof' in name
             end=hs[2].copy()
@@ -183,8 +185,9 @@ def install(g):
         return ims,wholes,repair
     def manifest(repair):
         kit=gate_manifest(repair)
+        import moongate
         for p in kit['pieces'].values():
-            p['source']['seam_donor']='CM-WALL/cwall_h_2; source-cell plaster and flattened gate tiles; only 34x70 ends replaced'
+            p['source']=json.loads(json.dumps(moongate.SOURCE))
         for name in names:
             for key in [name,name+'_roof']:
                 p=copy.deepcopy(old['pieces'][key]); p['source']={'file':'.agents/refs/CM/V1-original.png','crops':crops,
@@ -208,10 +211,12 @@ def install(g):
             assert np.array_equal(np.array(Image.alpha_composite(Image.fromarray(b),Image.fromarray(r))),np.array(whole)),name
         assert colors<=set(map(tuple,pal))
         mask=np.ones((146,192),bool); mask[76:146,:34]=False; mask[76:146,158:]=False
+        import moongate
+        mg,_=moongate.build()
         for name in ('moongate_h','moongate_h_roof'):
-            now=np.array(Image.open(out/(name+'.png')).convert('RGBA')); before=approved(name)
-            assert np.array_equal(now[mask],before[mask]),'approved center changed: '+name
-        print('PASS approved moongate: base+roof outside two 34x70 ends byte-identical 3af2339; changed protected pixels=0')
+            now=np.array(Image.open(out/(name+'.png')).convert('RGBA')); before=np.array(mg[name+'.png'])
+            assert np.array_equal(now[mask],before[mask]),'moongate centre differs from moongate.py: '+name
+        print('PASS moongate: base+roof outside two 34x70 ends byte-identical to moongate.py (CM-TERR recipe 22/11)')
         h=[np.array(wholes[f'cwall_h_{n}']) for n in (2,4,6)]
         blocks=[a[:,x:x+32].tobytes() for a in h for x in range(0,a.shape[1],32)]
         assert len(set(blocks))==len(blocks),'identical horizontal 32px source blocks'

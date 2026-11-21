@@ -171,64 +171,30 @@
       ],
       "pair": "moongate_h_roof",
       "source": {
-        "file": ".agents/refs/CM/V1-original-gate.png",
+        "file": ".agents/refs/CM/V1-original.png",
         "crop": [
           0,
-          278,
+          286,
           618,
-          762
+          760
         ],
-        "concept_frame": [
-          0,
-          73,
-          176,
-          219
+        "scale": [
+          3.15,
+          3.25
         ],
-        "registration": {
-          "source_x": [
-            0,
-            113,
-            307,
-            508,
-            618
-          ],
-          "dest_x": [
-            8,
-            34,
-            96,
-            158,
-            184
-          ],
-          "source_y": [
-            278,
-            286,
-            388,
-            758,
-            762
-          ],
-          "dest_y": [
-            0,
-            2,
-            27,
-            145,
-            146
-          ]
-        },
-        "method": "median occupied cells; exact STYLE5 + V1 crop + C-B3 source palette; binary silhouette; ellipse aperture",
-        "seam_donor": "CM-WALL/cwall_h_2; source-cell plaster and flattened gate tiles; only 34x70 ends replaced",
-        "ring_repair_pixels": 0,
-        "inner_source_ellipse": [
-          307.5,
-          573.0,
-          166.5,
-          168.0
+        "inner_ellipse": [
+          307.2,
+          571.3,
+          152.4,
+          157.8
         ],
-        "outer_source_ellipse": [
-          307.0,
-          574.0,
-          183.0,
-          185.0
-        ]
+        "outer_ellipse": [
+          308.5,
+          570.9,
+          167.0,
+          171.6
+        ],
+        "method": "CM-TERR recipe (Opus 22/11): median cells; per-material (roof/rim/plaster) channel mean/std transfer to V1.png same region (solid pixels); STYLE5+V1 palette; despeckle; alpha 0/255; ends = CM-WALL/cwall_h_2 34x70"
       }
     },
     "moongate_h_roof": {
@@ -244,64 +210,30 @@
       ],
       "collide": [],
       "source": {
-        "file": ".agents/refs/CM/V1-original-gate.png",
+        "file": ".agents/refs/CM/V1-original.png",
         "crop": [
           0,
-          278,
+          286,
           618,
-          762
+          760
         ],
-        "concept_frame": [
-          0,
-          73,
-          176,
-          219
+        "scale": [
+          3.15,
+          3.25
         ],
-        "registration": {
-          "source_x": [
-            0,
-            113,
-            307,
-            508,
-            618
-          ],
-          "dest_x": [
-            8,
-            34,
-            96,
-            158,
-            184
-          ],
-          "source_y": [
-            278,
-            286,
-            388,
-            758,
-            762
-          ],
-          "dest_y": [
-            0,
-            2,
-            27,
-            145,
-            146
-          ]
-        },
-        "method": "median occupied cells; exact STYLE5 + V1 crop + C-B3 source palette; binary silhouette; ellipse aperture",
-        "seam_donor": "CM-WALL/cwall_h_2; source-cell plaster and flattened gate tiles; only 34x70 ends replaced",
-        "ring_repair_pixels": 0,
-        "inner_source_ellipse": [
-          307.5,
-          573.0,
-          166.5,
-          168.0
+        "inner_ellipse": [
+          307.2,
+          571.3,
+          152.4,
+          157.8
         ],
-        "outer_source_ellipse": [
-          307.0,
-          574.0,
-          183.0,
-          185.0
-        ]
+        "outer_ellipse": [
+          308.5,
+          570.9,
+          167.0,
+          171.6
+        ],
+        "method": "CM-TERR recipe (Opus 22/11): median cells; per-material (roof/rim/plaster) channel mean/std transfer to V1.png same region (solid pixels); STYLE5+V1 palette; despeckle; alpha 0/255; ends = CM-WALL/cwall_h_2 34x70"
       }
     },
     "cwall_h_2": {
