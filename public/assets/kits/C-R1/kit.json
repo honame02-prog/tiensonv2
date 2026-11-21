@@ -217,6 +217,138 @@
           64
         ]
       ]
+    },
+    "stair_4x2": {
+      "file": "stair_4x2.png",
+      "layer": "ground",
+      "anchor": [
+        0,
+        0
+      ],
+      "footprint": [
+        128,
+        64
+      ],
+      "collide": []
+    },
+    "stair_2x2": {
+      "file": "stair_2x2.png",
+      "layer": "ground",
+      "anchor": [
+        0,
+        0
+      ],
+      "footprint": [
+        64,
+        64
+      ],
+      "collide": []
+    },
+    "stair_4x3": {
+      "file": "stair_4x3.png",
+      "layer": "ground",
+      "anchor": [
+        0,
+        0
+      ],
+      "footprint": [
+        128,
+        96
+      ],
+      "collide": []
+    },
+    "stair_moon_60": {
+      "file": "stair_moon_60.png",
+      "layer": "ground",
+      "anchor": [
+        0,
+        0
+      ],
+      "footprint": [
+        60,
+        24
+      ],
+      "collide": []
+    },
+    "stair_cheek_long_L": {
+      "file": "stair_cheek_long_L.png",
+      "layer": "base",
+      "anchor": [
+        0,
+        116
+      ],
+      "footprint": [
+        16,
+        96
+      ],
+      "collide": [
+        [
+          0,
+          -96,
+          16,
+          96
+        ]
+      ]
+    },
+    "stair_cheek_long_R": {
+      "file": "stair_cheek_long_R.png",
+      "layer": "base",
+      "anchor": [
+        0,
+        116
+      ],
+      "footprint": [
+        16,
+        96
+      ],
+      "collide": [
+        [
+          0,
+          -96,
+          16,
+          96
+        ]
+      ]
+    },
+    "balus_1": {
+      "file": "balus_1.png",
+      "layer": "base",
+      "anchor": [
+        0,
+        30
+      ],
+      "footprint": [
+        32,
+        6
+      ],
+      "collide": [
+        [
+          0,
+          -6,
+          32,
+          6
+        ]
+      ]
+    },
+    "balus_short_48": {
+      "file": "balus_short_48.png",
+      "layer": "base",
+      "anchor": [
+        0,
+        30
+      ],
+      "footprint": [
+        48,
+        6
+      ],
+      "collide": [
+        [
+          0,
+          -6,
+          48,
+          6
+        ]
+      ]
     }
   }
 }
