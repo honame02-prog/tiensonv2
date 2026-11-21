@@ -80,6 +80,16 @@ def draw_bamboo(w, h, seed, dens, kind='grove'):
     rng=random.Random(seed)
     im=Image.new('RGBA',(w*S,h*S),(0,0,0,0))
     d=ImageDraw.Draw(im)
+    def foot(x):
+        # Broad rooting pads interrupted by narrow deep recesses, never a crop row.
+        return h-3-(1.2+1.2*math.sin(x*.27+seed)+
+                    19*max(0,math.sin(x*.077+seed*.7))**14)
+    if kind in ('grove','wall'):
+        # Dense back crowns compensate the open rooting recesses without
+        # flattening the lower edge or changing the front lighting/material.
+        crown_rng=random.Random(seed+901)
+        for x in range(5,w-4,6):
+            tuft(d,crown_rng,x,-2,.95,0)
     # 1. dark canopy mass (back): big overlapping tufts, filled solid
     for k in range(int(w*h/150*3.2)):
         x=rng.uniform(0,w)
@@ -92,12 +102,17 @@ def draw_bamboo(w, h, seed, dens, kind='grove'):
         if rng.random()>dens(x): continue
         for yy in range(int(h*.5),h-3,5):
             tuft(d,rng,x+rng.uniform(-6,6),yy,rng.uniform(.8,1.1),0)
+    # Continuous shaded soil/low foliage behind the culms; the tips define its
+    # irregular outline, rather than a rectangle reaching the image boundary.
+    if kind in ('grove', 'wall'):
+        edge=[(x*S,foot(x)*S) for x in range(1,w-1)]
+        d.polygon([(S,h*.68*S),((w-2)*S,h*.68*S)]+edge[::-1],fill=C_DK[0]+(255,))
     # 2. back culms
     ncul=max(3,int(w/9))
     xs=sorted(rng.uniform(4,w-4) for _ in range(ncul))
     for x in xs:
         if rng.random()>dens(x)+.1: continue
-        culm(d,x,h-3,2+rng.uniform(0,8),rng.uniform(4,5),rng.uniform(-4,4),rng,0)
+        culm(d,x,foot(x)-2,2+rng.uniform(0,8),rng.uniform(4,5),rng.uniform(-4,4),rng,0)
     # 3. mid foliage
     for k in range(int(w*h/260)):
         x=rng.uniform(0,w)
@@ -107,21 +122,36 @@ def draw_bamboo(w, h, seed, dens, kind='grove'):
     # 4. front culms (thicker, lighter), fewer
     for x in xs[1::2]:
         if rng.random()>dens(x)+.1: continue
-        culm(d,x+rng.uniform(-3,3),h-2,6+rng.uniform(0,14),rng.uniform(5,6.5),rng.uniform(-3,3),rng,1)
+        culm(d,x+rng.uniform(-3,3),foot(x)-1,6+rng.uniform(0,14),rng.uniform(5,6.5),rng.uniform(-3,3),rng,1)
     # 5. highlight foliage top-left of crowns
     for k in range(int(w*h/380)):
         x=rng.uniform(0,w)
         if rng.random()>dens(x): continue
         y=[h*.10,h*.32,h*.54][k%3]+rng.uniform(-3,3)
         tuft(d,rng,x-3,y,rng.uniform(.75,1.0),2)
-    # 6. foot: dark undergrowth + stones
-    for x in range(0,w,5):
+    # 6. Root fans, low drooping shrubs and moss-covered worn stones.
+    for x in range(3,w-3,7):
         if rng.random()<dens(x)+.1:
-            tuft(d,rng,x+rng.uniform(-2,2),h-rng.uniform(4,8),.6,0)
+            y=foot(x)-rng.uniform(3,7)
+            tuft(d,rng,x+rng.uniform(-2,2),y,.65,0)
+            tuft(d,rng,x-2,y-1,.48,1)
+    for x in range(9,w-7,19):
+        if rng.random()>dens(x)+.12: continue
+        y=foot(x)-2; rw=rng.uniform(4,7)
+        poly=[(x-rw,y-1),(x-rw+2,y-5),(x+2,y-6),
+              (x+rw,y-3),(x+rw-1,y),(x-2,y+1)]
+        d.polygon([(px*S,py*S) for px,py in poly],fill=(52,49,43,255))
+        d.line([(px*S,py*S) for px,py in poly[:4]],fill=(67,64,58,255),width=S)
+        tuft(d,rng,x-2,y-4,.32,1)
     a=np.array(im)
     xs=np.arange(w*S)/S
-    cut=(h-2-(2.5+2.5*np.sin(xs*.37+seed)+1.5*np.sin(xs*.11))).astype(float)*S
+    cut=np.array([foot(x) for x in xs])*S
     yy=np.arange(h*S)[:,None]
     a[yy>cut[None,:]]=0
+    if kind in ('left','right'):
+        # A broken outer silhouette with separate leaning culms behind it.
+        extent=9+8*np.sin(np.arange(h*S)/S*.071+seed)+5*np.sin(np.arange(h*S)/S*.23)
+        xx=np.arange(w*S)[None,:]/S
+        outside=(xx<extent[:,None]) if kind=='left' else (xx>w-1-extent[:,None])
+        a[outside]=0
     return Image.fromarray(a)
-
