@@ -1,0 +1,201 @@
+{
+  "kit": "H-BAMB",
+  "pieces": {
+    "bamboo_grove_a": {
+      "file": "bamboo_grove_a.png",
+      "layer": "base",
+      "anchor": [
+        0,
+        158
+      ],
+      "footprint": [
+        128,
+        24
+      ],
+      "collide": [
+        [
+          28,
+          -12,
+          66,
+          10
+        ]
+      ],
+      "pair": "bamboo_grove_a_roof"
+    },
+    "bamboo_grove_a_roof": {
+      "file": "bamboo_grove_a_roof.png",
+      "layer": "roof",
+      "anchor": [
+        0,
+        158
+      ],
+      "footprint": [
+        128,
+        24
+      ],
+      "collide": []
+    },
+    "bamboo_grove_b": {
+      "file": "bamboo_grove_b.png",
+      "layer": "base",
+      "anchor": [
+        0,
+        158
+      ],
+      "footprint": [
+        128,
+        24
+      ],
+      "collide": [
+        [
+          28,
+          -12,
+          66,
+          10
+        ]
+      ],
+      "pair": "bamboo_grove_b_roof"
+    },
+    "bamboo_grove_b_roof": {
+      "file": "bamboo_grove_b_roof.png",
+      "layer": "roof",
+      "anchor": [
+        0,
+        158
+      ],
+      "footprint": [
+        128,
+        24
+      ],
+      "collide": []
+    },
+    "bamboo_edge_L": {
+      "file": "bamboo_edge_L.png",
+      "layer": "base",
+      "anchor": [
+        0,
+        126
+      ],
+      "footprint": [
+        64,
+        20
+      ],
+      "collide": [
+        [
+          14,
+          -12,
+          33,
+          10
+        ]
+      ],
+      "pair": "bamboo_edge_L_roof"
+    },
+    "bamboo_edge_L_roof": {
+      "file": "bamboo_edge_L_roof.png",
+      "layer": "roof",
+      "anchor": [
+        0,
+        126
+      ],
+      "footprint": [
+        64,
+        20
+      ],
+      "collide": []
+    },
+    "bamboo_edge_R": {
+      "file": "bamboo_edge_R.png",
+      "layer": "base",
+      "anchor": [
+        0,
+        126
+      ],
+      "footprint": [
+        64,
+        20
+      ],
+      "collide": [
+        [
+          14,
+          -12,
+          33,
+          10
+        ]
+      ],
+      "pair": "bamboo_edge_R_roof"
+    },
+    "bamboo_edge_R_roof": {
+      "file": "bamboo_edge_R_roof.png",
+      "layer": "roof",
+      "anchor": [
+        0,
+        126
+      ],
+      "footprint": [
+        64,
+        20
+      ],
+      "collide": []
+    },
+    "bamboo_wall": {
+      "file": "bamboo_wall.png",
+      "layer": "base",
+      "anchor": [
+        0,
+        94
+      ],
+      "footprint": [
+        128,
+        24
+      ],
+      "collide": [
+        [
+          28,
+          -12,
+          66,
+          10
+        ]
+      ],
+      "pair": "bamboo_wall_roof"
+    },
+    "bamboo_wall_roof": {
+      "file": "bamboo_wall_roof.png",
+      "layer": "roof",
+      "anchor": [
+        0,
+        94
+      ],
+      "footprint": [
+        128,
+        24
+      ],
+      "collide": []
+    },
+    "garden_path_a": {
+      "file": "garden_path_a.png",
+      "layer": "ground",
+      "anchor": [
+        0,
+        64
+      ],
+      "footprint": [
+        64,
+        64
+      ],
+      "collide": []
+    },
+    "garden_path_b": {
+      "file": "garden_path_b.png",
+      "layer": "ground",
+      "anchor": [
+        0,
+        64
+      ],
+      "footprint": [
+        64,
+        64
+      ],
+      "collide": []
+    }
+  }
+}
