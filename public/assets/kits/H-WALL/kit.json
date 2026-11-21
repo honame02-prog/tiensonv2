@@ -1,0 +1,398 @@
+{
+  "kit": "H-WALL",
+  "tile": 32,
+  "pieces": {
+    "wall_h_2": {
+      "file": "wall_h_2.png",
+      "layer": "base",
+      "anchor": [
+        0,
+        64
+      ],
+      "footprint": [
+        64,
+        16
+      ],
+      "collide": [
+        [
+          0,
+          -16,
+          64,
+          16
+        ]
+      ],
+      "pair": "wall_h_2_roof"
+    },
+    "wall_h_2_roof": {
+      "file": "wall_h_2_roof.png",
+      "layer": "roof",
+      "anchor": [
+        0,
+        64
+      ],
+      "footprint": [
+        64,
+        16
+      ],
+      "collide": []
+    },
+    "wall_h_3": {
+      "file": "wall_h_3.png",
+      "layer": "base",
+      "anchor": [
+        0,
+        64
+      ],
+      "footprint": [
+        96,
+        16
+      ],
+      "collide": [
+        [
+          0,
+          -16,
+          96,
+          16
+        ]
+      ],
+      "pair": "wall_h_3_roof"
+    },
+    "wall_h_3_roof": {
+      "file": "wall_h_3_roof.png",
+      "layer": "roof",
+      "anchor": [
+        0,
+        64
+      ],
+      "footprint": [
+        96,
+        16
+      ],
+      "collide": []
+    },
+    "wall_h_4": {
+      "file": "wall_h_4.png",
+      "layer": "base",
+      "anchor": [
+        0,
+        64
+      ],
+      "footprint": [
+        128,
+        16
+      ],
+      "collide": [
+        [
+          0,
+          -16,
+          128,
+          16
+        ]
+      ],
+      "pair": "wall_h_4_roof"
+    },
+    "wall_h_4_roof": {
+      "file": "wall_h_4_roof.png",
+      "layer": "roof",
+      "anchor": [
+        0,
+        64
+      ],
+      "footprint": [
+        128,
+        16
+      ],
+      "collide": []
+    },
+    "wall_post": {
+      "file": "wall_post.png",
+      "layer": "base",
+      "anchor": [
+        0,
+        68
+      ],
+      "footprint": [
+        14,
+        16
+      ],
+      "collide": [
+        [
+          1,
+          -16,
+          12,
+          16
+        ]
+      ],
+      "pair": "wall_post_roof"
+    },
+    "wall_post_roof": {
+      "file": "wall_post_roof.png",
+      "layer": "roof",
+      "anchor": [
+        0,
+        68
+      ],
+      "footprint": [
+        14,
+        16
+      ],
+      "collide": []
+    },
+    "wall_end_L": {
+      "file": "wall_end_L.png",
+      "layer": "base",
+      "anchor": [
+        0,
+        64
+      ],
+      "footprint": [
+        22,
+        16
+      ],
+      "collide": [
+        [
+          0,
+          -16,
+          22,
+          16
+        ]
+      ],
+      "pair": "wall_end_L_roof"
+    },
+    "wall_end_L_roof": {
+      "file": "wall_end_L_roof.png",
+      "layer": "roof",
+      "anchor": [
+        0,
+        64
+      ],
+      "footprint": [
+        22,
+        16
+      ],
+      "collide": []
+    },
+    "wall_corner_L": {
+      "file": "wall_corner_L.png",
+      "layer": "base",
+      "anchor": [
+        0,
+        112
+      ],
+      "footprint": [
+        48,
+        64
+      ],
+      "collide": [
+        [
+          0,
+          -112,
+          16,
+          64
+        ],
+        [
+          0,
+          -16,
+          48,
+          16
+        ]
+      ],
+      "pair": "wall_corner_L_roof"
+    },
+    "wall_corner_L_roof": {
+      "file": "wall_corner_L_roof.png",
+      "layer": "roof",
+      "anchor": [
+        0,
+        112
+      ],
+      "footprint": [
+        48,
+        64
+      ],
+      "collide": []
+    },
+    "wall_end_R": {
+      "file": "wall_end_R.png",
+      "layer": "base",
+      "anchor": [
+        0,
+        64
+      ],
+      "footprint": [
+        22,
+        16
+      ],
+      "collide": [
+        [
+          0,
+          -16,
+          22,
+          16
+        ]
+      ],
+      "pair": "wall_end_R_roof"
+    },
+    "wall_end_R_roof": {
+      "file": "wall_end_R_roof.png",
+      "layer": "roof",
+      "anchor": [
+        0,
+        64
+      ],
+      "footprint": [
+        22,
+        16
+      ],
+      "collide": []
+    },
+    "wall_corner_R": {
+      "file": "wall_corner_R.png",
+      "layer": "base",
+      "anchor": [
+        0,
+        112
+      ],
+      "footprint": [
+        48,
+        64
+      ],
+      "collide": [
+        [
+          32,
+          -112,
+          16,
+          64
+        ],
+        [
+          0,
+          -16,
+          48,
+          16
+        ]
+      ],
+      "pair": "wall_corner_R_roof"
+    },
+    "wall_corner_R_roof": {
+      "file": "wall_corner_R_roof.png",
+      "layer": "roof",
+      "anchor": [
+        0,
+        112
+      ],
+      "footprint": [
+        48,
+        64
+      ],
+      "collide": []
+    },
+    "wall_v": {
+      "file": "wall_v.png",
+      "layer": "base",
+      "anchor": [
+        0,
+        78
+      ],
+      "footprint": [
+        16,
+        64
+      ],
+      "collide": [
+        [
+          1,
+          -78,
+          16,
+          78
+        ]
+      ],
+      "pair": "wall_v_roof"
+    },
+    "wall_v_roof": {
+      "file": "wall_v_roof.png",
+      "layer": "roof",
+      "anchor": [
+        0,
+        78
+      ],
+      "footprint": [
+        16,
+        64
+      ],
+      "collide": []
+    },
+    "wall_v_4": {
+      "file": "wall_v_4.png",
+      "layer": "base",
+      "anchor": [
+        0,
+        142
+      ],
+      "footprint": [
+        16,
+        128
+      ],
+      "collide": [
+        [
+          1,
+          -142,
+          16,
+          142
+        ]
+      ],
+      "pair": "wall_v_4_roof"
+    },
+    "wall_v_4_roof": {
+      "file": "wall_v_4_roof.png",
+      "layer": "roof",
+      "anchor": [
+        0,
+        142
+      ],
+      "footprint": [
+        16,
+        128
+      ],
+      "collide": []
+    },
+    "moongate_h": {
+      "file": "moongate_h.png",
+      "layer": "base",
+      "anchor": [
+        0,
+        148
+      ],
+      "footprint": [
+        176,
+        16
+      ],
+      "collide": [
+        [
+          0,
+          -16,
+          34,
+          16
+        ],
+        [
+          142,
+          -16,
+          34,
+          16
+        ]
+      ],
+      "pair": "moongate_h_roof"
+    },
+    "moongate_h_roof": {
+      "file": "moongate_h_roof.png",
+      "layer": "roof",
+      "anchor": [
+        0,
+        148
+      ],
+      "footprint": [
+        176,
+        16
+      ],
+      "collide": []
+    }
+  }
+}
