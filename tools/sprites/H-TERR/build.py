@@ -22,7 +22,7 @@ assert len(PAL) == 48
 
 
 def color(rgb):
-    return min(PAL, key=lambda p: sum((a-b)**2 for a, b in zip(p, rgb)))+(255,)
+    return min(PAL, key=lambda p: sum((int(a)-int(b))**2 for a, b in zip(p, rgb)))+(255,)
 
 
 # Warm mineral family only; no black outlines, red timber or glazed gold.
