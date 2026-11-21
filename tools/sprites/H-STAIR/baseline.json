@@ -1,0 +1,54 @@
+{
+  "kit_sha256": "cdef8de762d64a915d9c5392c72ab3348752c1255e67931f94a93c41c118207e",
+  "pieces": {
+    "stair_3": {
+      "size": [
+        96,
+        64
+      ],
+      "alpha_sha256": "ce7fb78e27dc43a4357e6a514eab4ae770023e55e5bc4240d3057cea6607bf94"
+    },
+    "stair_4": {
+      "size": [
+        128,
+        96
+      ],
+      "alpha_sha256": "8332b87608e6ed61b07b234626acda8d1ac493e9447ad1026e87516ff851e4e8"
+    },
+    "stair_cheek_4_L": {
+      "size": [
+        18,
+        126
+      ],
+      "alpha_sha256": "e0e19e3352e77944eb3de4f5ca6b35c16e076b02c8f67d1b4ee716b3f6b97f63"
+    },
+    "stair_cheek_4_R": {
+      "size": [
+        18,
+        126
+      ],
+      "alpha_sha256": "e4f8da51b51e2796f6bd8f9ffc372996af286aaecb4a61a365f9c5f89d701028"
+    },
+    "stair_cheek_L": {
+      "size": [
+        18,
+        94
+      ],
+      "alpha_sha256": "fcd8f5d8ba012d17939752415dd02a0d32808aab80723dced0b980c2f5788d75"
+    },
+    "stair_cheek_R": {
+      "size": [
+        18,
+        94
+      ],
+      "alpha_sha256": "a3e5fe8d20c7aa2fddca79adb451864c67963161665c790b881fdc21f5401870"
+    },
+    "stair_low_2": {
+      "size": [
+        60,
+        24
+      ],
+      "alpha_sha256": "121fe4de1881ab7303b3945fff54ef87c3e006abddc95c64f17a0dce09adc072"
+    }
+  }
+}
