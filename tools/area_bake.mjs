@@ -37,7 +37,8 @@ function buildMaterial(name) {
   if (MATS[name]) return MATS[name];
   const d = matDef.materials[name]; if (!d) throw new Error('khong co chat lieu ' + name);
   let t;
-  if (d.type === 'tile') t = cutTile(d.rect);
+  if (d.type === 'flat') t = { w: 1, h: 1, flat: d.color, data: Buffer.from([...d.color, 255]) };   // mau phang (khu xam / blockout)
+  else if (d.type === 'tile') t = cutTile(d.rect);
   else if (d.type === 'shade') { const b = buildMaterial(d.base); t = { w: b.w, h: b.h, data: Buffer.from(b.data) }; for (let i = 0; i < t.w * t.h; i++) for (let c = 0; c < 3; c++) t.data[i * 4 + c] = Math.max(0, Math.min(255, Math.round(t.data[i * 4 + c] * d.mul[c]))); }
   else if (d.type === 'recolor') {   // giu do sang tuong doi cua nen `base`, doi sang bang mau lay tu cac vung `palette` (vd dat nau tu vung dat that)
     const b = buildMaterial(d.base), pal = [];
@@ -62,6 +63,7 @@ function buildMaterial(name) {
 const mirror = (v, n) => { v = ((v % (2 * n)) + 2 * n) % (2 * n); return v < n ? v : 2 * n - 1 - v; };
 // lay mau chat lieu tai (x,y): lat guong; tron 2 lop lech nhau theo nhieu thap tan (dither) de giau duong nen/doi xung
 function matPix(m, x, y, out) {
+  if (m.flat) { out[0] = m.flat[0]; out[1] = m.flat[1]; out[2] = m.flat[2]; return; }
   if (m.tiles) {   // terrain: o 128 px lien, bien the theo hash(o, seed), wrap modulo
     const T = m.w, tx = Math.floor(x / T), ty = Math.floor(y / T), a = (((y % T) + T) % T * T + ((x % T) + T) % T) * 4, td = m.tiles[Math.floor(hash(tx, ty, SEED * 31 + m.id * 7 + 11) * m.tiles.length)];
     out[0] = td[a]; out[1] = td[a + 1]; out[2] = td[a + 2]; return;
@@ -129,7 +131,12 @@ const img = Buffer.alloc(W * H * 4, 0), matMap = new Uint8Array(W * H).fill(255)
 const px = [0, 0, 0];
 let ri = 0;
 for (const r of B.regions) {
-  ri++; const m = buildMaterial(r.material), sd = regionSd(r), wob = r.wobble ?? 3, dith = r.dither ?? 3, rim = r.rim, seed = r.seed ?? ri * 31 + SEED;
+  ri++; const m = buildMaterial(r.material);
+  if (r.cells) {   // to theo o luoi 32 px: [[cy,cx0,cx1],...] (khu xam: khop dung voi luoi va cham)
+    for (const [cy, c0, c1] of r.cells) for (let y = cy * 32; y < Math.min(H, cy * 32 + 32); y++) for (let x = c0 * 32; x < Math.min(W, (c1 + 1) * 32); x++) { matPix(m, x, y, px); const o = (y * W + x) * 4; img[o] = px[0]; img[o + 1] = px[1]; img[o + 2] = px[2]; img[o + 3] = 255; matMap[y * W + x] = m.id; }
+    continue;
+  }
+  const sd = regionSd(r), wob = r.wobble ?? 3, dith = r.dither ?? 3, rim = r.rim, seed = r.seed ?? ri * 31 + SEED;
   const pad = wob + dith + (rim ? (rim.px || 1) + (rim.shadow || 0) + 1 : 1);
   for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
     let d = sd(x + 0.5, y + 0.5); if (d > pad + 2) continue;
@@ -144,11 +151,23 @@ for (const r of B.regions) {
     }
   }
 }
+
+// ---------------------------------------------------------------- nhan chu (khu xam): font 3x5 phong x scale, chi A-Z 0-9 . - /
+const G = { A:[2,5,7,5,5],B:[6,5,6,5,6],C:[3,4,4,4,3],D:[6,5,5,5,6],E:[7,4,6,4,7],F:[7,4,6,4,4],G:[3,4,5,5,3],H:[5,5,7,5,5],I:[7,2,2,2,7],J:[1,1,1,5,2],K:[5,5,6,5,5],L:[4,4,4,4,7],M:[5,7,7,5,5],N:[7,5,5,5,5],O:[2,5,5,5,2],P:[6,5,6,4,4],Q:[2,5,5,7,3],R:[6,5,6,5,5],S:[3,4,2,1,6],T:[7,2,2,2,2],U:[5,5,5,5,7],V:[5,5,5,5,2],W:[5,5,7,7,5],X:[5,5,2,5,5],Y:[5,5,2,2,2],Z:[7,1,2,4,7],
+  0:[7,5,5,5,7],1:[2,6,2,2,7],2:[6,1,2,4,7],3:[6,1,2,1,6],4:[5,5,7,1,1],5:[7,4,6,1,6],6:[3,4,7,5,7],7:[7,1,2,2,2],8:[7,5,7,5,7],9:[7,5,7,1,6],'-':[0,0,7,0,0],'.':[0,0,0,0,2],'/':[1,1,2,4,4] };
+function drawText(text, cx, cy, sc, col) {   // can giua tai (cx,cy); bong den 1 px
+  const adv = 4 * sc, w = text.length * adv - sc, x0 = Math.round(cx - w / 2), y0 = Math.round(cy - 5 * sc / 2);
+  const put = (x, y, c) => { if (x < 0 || y < 0 || x >= W || y >= H) return; const o = (y * W + x) * 4; img[o] = c[0]; img[o + 1] = c[1]; img[o + 2] = c[2]; };
+  for (const pass of [0, 1]) for (let i = 0; i < text.length; i++) { const g = G[text[i]]; if (!g) continue;
+    for (let r = 0; r < 5; r++) for (let b = 0; b < 3; b++) if (g[r] & (4 >> b)) for (let dy = 0; dy < sc; dy++) for (let dx = 0; dx < sc; dx++) put(x0 + i * adv + b * sc + dx + (pass ? 0 : 1), y0 + r * sc + dy + (pass ? 0 : 1), pass ? col : [20, 14, 12]); }
+}
+for (const L of B.labels || []) drawText(L.text, L.x, L.y, L.scale || 2, L.color || [255, 255, 255]);
 for (let i = 0; i < W * H; i++) if (img[i * 4 + 3] !== 255) throw new Error('nen con pixel trong: vung dau tien phai la "fill"');
 
 // ---------------------------------------------------------------- va cham (luoi 32 px) tu cac da giac chan
 const cols = Math.ceil(W / 32), rows = Math.ceil(H / 32);
 const col = Array.from({ length: rows }, () => Array(cols).fill(0));
+if (B.colRows) B.colRows.forEach((r, cy) => { for (let cx = 0; cx < cols; cx++) col[cy][cx] = r[cx] === '1' ? 1 : 0; });   // va cham cho san (chuoi '0/1' moi hang), thay cho blocks
 for (const blk of B.blocks || []) {
   const c = blk.smooth ? catmull(blk.poly, true, 4) : { xs: blk.poly.map(p => p[0]), ys: blk.poly.map(p => p[1]) }, sd = polySd(c);
   for (let cy = 0; cy < rows; cy++) for (let cx = 0; cx < cols; cx++) {
