@@ -47,6 +47,12 @@ def strip():
         for x in range(STRIP_W):
             cell = src[ye[y]:max(ye[y] + 1, ye[y + 1]), xe[x]:max(xe[x] + 1, xe[x + 1])]
             out[y, x] = np.median(cell.reshape(-1, 3), axis=0)
+    # Ảnh imagegen gốc ám cam (đo: R85 G68 B50) so với concept đã duyệt ở 1x
+    # (R75 G72 B62). Chuyển trung bình/độ lệch từng kênh về vùng tường chắn của V1.png.
+    ref = np.array(Image.open(REF / 'V1.png').convert('RGB')).astype(float)[168:217, 178:346].reshape(-1, 3)
+    f = out.astype(float).reshape(-1, 3)
+    f = (f - f.mean(0)) / (f.std(0) + 1e-6) * ref.std(0) + ref.mean(0)
+    out = np.clip(f, 0, 255).reshape(out.shape).astype(np.uint8)
     return quantize(out)
 
 
@@ -62,7 +68,8 @@ def build():
         off = off % max(1, fw - width + 1)
         return face[:, off:off + width]
     pieces['rwall_6'] = win(192, 0) if fw >= 192 else np.concatenate([face, face[:, ::-1]], 1)[:, :192]
-    pieces['rwall_4'] = win(128, fw - 128)
+    # Nguồn liền chỉ ~193 px nên rwall_4 lấy bản soi ngang (khối đá đối xứng, sáng từ trên) để không trùng rwall_6.
+    pieces['rwall_4'] = face[:, ::-1][:, 20:148]
     pieces['rwall_2'] = win(64, fw // 2 - 20)
     # Đầu tường: mặt đá + trụ đá thật cạnh bậc. Trái = soi gương (trụ ở bên trái).
     end_r = s[:, W - 32:W]
