@@ -1,4 +1,4 @@
-"""H-BAMB round 3: dense round-one geometry -> cell median -> warm hall palette.
+"""H-BAMB round 4: dense round-one geometry -> cell median -> warm hall palette.
 Run with Python 3 + Pillow + numpy; --verify --repro validates saved outputs.
 Never samples vegetation from the scene concept or another kit.
 """
@@ -14,7 +14,7 @@ from geometry import draw_bamboo
 ROOT = Path(__file__).resolve().parents[3]
 HERE = Path(__file__).resolve().parent
 OUT = ROOT / 'public/assets/kits/H-BAMB'
-REC = ROOT / 'records/S1-BAMB3r'
+REC = ROOT / 'records/S1-BAMB4'
 SRC = HERE / 'src'
 PAL = np.array(json.loads((SRC / 'palette.json').read_text(encoding='utf-8')), dtype=np.int32)
 PIECES = {}
@@ -33,14 +33,17 @@ MANIFEST_SHA = hashlib.sha256((OUT / 'kit.json').read_bytes()).hexdigest()
 ACTOR_STATS = {}
 CANOPY_STATS = {}
 NODE_STATS = {}
+EDGE_STATS = {}
+PATH_STATS = {}
+PLACEMENTS = []
 
 
 def dense_sprite(w, h, seed, kind='grove'):
     """Round-one forest mass with round-two warm material and node lighting."""
     if kind == 'left':
-        density = lambda x: max(.08, 1-x/w*.9)
+        density = lambda x: max(.02, (x/w)**1.65)
     elif kind == 'right':
-        density = lambda x: max(.08, x/w*.9)
+        density = lambda x: max(.02, (1-x/w)**1.65)
     else:
         density = lambda x: 1.0
     im = quant(clean(median(draw_bamboo(w,h,seed,density,kind),(w,h))),VEG_PAL)
@@ -122,27 +125,34 @@ def path_centre(y, phase):
 def path_tile(phase):
     im = Image.new('RGBA', (64,64))
     d = ImageDraw.Draw(im)
+    # Moss frays in irregular lobes, without a continuous light outline.
     for y in range(64):
-        c = round(path_centre(y,phase))
-        # Binary alpha, with an irregular curved moss fringe rather than a tile
-        # background. Broad value bands soften the stone shadows without dither.
-        fringe = round(2*math.sin(2*math.pi*y/63)**2 + math.sin(4*math.pi*y/63)**2)
-        d.line((c-14-fringe,y,c+13+fringe,y), fill=(62,58,52,255))
-        d.line((c-14,y,c+14,y), fill=(51,49,34,255))
-        d.line((c-12,y,c+12,y), fill=(43,41,34,255))
-    # Small worn stepping stones follow the curve instead of a straight strip.
-    for i,cy in enumerate([0,11,22,33,44,55]):
-        c = round(path_centre(cy,phase)) + (0 if i==0 else (-3 if i%2 else 3))
-        rw = [11,10,12,10,11,10][i]
+        c=round(path_centre(y,phase))
+        t=2*math.pi*y/63
+        left=12+round(2*math.sin(t*3)+2*math.sin(t*5))
+        right=12+round(2*math.sin(t*2)+math.sin(t*7))
+        d.line((c-left,y,c+right,y),fill=(43,41,34,255))
+        d.line((c-left+3,y,c+right-3,y),fill=(51,49,34,255))
+    stones=[]
+    for i,cy in enumerate([0,13,26,39,52]):
+        c=round(path_centre(cy,phase))+(0 if i==0 else [-3,3,-2,3][(i-1)%4])
+        width=[16,13,19,15,17][i]
+        l=c-width//2; r=l+width-1
         for sy in [cy-63,cy,cy+63]:
-            poly=[(c-rw+3,sy-5),(c+rw-3,sy-5),(c+rw,sy-2),
-                  (c+rw-2,sy+4),(c-rw+2,sy+5),(c-rw,sy+1)]
-            d.polygon([(x,y+2) for x,y in poly],fill=(24,22,18,255))
+            poly=[(l+2,sy-4),(r-3,sy-5),(r,sy-2),
+                  (r-1,sy+3),(l+3,sy+4),(l,sy+1)]
+            d.polygon([(x,y+1) for x,y in poly],fill=(24,22,18,255))
             d.polygon(poly,fill=(74,70,62,255) if i%2 else (67,64,58,255))
-            d.line((c-rw+3,sy-5,c+rw-3,sy-5),fill=(90,87,80,255))
-            d.line((c-rw+5,sy-1,c-rw+8,sy,c-rw+8,sy+2),fill=(56,53,47,255))
-    for x,y in [(17,18),(47,40),(18,51),(46,8)]:
-        d.polygon([(x,y),(x+5,y+2),(x+2,y+3)],fill=(51,49,34,255))
+            d.line(poly[:3],fill=(90,87,80,255))
+            d.line((l+4,sy,r-4,sy+1),fill=(62,58,52,255))
+            # Moss rests on the chipped corner, not a dark geometric border.
+            d.polygon([(l,sy+1),(l+4,sy),(l+3,sy+4)],fill=(51,49,34,255))
+        stones.append(width)
+    for y,side in [(7,-1),(19,1),(32,-1),(45,1),(58,-1)]:
+        x=round(path_centre(y,phase))+side*9
+        d.polygon([(x-2,y),(x+2,y+1),(x+1,y+3)],fill=(65,62,45,255))
+        d.line((x-2,y+2,x+3,y+3),fill=(37,36,30,255))
+    PATH_STATS[str(phase)]={'stone_widths_px':stones,'moss_and_leaf_litter':True}
     return im
 
 
@@ -178,7 +188,8 @@ def assemble():
         scene.alpha_composite(Image.open(OUT/('garden_path_'+tn+'.png')),(65,y))
     placed=[('bamboo_wall',-8,-30),('bamboo_wall',80,-42),
             ('bamboo_grove_b',-47,-35),('bamboo_grove_a',53,-55),
-            ('bamboo_edge_R',145,-18)]
+            ('bamboo_edge_L',-42,-10),('bamboo_edge_R',158,-18)]
+    PLACEMENTS[:]=[{'piece':n,'position':[x,y]} for n,x,y in placed]
     for name,x,y in sorted(placed,key=lambda t:t[2]+FULL[t[0]].height):
         scene.alpha_composite(FULL[name],(x,y))
     atlas=Image.open(ROOT/'public/assets/dao_si.png').convert('RGBA')
@@ -207,6 +218,7 @@ def assemble():
     scene.alpha_composite(Image.open(OUT/'bamboo_edge_L.png'),(x,y))
     scene.alpha_composite(actor,(actor_x,actor_y))
     scene.alpha_composite(roof,(x,y))
+    PLACEMENTS.append({'piece':'bamboo_edge_L','position':[x,y],'foreground':True})
     ACTOR_STATS.update(total=total,hidden=hidden,visible_pct=round(100*(1-hidden/total),2),
                        upper_only=True,position=[actor_x,actor_y],foreground=[x,y])
     scene.convert('RGB').save(REC/'assembly-scene.png')
@@ -217,8 +229,13 @@ def assemble():
     d=ImageDraw.Draw(board)
     d.text((8,7),'Concept C / V1 - native 480x270',fill='#d8d2c4')
     d.text((488,7),'Round 1 / ada254d / native 480x270',fill='#d8d2c4')
-    d.text((968,7),f'Round 3 / Dao Si visible {ACTOR_STATS["visible_pct"]}%',fill='#d8d2c4')
+    d.text((968,7),f'Round 4 / Dao Si visible {ACTOR_STATS["visible_pct"]}%',fill='#d8d2c4')
     board.save(REC/'assembly.png')
+    compare=Image.new('RGB',(960,270))
+    compare.paste(concept,(0,0))
+    compare.paste(scene.convert('RGB'),(480,0))
+    compare.save(REC/'compare.png')
+    (REC/'placements.json').write_text(json.dumps(PLACEMENTS,indent=2)+'\n',encoding='utf-8')
     return hidden
 
 
@@ -294,9 +311,34 @@ def verify(hidden):
         a=np.array(Image.open(OUT/f'garden_path_{letter}.png'))
         assert not a[:,0,3].any() and not a[:,-1,3].any(), 'Opaque rectangular path edge'
         assert a[...,3].mean()/255<.75, 'Path needs open floor around moss fringe'
-    (REC/'metrics.json').write_text(json.dumps({'actor':ACTOR_STATS,'canopy':CANOPY_STATS,'node_2px_highlight_matches':NODE_STATS,'manifest_sha256':MANIFEST_SHA,'sprites':{name:{'size':list(Image.open(OUT/p['file']).size),'anchor':p['anchor']} for name,p in PIECES.items()}},indent=2)+'\n',encoding='utf-8')
+    for name,full in FULL.items():
+        mask=np.array(full)[...,3]>0
+        bottoms=[int(np.where(mask[:,x])[0][-1]) if mask[:,x].any() else -1
+                 for x in range(mask.shape[1])]
+        run=longest=0; prev=-2
+        for bottom in bottoms:
+            run=run+1 if bottom>=0 and bottom==prev else (1 if bottom>=0 else 0)
+            longest=max(longest,run); prev=bottom
+        valid=[b for b in bottoms if b>=0]
+        variation=max(valid)-min(valid)
+        EDGE_STATS[name]={'bottom_range_px':variation,'max_horizontal_run_px':longest}
+        assert longest<=24,(name,'straight lower alpha edge',longest)
+        if name.startswith('bamboo_grove'):
+            assert variation>=16,(name,'lower edge variation',variation)
+    for side in ('L','R'):
+        name='bamboo_edge_'+side
+        mask=np.array(FULL[name])[...,3]>0
+        outer=mask[:,:16] if side=='L' else mask[:,-16:]
+        inner=mask[:,-16:] if side=='L' else mask[:,:16]
+        EDGE_STATS[name]['outer_coverage_pct']=round(float(outer.mean()*100),2)
+        EDGE_STATS[name]['inner_coverage_pct']=round(float(inner.mean()*100),2)
+        assert outer.mean()<inner.mean()*.7, (name,'edge must thin outward')
+    assert {'bamboo_edge_L','bamboo_edge_R'} <= {p['piece'] for p in PLACEMENTS}
+    for key,stat in PATH_STATS.items():
+        assert all(12<=v<=20 for v in stat['stone_widths_px']), (key,stat)
+    (REC/'metrics.json').write_text(json.dumps({'actor':ACTOR_STATS,'canopy':CANOPY_STATS,'edges':EDGE_STATS,'paths':PATH_STATS,'placements':PLACEMENTS,'node_2px_highlight_matches':NODE_STATS,'manifest_sha256':MANIFEST_SHA,'sprites':{name:{'size':list(Image.open(OUT/p['file']).size),'anchor':p['anchor']} for name,p in PIECES.items()}},indent=2)+'\n',encoding='utf-8')
     coverage='/'.join(str(CANOPY_STATS[n]['whole_frame_pct']) for n in CANOPY_STATS)
-    return f'PASS H-BAMB: sprites={len(files)} K-A5={off} alpha_intermediate={semi} pairs=5 seamless_paths=2 actor_occluded_pixels={hidden} actor_visible_pct={ACTOR_STATS['visible_pct']} upper_tips_only=YES manifest_unchanged=YES grove_frame_coverage_pct={coverage} canopy_ge_v1=YES nodes_2px=YES path_rectangle=NO'
+    return f'PASS H-BAMB: sprites={len(files)} K-A5={off} alpha_intermediate={semi} pairs=5 seamless_paths=2 actor_occluded_pixels={hidden} actor_visible_pct={ACTOR_STATS['visible_pct']} upper_tips_only=YES manifest_unchanged=YES grove_frame_coverage_pct={coverage} canopy_ge_v1=YES nodes_2px=YES path_rectangle=NO bottom_variation_ge16=YES bottom_horizontal_le24=YES assembly_edges=LR stones_12to20=YES'
 
 
 if __name__=='__main__':
