@@ -19,7 +19,9 @@ import stair as st
 ROOT, OUT, V1 = st.ROOT, st.OUT, st.V1
 OLD = ROOT / 'public/assets/kits/C-P'
 S = 3.05
-TH, GB, K = 55, 8, 12
+TH, GB, K = 40, 4, 12
+CLOSE = 2      # v2 (22/11, người dùng chê nhạt + thưa): lấp kẽ trong tán bằng đóng hình thái học
+LIFT = 1.12    # tăng nhẹ độ sáng/bão hoà để không chìm vào sân xám
 MINC = 12
 # (tên, khung nguồn x0, y0, x1 (y1 = y0 + cao_tán*S), cao_tán, soi_gương)
 PLAN = {
@@ -36,7 +38,19 @@ def palette():
     sec = style.split('## 5.')[1].split('## 6.')[0]
     cols = {tuple(bytes.fromhex(h)) for h in re.findall(r'#([0-9a-fA-F]{6})', sec)}
     cols |= {tuple(int(v) for v in c) for c in np.unique(REF.astype(np.uint8), axis=0)}
+    cols |= concept_cols()
     return np.array(sorted(cols), dtype=np.int32)
+
+
+def concept_cols(n=28):
+    # v2: 28 màu đại diện của rừng trúc concept (k-means tất định), để giữ lục-vàng của concept
+    src = np.asarray(Image.open(ROOT / '.agents/refs/CM/V1-original.png').convert('RGB'))[0:290, 0:560]
+    f = src.reshape(-1, 3).astype(float)[::7]
+    c = f[np.linspace(0, len(f) - 1, n).astype(int)]
+    for _ in range(12):
+        lab = ((f[:, None] - c[None]) ** 2).sum(2).argmin(1)
+        c = np.array([f[lab == i].mean(0) if (lab == i).any() else c[i] for i in range(n)])
+    return {tuple(int(round(v)) for v in x) for x in c}
 
 
 PAL = palette()
@@ -54,26 +68,44 @@ def clump(name):
     y1 = round(y0 + hc * (x1 - x0) / w)            # cùng tỉ lệ hai trục
     rgb = st.cells(x0, x1, np.linspace(y0, y1, hc + 1).round().astype(int), w)
     f = rgb.astype(float)
-    m = (f.mean(2) > TH) & (f[:, :, 1] - f[:, :, 2] > GB)
+    from scipy import ndimage
+    m0 = (f.mean(2) > TH) & (f[:, :, 1] - f[:, :, 2] > GB)          # lá/thân được nắng
+    st_ = np.ones((2 * CLOSE + 1, 2 * CLOSE + 1), bool)
+    md = ndimage.binary_closing(np.pad(m0, CLOSE), st_)[CLOSE:-CLOSE, CLOSE:-CLOSE] | m0
+    md = ndimage.binary_fill_holes(md) & (f.mean(2) > 14)            # khối lá tối giữa các chùm
+    # v2: đường bao khóm (vòm trên, thu dần xuống dưới) để tán không bị cắt thẳng theo khung nguồn;
+    # mép ngoài chỉ giữ lá sáng -> mép răng lá tự nhiên.
+    yy, xx = np.mgrid[0:hc, 0:w].astype(float)
+    cy = hc * 0.52
+    rx = w * (0.50 - 0.10 * np.clip((yy - cy) / (hc - cy), 0, 1))
+    d = np.hypot((xx - w / 2) / rx, (yy - cy) / (hc * 0.56))
+    m = (md & (d < 0.86)) | (m0 & (d < 1.12))
     ext = H - hc
-    stem = m[-K:].mean(0) > 0.6                     # cột đang là thân ở đáy tán
-    # Lặp lệch pha theo cột (scout 22/11: lặp cùng pha thành sọc ngang).
-    rows = np.array([[hc - K + ((r + 5 * x) % K) for x in range(w)] for r in range(ext)], int).reshape(ext, w)
-    cols = np.arange(w)[None].repeat(ext, 0)
-    er = rgb[rows, cols] if ext > 0 else np.zeros((0, w, 3), np.uint8)
-    em = (stem[None] & m[rows, cols]) if ext > 0 else np.zeros((0, w), bool)
+    # Thân dưới tán: cột thân thật ở đáy tán, tô liền theo màu cột + đốt mỗi 9 px (T-2 thân có đốt).
+    stem = m0[-K:].mean(0) > 0.5
+    stem &= np.abs(np.arange(w) - w / 2) < w * 0.42
+    base = np.median(rgb[-K:], 0)
+    er = np.repeat(base[None], ext, 0).astype(float)
+    for x in range(w):
+        ph = (x * 5) % 9
+        for r in range(ext):
+            k = (r + ph) % 9
+            if k == 0: er[r, x] *= 0.62
+            elif k == 1: er[r, x] *= 1.18
+        er[:, x] *= 0.86 + 0.14 * (x % 3 == 1)
+    er = np.clip(er, 0, 255).astype(np.uint8)
+    em = np.repeat(stem[None], ext, 0)
     rgb = np.concatenate([rgb, er], 0); m = np.concatenate([m, em], 0)
     if mirror:
         rgb, m = rgb[:, ::-1], m[:, ::-1]
     # Chuyển màu trên điểm đặc.
     p = rgb[m].astype(float)
-    p = (p - p.mean(0)) / (p.std(0) + 1e-6) * REF.std(0) + REF.mean(0)
+    g = p.mean(1, keepdims=True); p = g + (p - g) * LIFT; p = p * LIFT
     out = np.zeros_like(rgb); out[m] = quantize(np.clip(p, 0, 255).astype(np.uint8)[None])[0]
     # Bỏ điểm đặc cô lập (không láng giềng 4 hướng nào đặc).
     pm = np.pad(m, 1); lone = m & ~(pm[:-2, 1:-1] | pm[2:, 1:-1] | pm[1:-1, :-2] | pm[1:-1, 2:])
     m = m & ~lone
     # Bỏ cụm đặc < MINC điểm (đoạn thân lơ lửng, scout 22/11).
-    from scipy import ndimage
     lab, n = ndimage.label(m)
     sizes = ndimage.sum(m, lab, range(1, n + 1))
     keep = [i + 1 for i, s in enumerate(sizes) if s >= MINC]
