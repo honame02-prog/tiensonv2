@@ -50,9 +50,9 @@ for (const A of L.areas) {
       const o = overlap(cx, cy, b); if (!best || o > best.o) best = { cx, cy, o }; if (o >= 0.3) cells.push([cx, cy]);
     }
     if (!cells.length && best) cells.push([best.cx, best.cy]);
-    if (b.kind === 'stairs' || b.kind === 'bridge') { for (let cy = Math.max(0, Math.floor(b.y)); cy < Math.min(H, Math.ceil(b.y + b.h)); cy++) for (let cx = Math.max(0, Math.floor(b.x)); cx < Math.min(W, Math.ceil(b.x + b.w)); cx++) if (overlap(cx, cy, b) >= 0.25) wild[cy][cx] = 1; }
+    if (b.kind === 'stairs' || b.kind === 'bridge') { for (let cy = Math.max(0, Math.floor(b.y)); cy < Math.min(H, Math.ceil(b.y + b.h)); cy++) for (let cx = Math.max(0, Math.floor(b.x)); cx < Math.min(W, Math.ceil(b.x + b.w)); cx++) if (overlap(cx, cy, b) >= 0.25) { wild[cy][cx] = 1; (b.wc ||= []).push([cx, cy]); } }
     else if (b.kind === 'water') cells.forEach(([cx, cy]) => { water[cy][cx] = 1; });
-    else if (b.kind === 'gate') cells.forEach(([cx, cy]) => { const mx = cx + 0.5, side = b.w >= 5 && (mx < b.x + 1.5 || mx > b.x + b.w - 1.5); if (side) solid[cy][cx] = 1; else wild[cy][cx] = 1; });
+    else if (b.kind === 'gate') cells.forEach(([cx, cy]) => { const mx = cx + 0.5, side = b.w >= 5 && (mx < b.x + 1.5 || mx > b.x + b.w - 1.5); if (side) solid[cy][cx] = 1; else { wild[cy][cx] = 1; (b.wc ||= []).push([cx, cy]); } });
     else cells.forEach(([cx, cy]) => { solid[cy][cx] = 1; });
   }
   for (const w of A.walls) for (let i = 0; i + 1 < w.pts.length; i++) {
@@ -106,9 +106,27 @@ for (const A of L.areas) {
     const r = top ? [Math.round(p.x * 32 - 48), 0, 96, 20] : bot ? [Math.round(p.x * 32 - 48), PH - 20, 96, 20] : [Math.round(p.x * 32 - 48), Math.round(p.y * 32 - 10), 96, 20];
     portals.push({ id: p.id, rect: r, to: { area: ID[ta], spawn: ts }, label: p.label.replace(/^→\s*/, '') });
   }
+  // ---- tang dai (I2): tierRows = moi o 1 ky tu so tang ('.' = ngoai moi tang); steps = vung bac chuyen tang (px) voi lo (tang thap, phia duoi theo dir N) -> hi (tang cao)
+  const tierRows = lvl.map(r => r.map(v => v >= 0 ? String(v) : '.').join(''));
+  const lvlAtPx = (px, py) => { const cx = Math.floor(px / 32), cy = Math.floor(py / 32); return cx < 0 || cy < 0 || cx >= W || cy >= H ? -1 : lvl[cy][cx]; };
+  // moi vung chuyen tang = bbox (can theo o) cac o "wild" cua bac / cau / loi cong; lo/hi lay tang 2 dau doc theo huong di; chi giu neu hai dau khac tang (cong/cau cung tang thi bo)
+  const steps = [];
+  for (const b of A.blocks.filter(b => b.wc && ['stairs', 'bridge', 'gate'].includes(b.kind)).sort((p, q) => (q.kind === 'stairs') - (p.kind === 'stairs'))) {
+    const xs = b.wc.map(c => c[0]), ys = b.wc.map(c => c[1]), x0 = Math.min(...xs) * 32, y0 = Math.min(...ys) * 32, x1 = (Math.max(...xs) + 1) * 32, y1 = (Math.max(...ys) + 1) * 32, mx = (x0 + x1) / 2, my = (y0 + y1) / 2;
+    const onStairs = (px, py) => A.blocks.some(o => o.kind === 'stairs' && o !== b && steps.some(t => t.id === o.id) && o.wc?.some(([cx, cy]) => cx === Math.floor(px / 32) && cy === Math.floor(py / 32)));   // cong/cau noi tiep bac: tang do bac lo, khong tinh lai
+    const lv = (px, py) => b.kind !== 'stairs' && onStairs(px, py) ? -1 : lvlAtPx(px, py);
+    const N = lv(mx, y0 - 16), S = lv(mx, y1 + 16), Wl = lv(x0 - 16, my), E = lv(x1 + 16, my);
+    let dir, lo, hi;
+    if (b.kind === 'stairs') { dir = 'up'; hi = N >= 0 ? N : b.tier; lo = S >= 0 ? S : Math.max(0, hi - 1); }   // bac dung huong N -> len = phia Bac (layout hien chi co dir N)
+    else if (N >= 0 && S >= 0 && N !== S) { dir = N > S ? 'up' : 'down'; hi = Math.max(N, S); lo = Math.min(N, S); }
+    else if (Wl >= 0 && E >= 0 && Wl !== E) { dir = Wl > E ? 'left' : 'right'; hi = Math.max(Wl, E); lo = Math.min(Wl, E); }
+    else continue;
+    if (lo >= hi) continue;
+    steps.push({ id: b.id, kind: b.kind, rect: [x0, y0, x1 - x0, y1 - y0], dir, lo, hi });
+  }
   const src = {
     materials: 'tools/areas/blockout-materials.json',
-    area: { id, name: META[A.id].name, sub: META[A.id].sub, backdrop: 'none', bg: '#1e1e22', spawns, portals, exits },
+    area: { id, name: META[A.id].name, sub: META[A.id].sub, backdrop: 'none', bg: '#1e1e22', spawns, portals, exits, tierRows, steps },
     bake: { width: PW, height: PH, seed: 1, regions, colRows: col.map(r => r.join('')), labels },
     blockout: { wallCells: wall.flatMap((r, cy) => r.map((v, cx) => v ? [cx, cy] : null).filter(Boolean)), source: 'design/tienson/blockout/tools/layout.json', area: A.id, cell: 32, blocks: A.blocks.map(b => ({ id: b.id, kind: b.kind, label: b.label, rect: [b.x * 32, b.y * 32, b.w * 32, b.h * 32] })) },
   };

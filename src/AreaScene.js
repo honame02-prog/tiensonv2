@@ -7,6 +7,7 @@ import { isTouchDevice } from './view.js';
 import { FxPlayer } from './fx/FxPlayer.js';
 import { CUES } from './fx/cues/index.js';
 import { setupFxDemo } from './fx/fxdemo.js';
+import { tierAt, depthOf, tierStepOk, roofTargetAlpha, isRoofFrame, alphaMaskRects, ROOF_FADE_MS } from './areaLayers.js';
 
 const A = 'assets/sect/';              // tai nguyen dung chung (atlas sprite, decal, hinh nen troi, suong)
 const DEFAULT_AREA = 'huyen-van-quan';
@@ -31,6 +32,7 @@ export class AreaScene extends Phaser.Scene {
     this.busy = false; this.dialog = null; this.typing = false; this.acting = false; this.pendingIt = null; this.wasMoving = false;
     this.fxDemo = null; this.fxLab = null; this.pond = null; this.smoke = null; this.gateRoof = null; this.gatePos = null; this.hallPos = null; this.burnerPos = null;
     this.cloudBack = null; this.peaks = null; this.seaDrift = null; this.portalArmed = false;
+    this.tier = 0; this.lastGood = null; this.roofs = [];   // tang dai hien tai (so thuc, noi suy tren bac) + tan/mai mo khi che (K-A4)
   }
 
   preload() {
@@ -81,7 +83,8 @@ export class AreaScene extends Phaser.Scene {
       if (ci > 0) {   // khoa dang "atlas:frame" (vd cliff:cliff_n_0, forest:canopy_2): kich thuoc/foot tu <atlas>_sprites.json, pivot giua mep duoi
         const at = k.slice(0, ci), fr = k.slice(ci + 1), sm = this.cache.json.get('spr:' + at)?.sprites?.[fr];
         if (!sm) throw new Error('khong co sprite ' + k);
-        this.add.image(x - Math.round(sm.w / 2), y - sm.h, at, fr).setOrigin(0).setDepth(sm.role === 'ground-decoration' ? y - sm.h - 10 : y);
+        const im = this.add.image(x - Math.round(sm.w / 2), y - sm.h, at, fr).setOrigin(0).setDepth(sm.role === 'ground-decoration' ? y - sm.h - 10 : depthOf(y, tierAt(meta, x, y)));
+        if (isRoofFrame(fr)) this.addRoof(im);
         if (sm.foot && sm.foot[0] > 0 && sm.foot[1] > 0) solid(x, y - sm.foot[1] / 2, sm.foot[0], sm.foot[1]);
         continue;
       }
@@ -89,7 +92,7 @@ export class AreaScene extends Phaser.Scene {
       const left = x - Math.round(m.w / 2), top = y - m.h;
       if (k === 'hall') {
         this.add.image(left, top, 'sect', 'hall_base').setOrigin(0).setDepth(y);
-        this.add.image(left, top, 'sect', 'hall_roof').setOrigin(0).setDepth(y + 0.5);
+        this.addRoof(this.add.image(left, top, 'sect', 'hall_roof').setOrigin(0).setDepth(y + 0.5));
         solid(x, y - 70, m.w - 24, 120);                       // body + plinth (feet stop just below the plinth)
         solid(x - 120, y - 6, 92, 12); solid(x + 120, y - 6, 92, 12);
         this.interactables.push({ key: 'hall', x, y: y + 4, range: 40 });
@@ -97,7 +100,7 @@ export class AreaScene extends Phaser.Scene {
       } else if (k === 'gate') {
         const L = SP.layers.gate, P = L.passage;
         this.add.image(left, top, 'sect', 'gate_base').setOrigin(0).setDepth(y - 2);
-        this.gateRoof = this.add.image(left, top, 'sect', 'gate_roof').setOrigin(0).setDepth(8000);
+        this.gateRoof = this.add.image(left, top, 'sect', 'gate_roof').setOrigin(0).setDepth(8000); this.addRoof(this.gateRoof);
         // side wings + pillars block; the passage between the inner pillars is open
         const px0 = left + P.x0, px1 = left + P.x1;
         solid((left + px0) / 2, y - 22, px0 - left, 44); solid((px1 + left + m.w) / 2, y - 22, left + m.w - px1, 44);
@@ -185,6 +188,34 @@ export class AreaScene extends Phaser.Scene {
     const lab = sp.get('fxlab') === '1';
     if (lab || sp.get('fx') === '1') this.fxDemo = setupFxDemo(this);
     if (lab) import('./fxlab/index.js').then(m => { if (this.scene.isActive()) this.fxLab = m.setupFxLab(this, this.fxDemo); });
+  }
+
+  // tan/mai (K-A4): moi anh mai/tan dang ky o day; update() ha alpha khi bbox che than nhan vat (areaLayers.roofTargetAlpha)
+  addRoof(img) {
+    const f = img.frame, bbox = [img.x, img.y, img.width, img.height];
+    let rects = [bbox];   // du phong: bbox ca anh; thuong thi doc pixel that -> mat na cac o 8 px dac (vd hall_roof chi cao ~102 / 235 px)
+    try {
+      const cv = document.createElement('canvas'); cv.width = f.cutWidth; cv.height = f.cutHeight; const cx = cv.getContext('2d', { willReadFrequently: true });
+      cx.drawImage(f.source.image, f.cutX, f.cutY, f.cutWidth, f.cutHeight, 0, 0, f.cutWidth, f.cutHeight);
+      const m = alphaMaskRects(cx.getImageData(0, 0, f.cutWidth, f.cutHeight).data, f.cutWidth, f.cutHeight, img.x, img.y);
+      if (m.length) rects = m;
+    } catch (e) { /* khong doc duoc pixel: dung bbox */ }
+    this.roofs.push({ img, rect: bbox, rects, base: img.alpha }); return img;
+  }
+
+  updateLayers(delta) {
+    const p = this.player, x = p.x, y = p.y;
+    if (this.meta.tierRows) {
+      const lg = this.lastGood, ok = (nx, ny) => tierStepOk(this.meta, lg.x, lg.y, nx, ny, this.tier);
+      if (lg && Math.hypot(x - lg.x, y - lg.y) < 8 && !ok(x, y)) p.setPosition(ok(x, lg.y) ? x : lg.x, ok(lg.x, y) && !ok(x, lg.y) ? y : lg.y);   // truot theo truc con hop le; khong thi ve vi tri truoc   // khong qua mep tang ngoai bac (chong xuyen); dich chuyen xa (>= 8 px) thi bo qua
+      this.lastGood = { x: p.x, y: p.y };
+      this.tier = tierAt(this.meta, p.x, p.y, this.tier);
+    }
+    p.setDepth(depthOf(p.y, this.tier));
+    for (const r of this.roofs) {
+      const im = r.img, a = im.depth > p.depth ? roofTargetAlpha(r.rects, x, y, r.base) : r.base;   // chi mo khi mai ve DE len nhan vat
+      if (im.alpha !== a) im.alpha = a > im.alpha ? Math.min(a, im.alpha + delta / ROOF_FADE_MS) : Math.max(a, im.alpha - delta / ROOF_FADE_MS);
+    }
   }
 
   onShutdown() {
@@ -409,10 +440,7 @@ export class AreaScene extends Phaser.Scene {
       if (!this.acting) p.anims.play(`idle_${this.facing}`, true);
     }
     this.wasMoving = len > 0;
-    p.setDepth(p.y); this.shadow.setPosition(Math.round(p.x), Math.round(p.y) - 1);
-    // walking under the gate roof: let the hero show through
-    const G = this.gatePos, under = G && p.x > G.px0 - 6 && p.x < G.px1 + 6 && p.y > G.top + 112 && p.y < G.top + 112 + 60;
-    if (this.gateRoof) { const ra = under ? 0.72 : 1; if (this.gateRoof.alpha !== ra) this.gateRoof.alpha += Phaser.Math.Clamp(ra - this.gateRoof.alpha, -delta / 250, delta / 250); }
+    this.updateLayers(delta); this.shadow.setPosition(Math.round(p.x), Math.round(p.y) - 1);   // tang + depth + tan/mai mo (thay cho mo cong rieng 0.72)
     if (!this.busy) for (const e of this.exits) if (e.r.contains(p.x, p.y)) { this.transition(e.title, e.text, e.to); break; }
     // cong chuyen khu: cham vung la chuyen; sau khi vao khu, phai buoc ra khoi moi cong thi cong moi "len dan" (tranh nhay qua lai)
     let hit = null, near = null;
