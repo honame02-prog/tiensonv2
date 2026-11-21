@@ -1,6 +1,6 @@
-"""S1-TERR: original procedural masonry. No concept pixels in kit sprites.
+"""S1-TERR2: single-object ImageGen sources, cell median and hall mineral palette.
 Run from any directory: python -X utf8 tools/sprites/H-TERR/build.py [--verify|--repro]
-Geometry is drawn at native size: median reduction is unnecessary (1:1 cells).
+Native join geometry is retained; source texture is sampled by area median.
 Only the assembly's paving is sampled from the approved concept.
 """
 from pathlib import Path
@@ -14,7 +14,8 @@ from PIL import Image, ImageDraw
 ROOT = Path(__file__).resolve().parents[3]
 DESIGN = Path('D:/SkillFX_TuThienChi_HoaLien/design/tienson')
 OUT = ROOT/'public/assets/kits/H-TERR'
-REC = ROOT/'records/S1-TERR'
+REC = ROOT/'records/S1-TERR2'
+SRC = Path(__file__).resolve().parent/'src'
 HALL = DESIGN/'tam-thanh/TT2/src/hall-reference.png'
 CONCEPT = DESIGN/'hvq-scene/C/V1.png'
 PAL = sorted({tuple(p[:3]) for p in Image.open(HALL).convert('RGBA').getdata() if p[3]})
@@ -49,75 +50,122 @@ def put(name, im, anchor, footprint, layer='ground', collide=None):
     im.save(OUT/(name+'.png'))
 
 
+def cell_sample(a, width, height):
+    """TT2 area median; alpha by occupied majority, never nearest shrink."""
+    out = np.zeros((height,width,4),np.uint8)
+    ys=np.rint(np.linspace(0,a.shape[0],height+1)).astype(int)
+    xs=np.rint(np.linspace(0,a.shape[1],width+1)).astype(int)
+    for y in range(height):
+        for x in range(width):
+            b=a[ys[y]:ys[y+1],xs[x]:xs[x+1]]
+            m=b[...,3]>=200
+            if m.sum()>=max(1,m.size/2):
+                out[y,x,:3]=np.median(b[m,:3],axis=0)
+                out[y,x,3]=255
+    return out
+
+
+def source(name, width, height):
+    a=np.array(Image.open(SRC/name).convert('RGBA'))
+    m=a[...,3]>=200
+    ys,xs=np.where(m)
+    a=a[ys.min():ys.max()+1,xs.min():xs.max()+1]
+    a=cell_sample(a,width,height)
+    # Material-aware tone mapping keeps warm mineral and olive families.
+    mineral=np.array([p for p in PAL if abs(p[0]-p[1])<=8 and
+                      0<=p[1]-p[2]<=15 and 37<=sum(p)/3<=140])
+    olive=np.array([(51,49,34),(65,62,45)])
+    rgb=a[...,:3].astype(float)
+    lum=rgb@np.array([.2126,.7152,.0722])
+    moss=(rgb[...,1]-rgb[...,2]>20)&((rgb[...,0]-rgb[...,1])<.45*(rgb[...,1]-rgb[...,2]))&(lum<110)
+    tone=np.where(lum>=78,np.maximum(lum*.60+22,81),lum*.66+13)
+    target=np.stack([tone+3,tone,tone-6],axis=-1)
+    for y,x in zip(*np.where(a[...,3]>0)):
+        family=olive if moss[y,x] else mineral
+        q=rgb[y,x]*.50 if moss[y,x] else target[y,x]
+        a[y,x,:3]=family[((family-q)**2).sum(axis=1).argmin()]
+    # Remove isolated dark/bright flecks only, retain connected mortar and wear.
+    clean=a.copy()
+    for y in range(1,height-1):
+        for x in range(1,width-1):
+            b=a[y-1:y+2,x-1:x+2]
+            if not (b[...,3]==255).all(): continue
+            vals,counts=np.unique(b[...,:3].reshape(-1,3),axis=0,return_counts=True)
+            winner=vals[counts.argmax()]
+            if counts.max()>=5 and abs(float(a[y,x,:3].mean())-winner.mean())>24:
+                clean[y,x,:3]=winner
+    return Image.fromarray(clean)
+
+
+WALL = source('imagegen-wall.png',192,50)
+RAIL = source('imagegen-balus.png',140,30)
+
+
 def masonry(w, damp=False):
-    """44px visible ashlar below a 6px coping. Seam phase repeats at 64px."""
-    im = Image.new('RGBA', (w,50))
-    d = ImageDraw.Draw(im)
-    d.rectangle((0,6,w-1,49), fill=C['joint'])
-    # Large 32x14 blocks, running bond. Flat color clusters, no noise/dither.
-    for row in range(3):
-        y = 6+row*14
-        for j, x in enumerate(range(-16 if row%2 else 0,w,32)):
-            x0, x1 = max(0,x), min(w-1,x+30)
-            if x1 < x0:
-                continue
-            tone = ['stone','mid','stone','light'][(j+row*2)%4]
-            d.rectangle((x0,y+1,x1,y+12), fill=C[tone])
-            d.line((x0,y+1,x1-2,y+1), fill=C['light'], width=1)
-            d.line((x0,y+12,x1,y+12), fill=C['dark'])
-            # Worn planes, at least 2px per detail, deterministic not speckled.
-            if x >= 0 and x+27 < w:
-                d.rectangle((x+5,y+3,x+14,y+4), fill=C['mid'])
-                if (j+row)%3 == 0:
-                    d.line([(x+24,y+2),(x+24,y+5),(x+22,y+7)],fill=C['dark'],width=2)
-                    d.rectangle((x+2,y+10,x+7,y+11),fill=C['light'])
-    d.rectangle((0,48,w-1,49),fill=C['shade'])
-    # Coping: upper lit plane, beveled lip, shaded underside.
-    d.rectangle((0,0,w-1,2), fill=C['edge'])
-    d.line((0,0,w-1,0), fill=C['top'])
-    d.rectangle((0,3,w-1,4),fill=C['mid'])
+    """Whole-object median source; native opaque silhouette and end joins."""
+    a=np.array(WALL.crop((0,0,w,50)))
+    for y in range(50):
+        occupied=np.where(a[y,:,3]>0)[0]
+        for x in np.where(a[y,:,3]==0)[0]:
+            a[y,x]=a[y,occupied[np.argmin(abs(occupied-x))]] if len(occupied) else C['stone']
+    im=Image.fromarray(a)
+    d=ImageDraw.Draw(im)
+    # Flat joining strip; chipped highlights use connected 2px clusters.
+    d.line((0,0,w-1,0),fill=C['top'])
     d.line((0,5,w-1,5),fill=C['shade'])
-    for x in range(30,w,32):
-        d.rectangle((x,0,x+1,3),fill=C['dark'])
     if damp:
-        for x, y in [(12,21),(43,34),(w-17,7)]:
-            d.rectangle((x,y,x+3,y+8),fill=C['dark'])
-            d.rectangle((x-3,y+7,x+5,y+9),fill=C['moss'])
-        # One sparse trailing vine, with paired leaf clusters.
-        x=w-16
-        d.line([(x,4),(x,12),(x-2,20),(x-2,27)], fill=C['moss'],width=2)
-        for y, off in [(8,-3),(15,2),(23,-4)]:
-            d.rectangle((x+off,y,x+off+3,y+2), fill=C['olive'])
+        # Sparse vine is a continuous stem, never floating dark square dots.
+        x=min(w-15,82)
+        d.line([(x,3),(x,12),(x-2,18),(x-2,28),(x-4,35)],fill=C['moss'],width=2)
+        for yy,xx in [(10,x-4),(18,x),(27,x-6)]:
+            d.polygon([(xx,yy),(xx+4,yy),(xx+3,yy+2),(xx,yy+3)],fill=C['olive'])
+        for xx in [w//3,w-23]:
+            # Thin wet runs that remain attached to coping/mortar.
+            d.line([(xx,6),(xx,12),(xx+1,18)],fill=C['olive'],width=2)
+            d.line([(xx+1,18),(xx+1,23)],fill=C['dark'],width=2)
     return im
 
 
 def closed_end(side, corner=False):
-    # 16px return plane; a corner additionally extends 32px north.
-    h = 82 if corner else 50
-    im = Image.new('RGBA',(32,h))
-    y = h-50
-    im.alpha_composite(masonry(32), (0,y))
-    d = ImageDraw.Draw(im)
-    right = side == 'R'
-    x0 = 16 if right else 0
-    d.rectangle((x0,0,x0+15,h-1), fill=C['dark'] if right else C['stone'])
-    d.rectangle((x0,0,x0+15,2),fill=C['edge'])
-    d.rectangle((x0,3,x0+15,5),fill=C['mid'])
-    for yy in range(7,h-1,14):
-        d.line((x0,yy,x0+15,yy),fill=C['joint'])
-        d.line((x0,yy+1,x0+12,yy+1),fill=C['mid'])
-        # Offset joints of the closed return; avoid open hollow ends.
-        xx = x0+(5 if (yy//14)%2 else 10)
-        d.line((xx,yy+1,xx,min(yy+13,h-1)),fill=C['shade'])
-    # Coping across the elbow, and a clear top strip along the return.
+    h=82 if corner else 50
+    y=h-50
+    im=Image.new('RGBA',(32,h))
+    im.alpha_composite(masonry(32),(0,y))
+    right=side=='R'
+    x0=16 if right else 0
+    # Solid 16px return; each course has a closed, shaded end plane.
+    ret=np.array(masonry(32).crop((0,0,16,50)))
+    if right:
+        original=ret.copy()
+        for rgb in np.unique(original[...,:3].reshape(-1,3),axis=0):
+            ret[np.all(original[...,:3]==rgb,axis=2),:3]=color(rgb.astype(float)*.82)[:3]
+    ret=Image.fromarray(ret)
     if corner:
-        d.rectangle((x0,0,x0+3,y+3),fill=C['edge'])
-        d.rectangle((x0+4,0,x0+5,y+2),fill=C['light'])
+        im.alpha_composite(ret,(x0,0))
+        im.alpha_composite(ret.crop((0,18,16,50)),(x0,50))
+    else:
+        im.alpha_composite(ret,(x0,0))
+    d=ImageDraw.Draw(im)
+    if corner:
+        d.rectangle((x0,0,x0+4,y+4),fill=C['edge'])
+        d.line((x0,0,x0,y+4),fill=C['top'])
+        d.line((x0+5,5,x0+5,y+4),fill=C['shade'])
     d.rectangle((0,y,31,y+2),fill=C['edge'])
     d.line((0,y,31,y),fill=C['top'])
-    d.rectangle((0,y+3,31,y+4),fill=C['mid'])
     d.line((0,y+5,31,y+5),fill=C['shade'])
+    # Exposed upright arris and foot close the end without a black outline.
+    edge=x0+15 if right else x0
+    d.line((edge,y+6,edge,h-2),fill=C['dark'] if right else C['light'])
+    d.line((x0,h-1,x0+15,h-1),fill=C['shade'])
     return im
+
+
+def rail_skin(im, offset=0):
+    a=np.array(im); tex=np.array(RAIL)
+    for y,x in zip(*np.where(a[...,3]>0)):
+        tx=min(139,x+offset)
+        if tex[y,tx,3]: a[y,x,:3]=tex[y,tx,:3]
+    return Image.fromarray(a)
 
 
 def post(d,x):
@@ -148,7 +196,7 @@ def balustrade(w):
     # Broad open slots between vertical posts, no diagonal supports.
     for x in range(6,w+7,32):
         post(d,x)
-    return im
+    return rail_skin(im)
 
 
 def assembly():
@@ -164,27 +212,38 @@ def assembly():
         ax,ay=PIECES[name]['anchor']
         canvas.alpha_composite(IMAGES[name],(x-ax,y-ay))
         placements.append(dict(k='H-TERR/'+name,x=x,y=y))
-    for name,x in [('rwall_2',24),('rwall_4_b',88),('rwall_4',216)]:
-        place(name,x,170)
-    place('rwall_end_L',24,170)
-    place('rwall_end_R',312,170)
-    for name,x in [('balus_2',24),('balus_4',88),('balus_4',216)]:
-        place(name,x,170)
-    place('rwall_end_L',440,170)
-    place('balus_post',440,170)
-    place('balus_post',472,170)
-    # Secondary dais: actual north return + corner joined to a straight span.
-    place('rwall_corner_L',360,216)
-    place('rwall_2_b',392,216)
-    place('rwall_end_R',448,216)
-    place('balus_2',384,216)
-    place('balus_post',360,184)
+    # Main terrace with actual stair kit at its opening; no stair pixels modified.
+    for name,x in [('rwall_2',24),('rwall_4_b',88),('rwall_2',216)]:
+        place(name,x,156)
+    place('rwall_end_L',8,156)
+    place('rwall_end_R',280,156)
+    for name,x in [('balus_2',24),('balus_4',88),('balus_2',216)]:
+        place(name,x,156)
+    stairs=ROOT/'public/assets/kits/H-STAIR'
+    def stair(name,x,y):
+        meta=json.loads((stairs/'kit.json').read_text(encoding='utf-8'))['pieces'][name]
+        ax,ay=meta['anchor']
+        canvas.alpha_composite(Image.open(stairs/meta['file']).convert('RGBA'),(x-ax,y-ay))
+        placements.append(dict(k='H-STAIR/'+name,x=x,y=y))
+    stair('stair_3',312,220)
+    stair('stair_cheek_L',294,220)
+    stair('stair_cheek_R',408,220)
+    place('rwall_2_b',416,156)
+    place('rwall_end_L',416,156)
+    place('balus_2',416,156)
+    # Separate sample dais exercises BOTH elbows and both closed return planes.
+    place('rwall_corner_L',50,220)
+    place('rwall_4_b',82,220)
+    place('rwall_corner_R',210,220)
+    place('balus_4',82,220)
+    place('balus_post',50,188)
+    place('balus_post',226,188)
     # Real, unmodified 64px Dao Si frame, pivot (32,61).
     frames=json.loads((ROOT/'public/assets/dao_si.json').read_text(encoding='utf-8'))['frames']
     frame=next(f for f in frames if f['filename']=='dao_si_idle_down_00')['frame']
     atlas=Image.open(ROOT/'public/assets/dao_si.png').convert('RGBA')
     actor=atlas.crop((frame['x'],frame['y'],frame['x']+64,frame['y']+64))
-    for x,y in [(220,132),(288,258)]:
+    for x,y in [(220,132),(362,205)]:
         canvas.alpha_composite(actor,(x-32,y-61))
     canvas.save(REC/'assembly-frame.png')
     together=Image.new('RGB',(976,294),'#24241f')
@@ -192,18 +251,18 @@ def assembly():
     together.paste(canvas,(496,24))
     d=ImageDraw.Draw(together)
     d.text((8,7),'APPROVED TARGET C / V1 / 1x',fill='#b9b1a9')
-    d.text((504,7),'H-TERR / 1x / gap reserved for stair kit',fill='#b9b1a9')
+    d.text((504,7),'H-TERR R2 / 1x / joined H-STAIR',fill='#b9b1a9')
     together.save(REC/'assembly.png')
     (REC/'placements.json').write_text(json.dumps(placements,indent=2)+'\n',encoding='utf-8')
 
 
 def sheet():
     # Every piece, unscaled + 3x nearest, name and native dimensions.
-    rowh=288
-    sh=Image.new('RGB',(960,rowh*((len(IMAGES)+1)//2)),'#24241f')
+    rowh=370
+    sh=Image.new('RGB',(1280,rowh*((len(IMAGES)+1)//2)),'#24241f')
     d=ImageDraw.Draw(sh)
     for i,(name,im) in enumerate(IMAGES.items()):
-        x=(i%2)*480+14; y=(i//2)*rowh+12
+        x=(i%2)*640+14; y=(i//2)*rowh+12
         d.text((x,y),f'{name} {im.width}x{im.height} anchor={PIECES[name]["anchor"]}',fill='#b9b1a9')
         # Alpha checker kept separate from sprite pixels.
         sh.paste(im,(x,y+22),im)
@@ -258,7 +317,7 @@ def main():
     for n in (2,4):
         put(f'balus_{n}',balustrade(n*32),[6,30],[n*32,6],'base',[[0,-6,n*32,6]])
     im=Image.new('RGBA',(12,30)); post(ImageDraw.Draw(im),6)
-    put('balus_post',im,[6,30],[12,6],'base',[[-5,-6,10,6]])
+    put('balus_post',rail_skin(im,64),[6,30],[12,6],'base',[[-5,-6,10,6]])
     (OUT/'kit.json').write_text(json.dumps(dict(kit='H-TERR',pieces=PIECES),indent=2)+'\n',encoding='utf-8')
     assembly(); sheet(); print(verify())
 
