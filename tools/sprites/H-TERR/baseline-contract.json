@@ -1,0 +1,96 @@
+{
+  "kit_sha256": "eecb45fa8160ca7dcbe07b7772c074be5c4e279829283abbc18422abe42b86c1",
+  "pieces": {
+    "balus_2": {
+      "size": [
+        76,
+        30
+      ],
+      "alpha_sha256": "9964d9611469f7c44edbcb14f58e18f0746ffb1ff0ecde8259eecbe79754a0fc"
+    },
+    "balus_4": {
+      "size": [
+        140,
+        30
+      ],
+      "alpha_sha256": "f53102fa6c80de81993fed90439f2c6e7dd255a4fe85e742b27f55a1123ace23"
+    },
+    "balus_post": {
+      "size": [
+        12,
+        30
+      ],
+      "alpha_sha256": "7a0d33d9ec2c7114eefac867d4880fb5b07463040f73e7ee3c6ee78ca45508ff"
+    },
+    "rwall_2": {
+      "size": [
+        64,
+        50
+      ],
+      "alpha_sha256": "b525f810c446206769ba0487f0c80c32eeb4e232548bb8dd8f4bab48c16fb14d"
+    },
+    "rwall_2_b": {
+      "size": [
+        64,
+        50
+      ],
+      "alpha_sha256": "b525f810c446206769ba0487f0c80c32eeb4e232548bb8dd8f4bab48c16fb14d"
+    },
+    "rwall_4": {
+      "size": [
+        128,
+        50
+      ],
+      "alpha_sha256": "e202c0cf84a7cd41ca821495e47ca8ebdc68b32b8c6f4ea1724e6b64fcda46c2"
+    },
+    "rwall_4_b": {
+      "size": [
+        128,
+        50
+      ],
+      "alpha_sha256": "e202c0cf84a7cd41ca821495e47ca8ebdc68b32b8c6f4ea1724e6b64fcda46c2"
+    },
+    "rwall_6": {
+      "size": [
+        192,
+        50
+      ],
+      "alpha_sha256": "5226694256f8efee51c8057365e3dc58c5f386f65e3d3dadab7b37a660feeed3"
+    },
+    "rwall_6_b": {
+      "size": [
+        192,
+        50
+      ],
+      "alpha_sha256": "5226694256f8efee51c8057365e3dc58c5f386f65e3d3dadab7b37a660feeed3"
+    },
+    "rwall_corner_L": {
+      "size": [
+        32,
+        82
+      ],
+      "alpha_sha256": "ea104df8cdf3072552e074a0c2b7c8caf560ad2e4f4fb1d0c096914faacd7423"
+    },
+    "rwall_corner_R": {
+      "size": [
+        32,
+        82
+      ],
+      "alpha_sha256": "378d4ee1503b87e2e3d317d031dab5f6777b18824231f98c5a273117bc840f7a"
+    },
+    "rwall_end_L": {
+      "size": [
+        32,
+        50
+      ],
+      "alpha_sha256": "eac3349c2bcfb43181c9c4487645d3bd386076fa7f517dc8c1e871fba4fc8ba5"
+    },
+    "rwall_end_R": {
+      "size": [
+        32,
+        50
+      ],
+      "alpha_sha256": "eac3349c2bcfb43181c9c4487645d3bd386076fa7f517dc8c1e871fba4fc8ba5"
+    }
+  }
+}
