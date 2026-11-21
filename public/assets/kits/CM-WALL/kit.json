@@ -352,7 +352,7 @@
             394
           ]
         },
-        "method": "median source cells; gate ridge unbending; material calibration to V1; exact palette; controlled boundary fill; 14px rotated tile roof for verticals"
+        "method": "CM-WALL3: 12 distinct original/gate source windows with overlap; intact-red median calibration; straight source ridge; actual vertical two-slope roof crop [638,6,695,270]; 18px roof + 10px red side; 28px canvas, footprint/anchor unchanged; source gable [638,274,696,314]"
       }
     },
     "cwall_h_2_roof": {
@@ -395,7 +395,7 @@
             394
           ]
         },
-        "method": "median source cells; gate ridge unbending; material calibration to V1; exact palette; controlled boundary fill; 14px rotated tile roof for verticals"
+        "method": "CM-WALL3: 12 distinct original/gate source windows with overlap; intact-red median calibration; straight source ridge; actual vertical two-slope roof crop [638,6,695,270]; 18px roof + 10px red side; 28px canvas, footprint/anchor unchanged; source gable [638,274,696,314]"
       }
     },
     "cwall_h_4": {
@@ -446,7 +446,7 @@
             394
           ]
         },
-        "method": "median source cells; gate ridge unbending; material calibration to V1; exact palette; controlled boundary fill; 14px rotated tile roof for verticals"
+        "method": "CM-WALL3: 12 distinct original/gate source windows with overlap; intact-red median calibration; straight source ridge; actual vertical two-slope roof crop [638,6,695,270]; 18px roof + 10px red side; 28px canvas, footprint/anchor unchanged; source gable [638,274,696,314]"
       }
     },
     "cwall_h_4_roof": {
@@ -489,7 +489,7 @@
             394
           ]
         },
-        "method": "median source cells; gate ridge unbending; material calibration to V1; exact palette; controlled boundary fill; 14px rotated tile roof for verticals"
+        "method": "CM-WALL3: 12 distinct original/gate source windows with overlap; intact-red median calibration; straight source ridge; actual vertical two-slope roof crop [638,6,695,270]; 18px roof + 10px red side; 28px canvas, footprint/anchor unchanged; source gable [638,274,696,314]"
       }
     },
     "cwall_h_6": {
@@ -540,7 +540,7 @@
             394
           ]
         },
-        "method": "median source cells; gate ridge unbending; material calibration to V1; exact palette; controlled boundary fill; 14px rotated tile roof for verticals"
+        "method": "CM-WALL3: 12 distinct original/gate source windows with overlap; intact-red median calibration; straight source ridge; actual vertical two-slope roof crop [638,6,695,270]; 18px roof + 10px red side; 28px canvas, footprint/anchor unchanged; source gable [638,274,696,314]"
       }
     },
     "cwall_h_6_roof": {
@@ -583,7 +583,7 @@
             394
           ]
         },
-        "method": "median source cells; gate ridge unbending; material calibration to V1; exact palette; controlled boundary fill; 14px rotated tile roof for verticals"
+        "method": "CM-WALL3: 12 distinct original/gate source windows with overlap; intact-red median calibration; straight source ridge; actual vertical two-slope roof crop [638,6,695,270]; 18px roof + 10px red side; 28px canvas, footprint/anchor unchanged; source gable [638,274,696,314]"
       }
     },
     "cwall_post": {
@@ -634,7 +634,7 @@
             394
           ]
         },
-        "method": "median source cells; gate ridge unbending; material calibration to V1; exact palette; controlled boundary fill; 14px rotated tile roof for verticals"
+        "method": "CM-WALL3: 12 distinct original/gate source windows with overlap; intact-red median calibration; straight source ridge; actual vertical two-slope roof crop [638,6,695,270]; 18px roof + 10px red side; 28px canvas, footprint/anchor unchanged; source gable [638,274,696,314]"
       }
     },
     "cwall_post_roof": {
@@ -677,7 +677,7 @@
             394
           ]
         },
-        "method": "median source cells; gate ridge unbending; material calibration to V1; exact palette; controlled boundary fill; 14px rotated tile roof for verticals"
+        "method": "CM-WALL3: 12 distinct original/gate source windows with overlap; intact-red median calibration; straight source ridge; actual vertical two-slope roof crop [638,6,695,270]; 18px roof + 10px red side; 28px canvas, footprint/anchor unchanged; source gable [638,274,696,314]"
       }
     },
     "cwall_v": {
@@ -728,7 +728,7 @@
             394
           ]
         },
-        "method": "median source cells; gate ridge unbending; material calibration to V1; exact palette; controlled boundary fill; 14px rotated tile roof for verticals"
+        "method": "CM-WALL3: 12 distinct original/gate source windows with overlap; intact-red median calibration; straight source ridge; actual vertical two-slope roof crop [638,6,695,270]; 18px roof + 10px red side; 28px canvas, footprint/anchor unchanged; source gable [638,274,696,314]"
       }
     },
     "cwall_v_roof": {
@@ -771,7 +771,7 @@
             394
           ]
         },
-        "method": "median source cells; gate ridge unbending; material calibration to V1; exact palette; controlled boundary fill; 14px rotated tile roof for verticals"
+        "method": "CM-WALL3: 12 distinct original/gate source windows with overlap; intact-red median calibration; straight source ridge; actual vertical two-slope roof crop [638,6,695,270]; 18px roof + 10px red side; 28px canvas, footprint/anchor unchanged; source gable [638,274,696,314]"
       }
     },
     "gate_v": {
@@ -828,7 +828,7 @@
             394
           ]
         },
-        "method": "median source cells; gate ridge unbending; material calibration to V1; exact palette; controlled boundary fill; 14px rotated tile roof for verticals"
+        "method": "CM-WALL3: 12 distinct original/gate source windows with overlap; intact-red median calibration; straight source ridge; actual vertical two-slope roof crop [638,6,695,270]; 18px roof + 10px red side; 28px canvas, footprint/anchor unchanged; source gable [638,274,696,314]"
       }
     },
     "gate_v_roof": {
@@ -871,7 +871,7 @@
             394
           ]
         },
-        "method": "median source cells; gate ridge unbending; material calibration to V1; exact palette; controlled boundary fill; 14px rotated tile roof for verticals"
+        "method": "CM-WALL3: 12 distinct original/gate source windows with overlap; intact-red median calibration; straight source ridge; actual vertical two-slope roof crop [638,6,695,270]; 18px roof + 10px red side; 28px canvas, footprint/anchor unchanged; source gable [638,274,696,314]"
       }
     },
     "corner_hv_L": {
@@ -928,7 +928,7 @@
             394
           ]
         },
-        "method": "median source cells; gate ridge unbending; material calibration to V1; exact palette; controlled boundary fill; 14px rotated tile roof for verticals"
+        "method": "CM-WALL3: 12 distinct original/gate source windows with overlap; intact-red median calibration; straight source ridge; actual vertical two-slope roof crop [638,6,695,270]; 18px roof + 10px red side; 28px canvas, footprint/anchor unchanged; source gable [638,274,696,314]"
       }
     },
     "corner_hv_L_roof": {
@@ -971,7 +971,7 @@
             394
           ]
         },
-        "method": "median source cells; gate ridge unbending; material calibration to V1; exact palette; controlled boundary fill; 14px rotated tile roof for verticals"
+        "method": "CM-WALL3: 12 distinct original/gate source windows with overlap; intact-red median calibration; straight source ridge; actual vertical two-slope roof crop [638,6,695,270]; 18px roof + 10px red side; 28px canvas, footprint/anchor unchanged; source gable [638,274,696,314]"
       }
     },
     "corner_hv_R": {
@@ -1028,7 +1028,7 @@
             394
           ]
         },
-        "method": "median source cells; gate ridge unbending; material calibration to V1; exact palette; controlled boundary fill; 14px rotated tile roof for verticals"
+        "method": "CM-WALL3: 12 distinct original/gate source windows with overlap; intact-red median calibration; straight source ridge; actual vertical two-slope roof crop [638,6,695,270]; 18px roof + 10px red side; 28px canvas, footprint/anchor unchanged; source gable [638,274,696,314]"
       }
     },
     "corner_hv_R_roof": {
@@ -1071,7 +1071,7 @@
             394
           ]
         },
-        "method": "median source cells; gate ridge unbending; material calibration to V1; exact palette; controlled boundary fill; 14px rotated tile roof for verticals"
+        "method": "CM-WALL3: 12 distinct original/gate source windows with overlap; intact-red median calibration; straight source ridge; actual vertical two-slope roof crop [638,6,695,270]; 18px roof + 10px red side; 28px canvas, footprint/anchor unchanged; source gable [638,274,696,314]"
       }
     }
   }

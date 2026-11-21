@@ -2,7 +2,7 @@
 import { prepareSceneShot, writeShot2x } from '../../scene_shot.mjs';
 import { spawn, execFileSync } from 'node:child_process';
 import { mkdirSync, writeFileSync } from 'node:fs';
-const rec='records/CM-WALL2'; mkdirSync(rec,{recursive:true});
+const rec='records/CM-WALL3'; mkdirSync(rec,{recursive:true});
 let server,browser;
 const frames=[['v1','0,17.78125','4.15,22.6'],['west','1,25','8.2,31;10,29'],['east','25,15','31.7,20.6;35,23']];
 const cmds=[];
@@ -17,7 +17,7 @@ try {
  if(when==='before')await page.route('**/assets/**',async route=>{
   const path=new URL(route.request().url()).pathname.slice(1);
   if(path==='assets/areas/huyen-van-quan-v2/area.json'||path.startsWith('assets/kits/CM-WALL/')){
-   const body=execFileSync('git',['show',`3af2339:public/${path}`]);
+   const body=execFileSync('git',['show',`ace6f0c:public/${path}`]);
    await route.fulfill({body,contentType:path.endsWith('.json')?'application/json':'image/png'});
   }else await route.continue();
  });
@@ -27,7 +27,7 @@ try {
  await page.waitForTimeout(100); if(errors.length)throw Error(errors.join('\n'));
  const out=`${rec}/${when}-${name}.png`;await page.locator('canvas').screenshot({path:out});writeShot2x(out);
  console.log(`PASS scene_shot ${when} ${name}: 480x270 view=${view} actors=${actors} console errors=0; ${out}`);
- cmds.push(`${when==='before'?'# baseline assets intercepted from git 3af2339\n':''}node tools/scene_shot.mjs --area huyen-van-quan-v2 --view ${view} --actors "${actors}" --out ${out}`);
+ cmds.push(`${when==='before'?'# baseline assets intercepted from git ace6f0c\n':''}node tools/scene_shot.mjs --area huyen-van-quan-v2 --view ${view} --actors "${actors}" --out ${out}`);
  await page.close();
  }
  writeFileSync(`${rec}/cmds.txt`,'Reproduce exact baseline via: node tools/sprites/CM-WALL/shots.mjs\n'+cmds.join('\n')+'\n');

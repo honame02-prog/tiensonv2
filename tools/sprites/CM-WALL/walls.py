@@ -1,4 +1,4 @@
-﻿"""CM-WALL2. Source-cell assembly; no synthetic texture or random pixels."""
+﻿"""CM-WALL3. Source-cell assembly; no synthetic texture or random pixels."""
 from pathlib import Path
 import copy, hashlib, io, json, subprocess, sys
 import numpy as np
@@ -6,7 +6,7 @@ from PIL import Image, ImageDraw
 
 def install(g):
     root, out, ref = g['ROOT'],g['OUT'],g['REF']
-    rec=root/'records/CM-WALL2'
+    rec=root/'records/CM-WALL3'
     gate_build,gate_manifest=g['build'],g['manifest']
     quantize=g['quantize']; pal=g['PAL']
     old=json.loads((root/'public/assets/kits/C-B3/kit.json').read_text(encoding='utf-8'))
@@ -33,10 +33,10 @@ def install(g):
         # Unbend the actual gate roof along its ridge, retaining round tile ends.
         roof=np.empty((20,76,3),np.uint8)
         for x in range(76):
-            sx=185+x*240/76; dx=sx-307
-            ridge=290+0.00078*dx*dx
-            eave=365+0.00155*dx*dx
-            roof[:,x]=cell(src,(sx,ridge,sx+240/76,eave),(1,20))[:,0]
+            sx=185+x*195/76; dx=sx-307
+            ridge=286+0.0025*dx*dx
+            eave=359+0.0022*dx*dx
+            roof[:,x]=cell(src,(sx,ridge,sx+195/76,eave),(1,20))[:,0]
         # Calibrate materials to the same quantized V1 medians as the gate.
         gate=np.array(gate_build()[1])
         sample=gate[40:120,34:158]
@@ -46,36 +46,66 @@ def install(g):
         for a,target in materials:
             med=np.median(a.reshape(-1,3),axis=0)
             a[:]=quantize(np.clip(a.reshape(-1,3).astype(float)*np.array(target)/med,0,255)).reshape(a.shape)
+        # Distinct source windows: tall flaking, shallow wear, and almost intact
+        # plaster. Do not roll a 33px donor: that formerly made shell rhythms.
+        patches=[('V1-original.png',(0,619,105,733)),
+                 ('V1-original.png',(516,620,614,730)),
+                 ('V1-original-gate.png',(3,622,107,710)),
+                 ('V1-original.png',(518,623,611,689)),
+                 ('V1-original-gate.png',(22,626,108,734)),
+                 ('V1-original.png',(0,622,82,718)),
+                 ('V1-original-gate.png',(517,621,604,733)),
+                 ('V1-original.png',(6,620,101,696)),
+                 ('V1-original.png',(525,618,615,724)),
+                 ('V1-original-gate.png',(1,622,91,725)),
+                 ('V1-original.png',(28,625,108,732)),
+                 ('V1-original-gate.png',(534,623,616,700))]
+        donors=[]
+        for i,(file,box) in enumerate(patches):
+            raw=cell(np.array(Image.open(ref/file).convert('RGB')),box,(40,37))
+            # Match intact RED pixels only, never normalize by the amount of white
+            # exposed plaster (which formerly darkened entire patch columns).
+            red=(raw[:,:,0]>raw[:,:,1]*1.35)
+            med=np.median(raw[red],axis=0)
+            raw=quantize(np.clip(raw.reshape(-1,3).astype(float)*plaster_target/med,0,255)).reshape(raw.shape)
+            if i%3==1: raw=raw[:,::-1].copy()
+            donors.append(raw)
+        # A single straight ridge from the concept, removing moss/tree/cap intrusions.
+        # The complete roof slope is still the unbent original tile surface above.
+        for y in range(6):
+            row=roof[y].astype(float);lum=row.mean(axis=1)
+            target=np.maximum(lum,108) if y<2 else np.minimum(lum,90)
+            roof[y]=quantize(np.clip(row*target[:,None]/np.maximum(lum[:,None],1),0,255))
         def horizontal(w,variant):
-            a=np.zeros((70,w,4),np.uint8); a[:,:,3]=255
-            pos=0; i=variant
-            # Source-window quilting with a minimum-error cut through 8px overlap.
-            # A seam follows low-contrast plaster, not a straight repeated stripe.
+            a=np.zeros((70,w,4),np.uint8);a[:,:,3]=255
+            face=np.empty((37,w,3),np.uint8)
+            start={1:0,2:2,3:6,4:9,5:10}.get(variant,0)
+            # Overlap blend conceals a cut without a dark straight vertical stripe.
+            pos=0;idx=start
             while pos<w:
-                donor=(left if i%2==0 else right).copy()
-                if (i//2)%2: donor=donor[:,::-1]
-                donor=np.roll(donor,(i*11+variant*7)%donor.shape[1],axis=1)
-                n=min(donor.shape[1],w-pos); patch=np.zeros((70,n,3),np.uint8)
-                patch[25:62]=donor[:,:n]
-                for x in range(n):
-                    rx=(x+i*13+variant*17)%76
-                    patch[:20,x]=roof[:,rx];patch[20:25,x]=roof[15:20,rx]
-                    patch[62:,x]=plinth[:,(x+i*9)%34]
-                if pos==0:
-                    a[:,:n,:3]=patch;pos=n-8
-                else:
-                    ov=min(8,n); error=((a[:,pos:pos+ov,:3].astype(float)-patch[:,:ov])**2).sum(axis=2)
-                    cost=error.copy(); prev=np.zeros((70,ov),int)
-                    for y in range(1,70):
-                        for x in range(ov):
-                            lo=max(0,x-1);hi=min(ov,x+2); q=lo+cost[y-1,lo:hi].argmin()
-                            cost[y,x]+=cost[y-1,q];prev[y,x]=q
-                    cut=np.zeros(70,int);cut[-1]=cost[-1].argmin()
-                    for y in range(68,-1,-1):cut[y]=prev[y+1,cut[y+1]]
-                    for y in range(70): a[y,pos+cut[y]:pos+n,:3]=patch[y,cut[y]:]
-                    pos+=max(1,n-8)
-                if pos+8>=w:break
-                i+=1
+                donor=donors[idx%len(donors)];n=min(40,w-pos)
+                if pos:
+                    overlap=min(8,n)
+                    for x in range(overlap):
+                        t=(x+1)/(overlap+1)
+                        face[:,pos+x]=quantize(face[:,pos+x]*(1-t)+donor[:,x]*t)
+                    face[:,pos+overlap:pos+n]=donor[:,overlap:n]
+                else:face[:,:n]=donor[:,:n]
+                if pos+n==w:break
+                pos+=32;idx+=1
+            # Remove only long column shadows caused by the cut, preserving flecks.
+            for unused in range(2):
+                lum=face[:23].mean(axis=(0,2))
+                for x in range(2,w-2):
+                    neighbor=(lum[x-2:x].mean()+lum[x+1:x+3].mean())/2
+                    if neighbor-lum[x]>4:
+                        face[:,x]=quantize(np.clip(face[:,x].astype(float)+(neighbor-lum[x]-2),0,255))
+            a[25:62,:,:3]=face
+            # Continuous tile run; no independent roof quilt with an offset ridge.
+            for x in range(w):
+                rx=(x+variant*17)%76
+                a[:20,x,:3]=roof[:,rx];a[20:25,x,:3]=roof[15:20,rx]
+                a[62:,x,:3]=plinth[:,(x+variant*7)%34]
             return a
         hs={n:horizontal(32*n,n//2) for n in (2,4,6)}
         # Controlled fill at modular boundaries, using the same source column.
@@ -87,28 +117,47 @@ def install(g):
                     a[:,x,:3]=quantize(a[:,x,:3]*(1-t)+seam[:,:3]*t)
         wholes={f'cwall_h_{n}':Image.fromarray(a) for n,a in hs.items()}
         # Narrow post (20/16=1.25), its cap is a cut portion of the same eave.
-        post=hs[4][:,48:68].copy()
+        post=horizontal(20,5)
         post[:20]=hs[2][:20,19:39]
         wholes['cwall_post']=Image.fromarray(post)
-        # Turn source tiles along north/south: a 14px roof plus 6px red side.
-        v=np.zeros((32,20,4),np.uint8); v[:,:,3]=255
-        for y in range(32):
-            v[y,:14,:3]=roof[np.linspace(0,19,14).astype(int),(y+21)%76]
-            v[y,14:,:3]=right[(y+3)%37,10:16]
-        # Roundtrip source rows at the wrap; no horizontal cap every 32 pixels.
-        v[-1]=v[0]
+        # Real N/S wall roof from V1: two slopes and a bright axial ridge.
+        # 18px roof + 10px plaster; 28px canvas overhangs the 16px footprint.
+        vr=cell(src,(638,6,695,270),(18,84))
+        med=np.median(vr.reshape(-1,3),axis=0)
+        vr=quantize(np.clip(vr.reshape(-1,3).astype(float)*(74,72,63)/med,0,255)).reshape(vr.shape)
+        v=np.zeros((32,28,4),np.uint8);v[:,:,3]=255
+        v[:,:18,:3]=vr[13:45]
+        v[:,18:,:3]=donors[7][2:34,10:20]
+        # Fix the ONLY modular wrap; preserve all internal roof tile courses.
+        for j in range(3):
+            t=(3-j)/3
+            for y in (j,31-j):
+                v[y,:,:3]=quantize(v[y,:,:3]*(1-t)+v[0,:,:3]*t)
         wholes['cwall_v']=Image.fromarray(v)
-        gatev=np.zeros((80,24,4),np.uint8)
-        gatev[:16,:20]=np.tile(v,(1,1,1))[:16]
-        gatev[64:,:20]=v[16:]
-        # Face at exposed ends, cut from the red plaster itself.
-        gatev[13:16,3:18,:3]=right[21:24,8:23]; gatev[13:16,3:18,3]=255
-        gatev[64:67,3:18,:3]=left[18:21,8:23]; gatev[64:67,3:18,3]=255
+        gatev=np.zeros((80,28,4),np.uint8)
+        gatev[:16]=v[:16];gatev[64:]=v[16:]
+        # Actual decorated gable termination, not another horizontal tile rung.
+        gable=cell(src,(638,274,696,314),(18,12))
+        med=np.median(gable.reshape(-1,3),axis=0)
+        gable=quantize(np.clip(gable.reshape(-1,3).astype(float)*(78,74,64)/med,0,255)).reshape(gable.shape)
+        gatev[4:16,:18,:3]=gable
+        gatev[64:76,:18,:3]=gable[::-1]
+        # Clearly outlined red end faces; all colors sampled from the source.
+        for y0 in (12,64):
+            gatev[y0:y0+4,18:,:3]=donors[3][10:14,12:22]
+            gatev[y0:y0+4,18,:3]=plinth[2,6]
+            gatev[y0:y0+4,27,:3]=plinth[5,12]
         wholes['gate_v']=Image.fromarray(gatev)
-        corner=hs[2][:,:40].copy()
-        for y in range(54): corner[y,:20]=v[y%32]
+        corner=horizontal(40,4)
+        # Overlapping elbow: vertical surface continues into the horizontal eave.
+        # Keep the lower horizontal plaster, so neither branch ends in a gap.
+        corner[:54,:28]=np.tile(v,(2,1,1))[:54]
+        corner[:20,18:]=hs[2][:20,18:40]
         wholes['corner_hv_L']=Image.fromarray(corner)
-        wholes['corner_hv_R']=Image.fromarray(corner[:,::-1].copy())
+        rightcorner=horizontal(40,5)
+        rightcorner[:54,12:]=np.tile(v[:,::-1],(2,1,1))[:54]
+        rightcorner[:20,:22]=hs[2][:20,:22]
+        wholes['corner_hv_R']=Image.fromarray(rightcorner)
         # ONLY permitted 34x70 end rectangles change. Every other layer byte stays.
         gateims,_,repair=gate_build()
         for name,im in list(gateims.items()):
@@ -123,10 +172,10 @@ def install(g):
         wholes['moongate_h']=Image.alpha_composite(gateims['moongate_h.png'],gateims['moongate_h_roof.png'])
         for name in names:
             a=np.array(wholes[name]); yy,xx=np.indices(a.shape[:2])
-            if name=='cwall_v': mask=xx<14
-            elif name=='gate_v': mask=(xx<14)&((yy<13)|(yy>=67))
+            if name=='cwall_v': mask=xx<18
+            elif name=='gate_v': mask=xx<18
             elif name.startswith('corner'):
-                side=(xx<14) if name.endswith('L') else (xx>=26)
+                side=(xx<18) if name.endswith('L') else (xx>=22)
                 mask=(yy<20)|(side&(yy<54))
             else: mask=yy<20
             b=a.copy(); r=a.copy(); b[mask]=0; r[~mask]=0
@@ -139,7 +188,7 @@ def install(g):
         for name in names:
             for key in [name,name+'_roof']:
                 p=copy.deepcopy(old['pieces'][key]); p['source']={'file':'.agents/refs/CM/V1-original.png','crops':crops,
-                   'method':'median source cells; gate ridge unbending; material calibration to V1; exact palette; controlled boundary fill; 14px rotated tile roof for verticals'}
+                   'method':'CM-WALL3: 12 distinct original/gate source windows with overlap; intact-red median calibration; straight source ridge; actual vertical two-slope roof crop [638,6,695,270]; 18px roof + 10px red side; 28px canvas, footprint/anchor unchanged; source gable [638,274,696,314]'}
                 kit['pieces'][key]=p
         return kit
     def verify(ims,wholes):
@@ -147,7 +196,8 @@ def install(g):
         for name,whole in wholes.items():
             b=np.array(Image.open(out/(name+'.png')).convert('RGBA')); r=np.array(Image.open(out/(name+'_roof.png')).convert('RGBA'))
             assert b.shape==r.shape
-            assert Image.open(out/(name+'.png')).size==Image.open(root/f'public/assets/kits/C-B3/{name}.png').size,(name,'size')
+            expected_size={'cwall_v':(28,32),'gate_v':(28,80)}.get(name,Image.open(root/f'public/assets/kits/C-B3/{name}.png').size)
+            assert Image.open(out/(name+'.png')).size==expected_size,(name,'size')
             for k in (name,name+'_roof'):
                 for field in ['anchor','footprint','collide','pair','layer']:
                     assert kit['pieces'][k].get(field)==old['pieces'][k].get(field),(k,field)
@@ -184,7 +234,9 @@ def install(g):
         for p in expected['pieces']: p['k']=p['k'].replace('C-B3/','CM-WALL/')
         assert area==expected,'area modifications must only replace kit references'
         assert 'C-B3' not in json.dumps(area)
-        print(f'PASS CM-WALL2 verify: {len(ims)} PNGs, dimensions/anchor/footprint/collide/pair=C-B3, alpha=0/255, palette={len(colors)}/{len(pal)}, base+roof=exact')
+        from quality import verify_quality
+        verify_quality(wholes,rec)
+        print(f'PASS CM-WALL3 verify: {len(ims)} PNGs, dimensions=baseline except vertical canvas 28px; anchor/footprint/collide/pair=C-B3, alpha=0/255, palette={len(colors)}/{len(pal)}, base+roof=exact')
         print(f'PASS joins: horizontal+moongate mean RGB delta max={max(diffs):.3f}, roof y=0; unique horizontal blocks={len(set(blocks))}/{len(blocks)}; vertical 3-stack seam={vd:.3f}; post=1.25x; gate opening=48px; C-B3 refs=0; coordinates unchanged')
     def sheet(wholes):
         board=Image.new('RGB',(1440,2200),(42,46,42)); d=ImageDraw.Draw(board)
@@ -202,11 +254,17 @@ def install(g):
         board.paste(Image.open(ref/'V1.png').resize((960,540),Image.Resampling.NEAREST),(10,30))
         if (rec/'after-v1.png').exists(): board.paste(Image.open(rec/'after-v1.png').resize((960,540),Image.Resampling.NEAREST),(990,30))
         for i,label in enumerate(('west','east')):
-            x=10+i*980; d.text((x,585),label+' BEFORE 3af2339 | AFTER',fill='white')
+            x=10+i*980; d.text((x,585),label+' BEFORE ace6f0c | AFTER',fill='white')
             for j,when in enumerate(('before','after')):
                 p=rec/f'{when}-{label}.png'
                 if p.exists():board.paste(Image.open(p).convert('RGB'),(x+j*490,610))
-        d.text((10,890),'ALL NEW PIECES - 4x nearest - #2a2e2a',fill='white');board.paste(sh,(10,915));board.save(rec/'compare.png')
+        d.text((10,890),'ALL NEW PIECES - 4x nearest - #2a2e2a',fill='white');board.paste(sh,(10,915));
+        y=board.height+20
+        extra=Image.new('RGB',(max(2320,board.width),y+850),(42,46,42));extra.paste(board,(0,0));d=ImageDraw.Draw(extra)
+        d.text((10,y),'REPEAT AUDIT: cwall_h_6 x3 adjacent / cwall_v x4 stacked - 4x nearest',fill='white')
+        h=np.array(wholes['cwall_h_6']);strip=Image.fromarray(np.tile(h,(1,3,1)));strip=strip.resize((strip.width*4,strip.height*4),Image.Resampling.NEAREST);extra.paste(strip,(8,y+24),strip)
+        v=np.array(wholes['cwall_v']);stack=Image.fromarray(np.tile(v,(4,1,1)));stack=stack.resize((stack.width*4,stack.height*4),Image.Resampling.NEAREST);extra.paste(stack,(8,y+24+strip.height+12),stack)
+        extra=extra.crop((0,0,extra.width,y+24+strip.height+12+stack.height+12));extra.save(rec/'compare.png')
     def main():
         out.mkdir(parents=True,exist_ok=True);rec.mkdir(parents=True,exist_ok=True)
         ims,wholes,repair=build()
