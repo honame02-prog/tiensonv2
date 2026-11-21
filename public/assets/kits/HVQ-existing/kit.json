@@ -1,0 +1,31 @@
+{
+  "kit": "HVQ-existing",
+  "pieces": {
+    "tamthanh": {
+      "file": "tamthanh.png",
+      "layer": "base",
+      "anchor": [
+        224,
+        304
+      ],
+      "footprint": [
+        448,
+        80
+      ],
+      "collide": []
+    },
+    "hall": {
+      "file": "hall.png",
+      "layer": "base",
+      "anchor": [
+        169,
+        235
+      ],
+      "footprint": [
+        338,
+        120
+      ],
+      "collide": []
+    }
+  }
+}

@@ -1,0 +1,222 @@
+{
+  "kit": "C-R1",
+  "pieces": {
+    "slab_256": {
+      "file": "slab_256.png",
+      "layer": "ground",
+      "anchor": [
+        0,
+        0
+      ],
+      "footprint": [
+        256,
+        256
+      ],
+      "collide": []
+    },
+    "slab_worn_128": {
+      "file": "slab_worn_128.png",
+      "layer": "ground",
+      "anchor": [
+        0,
+        0
+      ],
+      "footprint": [
+        128,
+        128
+      ],
+      "collide": []
+    },
+    "rwall_2": {
+      "file": "rwall_2.png",
+      "layer": "ground",
+      "anchor": [
+        0,
+        0
+      ],
+      "footprint": [
+        64,
+        6
+      ],
+      "collide": []
+    },
+    "rwall_4": {
+      "file": "rwall_4.png",
+      "layer": "ground",
+      "anchor": [
+        0,
+        0
+      ],
+      "footprint": [
+        128,
+        6
+      ],
+      "collide": []
+    },
+    "rwall_6": {
+      "file": "rwall_6.png",
+      "layer": "ground",
+      "anchor": [
+        0,
+        0
+      ],
+      "footprint": [
+        192,
+        6
+      ],
+      "collide": []
+    },
+    "rwall_end_L": {
+      "file": "rwall_end_L.png",
+      "layer": "ground",
+      "anchor": [
+        0,
+        0
+      ],
+      "footprint": [
+        32,
+        6
+      ],
+      "collide": []
+    },
+    "rwall_end_R": {
+      "file": "rwall_end_R.png",
+      "layer": "ground",
+      "anchor": [
+        0,
+        0
+      ],
+      "footprint": [
+        32,
+        6
+      ],
+      "collide": []
+    },
+    "redge_v": {
+      "file": "redge_v.png",
+      "layer": "ground",
+      "anchor": [
+        0,
+        0
+      ],
+      "footprint": [
+        6,
+        32
+      ],
+      "collide": []
+    },
+    "balus_2": {
+      "file": "balus_2.png",
+      "layer": "base",
+      "anchor": [
+        0,
+        30
+      ],
+      "footprint": [
+        64,
+        6
+      ],
+      "collide": [
+        [
+          0,
+          -6,
+          64,
+          6
+        ]
+      ]
+    },
+    "balus_4": {
+      "file": "balus_4.png",
+      "layer": "base",
+      "anchor": [
+        0,
+        30
+      ],
+      "footprint": [
+        128,
+        6
+      ],
+      "collide": [
+        [
+          0,
+          -6,
+          128,
+          6
+        ]
+      ]
+    },
+    "balus_post": {
+      "file": "balus_post.png",
+      "layer": "base",
+      "anchor": [
+        0,
+        30
+      ],
+      "footprint": [
+        11,
+        6
+      ],
+      "collide": [
+        [
+          0,
+          -6,
+          11,
+          6
+        ]
+      ]
+    },
+    "stair_3x2": {
+      "file": "stair_3x2.png",
+      "layer": "ground",
+      "anchor": [
+        0,
+        0
+      ],
+      "footprint": [
+        96,
+        64
+      ],
+      "collide": []
+    },
+    "stair_cheek_L": {
+      "file": "stair_cheek_L.png",
+      "layer": "base",
+      "anchor": [
+        0,
+        84
+      ],
+      "footprint": [
+        16,
+        64
+      ],
+      "collide": [
+        [
+          0,
+          -64,
+          16,
+          64
+        ]
+      ]
+    },
+    "stair_cheek_R": {
+      "file": "stair_cheek_R.png",
+      "layer": "base",
+      "anchor": [
+        0,
+        84
+      ],
+      "footprint": [
+        16,
+        64
+      ],
+      "collide": [
+        [
+          0,
+          -64,
+          16,
+          64
+        ]
+      ]
+    }
+  }
+}
