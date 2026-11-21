@@ -70,6 +70,111 @@
       ],
       "collide": [],
       "source": "V1-original median cells x618..1240 y586..757 -> 56px (Opus CM-TERR)"
+    },
+    "balus_post": {
+      "file": "balus_post.png",
+      "layer": "base",
+      "anchor": [
+        0,
+        30
+      ],
+      "footprint": [
+        11,
+        6
+      ],
+      "collide": [
+        [
+          0,
+          -6,
+          11,
+          6
+        ]
+      ],
+      "source": "V1-original balustrade y498..590, posts [(617, 652), (791, 827), (995, 1030), (1195, 1230)] (Opus CM-TERR)"
+    },
+    "balus_4": {
+      "file": "balus_4.png",
+      "layer": "base",
+      "anchor": [
+        0,
+        30
+      ],
+      "footprint": [
+        128,
+        6
+      ],
+      "collide": [
+        [
+          0,
+          -6,
+          128,
+          6
+        ]
+      ],
+      "source": "V1-original balustrade y498..590, posts [(617, 652), (791, 827), (995, 1030), (1195, 1230)] (Opus CM-TERR)"
+    },
+    "balus_2": {
+      "file": "balus_2.png",
+      "layer": "base",
+      "anchor": [
+        0,
+        30
+      ],
+      "footprint": [
+        64,
+        6
+      ],
+      "collide": [
+        [
+          0,
+          -6,
+          64,
+          6
+        ]
+      ],
+      "source": "V1-original balustrade y498..590, posts [(617, 652), (791, 827), (995, 1030), (1195, 1230)] (Opus CM-TERR)"
+    },
+    "balus_1": {
+      "file": "balus_1.png",
+      "layer": "base",
+      "anchor": [
+        0,
+        30
+      ],
+      "footprint": [
+        32,
+        6
+      ],
+      "collide": [
+        [
+          0,
+          -6,
+          32,
+          6
+        ]
+      ],
+      "source": "V1-original balustrade y498..590, posts [(617, 652), (791, 827), (995, 1030), (1195, 1230)] (Opus CM-TERR)"
+    },
+    "balus_short_48": {
+      "file": "balus_short_48.png",
+      "layer": "base",
+      "anchor": [
+        0,
+        30
+      ],
+      "footprint": [
+        48,
+        6
+      ],
+      "collide": [
+        [
+          0,
+          -6,
+          48,
+          6
+        ]
+      ],
+      "source": "V1-original balustrade y498..590, posts [(617, 652), (791, 827), (995, 1030), (1195, 1230)] (Opus CM-TERR)"
     }
   }
 }
