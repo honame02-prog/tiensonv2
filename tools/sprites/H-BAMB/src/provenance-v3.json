@@ -1,0 +1,21 @@
+{
+  "round": 3,
+  "geometry_origin": "ada254d:tools/sprites/H-BAMB/build.py",
+  "baseline_origin": "ada254d:public/assets/kits/H-BAMB and records/S1-BAMB",
+  "source_method": "Round-one whole-object procedural bamboo, densified dark leaf mass; warm round-two hall subset. No reference foliage pixels copied.",
+  "visual_references": [
+    ".agents/refs/S1/H-BAMB/v1_bamboo_4x.png",
+    ".agents/refs/S1/H-BAMB/v1_gate_path_4x.png"
+  ],
+  "changes": [
+    "Three leaf shelves at 10%,32%,54% sprite height with upper-left olive light",
+    "Two-pixel light node lips",
+    "Curved path with transparent sides and three value bands for moss-shadow transition"
+  ],
+  "baseline_sha256": {
+    "assembly-scene.png": "9fd73c1b88a873d79f6d940c10899ac92a710a6c37fde585e9fcacabefa87943",
+    "assembly.png": "5e11e5998c9b4277f3a6d666886534de80e3816ff10e7a74fb4a34d808151c75",
+    "bamboo_grove_a.png": "f19da5fb3de09d7370b1576b1900915f97ef63a4b160ee3175360f9d7f961ad7",
+    "bamboo_grove_b.png": "e937dc267a1e822af96b9dcb401b53d8891a48d9704a9c7aa3348460ed6de385"
+  }
+}
