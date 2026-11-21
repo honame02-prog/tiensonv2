@@ -1,6 +1,7 @@
 """Whole procedural H-STAIR sprites; no concept pixels enter the delivered kit.
 Run from any directory: python -X utf8 tools/sprites/H-STAIR/build.py
 Concept sampling is restricted to paving in the assembly evidence.
+S1-STAIR2: native-size stepped relief and real H-TERR junctions.
 """
 from pathlib import Path
 import hashlib
@@ -12,7 +13,7 @@ ROOT = Path(__file__).resolve().parents[3]
 PROJECT = next(p for p in ROOT.parents if (p / 'design/tienson/19-the-sprite-hvq.md').exists())
 REF = PROJECT / 'design/tienson'
 OUT = ROOT / 'public/assets/kits/H-STAIR'
-REC = ROOT / 'records/S1-STAIR'
+REC = ROOT / 'records/S1-STAIR2'
 HALL = REF / 'tam-thanh/TT2/src/hall-reference.png'
 CONCEPT = REF / 'hvq-scene/C'
 COL = dict(shadow='#25241e', joint='#34312b', dark='#3e3a34', moss='#413e2d',
@@ -26,37 +27,59 @@ def box(d, xy, color):
 
 
 def stair(w, h, count, tread=5, riser=4):
-    """Parallel horizontal courses, whole slabs; sparse chips >=2 pixels."""
+    """Distinct tread / 1px worn nose / recessed riser, at native pixels.
+    A small stone shoulder (not a camera vanishing point) closes at the toe.
+    Seams divide each course into 2 or 3 unequal, staggered whole slabs.
+    """
     im = Image.new('RGBA', (w, h))
     d = ImageDraw.Draw(im)
     landing = h - count * (tread + riser)
-    box(d, (0, 0, w-1, h-1), 'face')
-    box(d, (0, 0, w-1, max(0, landing-1)), 'top_dark')
-    if landing > 4:
-        box(d, (2, 2, w-3, landing-2), 'top')
-        for x in range(31, w, 32):
-            box(d, (x, 1, x+1, landing-1), 'joint')
+    if landing:
+        box(d, (3, 0, w-4, landing-1), 'top')
+        box(d, (3, 0, w-4, 0), 'worn')
+        if landing > 2:
+            for x in [w*3//8, w*3//4]:
+                box(d, (x, 1, x, landing-1), 'top_dark')
+            box(d, (3, 1, 5, landing-1), 'moss')
     for row in range(count):
         y = landing + row*(tread+riser)
-        box(d, (0, y, w-1, y+tread-1), 'top')
-        box(d, (0, y+tread, w-1, y+tread+riser-1), 'face')
-        box(d, (0, y+tread-1, w-1, y+tread-1), 'worn')
-        box(d, (0, y+tread+riser-1, w-1, y+tread+riser-1), 'joint')
-        # Large staggered ashlar divisions: geometry, never speckled noise.
-        for x in range(24 + (row % 2)*16, w-10, 40):
-            box(d, (x, y, x+1, y+tread-2), 'top_dark')
-            box(d, (x, y+tread, x+1, y+tread+riser-2), 'dark')
-        # Long worn noses with restrained, disconnected 2px edge chips.
-        cx = 12 + (row*23) % (w-28)
-        box(d, (cx, y+tread-2, cx+8, y+tread-1), 'worn')
-        if row % 3 == 1:
-            box(d, (cx+4, y+tread-1, cx+6, y+tread), 'face_light')
-        box(d, (0, y, 2, y+tread-1), 'dark')
-        box(d, (w-3, y, w-1, y+tread-1), 'dark')
-        if row % 3 == 0:
-            box(d, (2, y+1, 5, y+2), 'moss')
-            box(d, (w-7, y+2, w-4, y+3), 'moss')
-    box(d, (0, h-1, w-1, h-1), 'edge')
+        inset = (count-1-row)*3//max(1, count-1)
+        left, right = inset, w-1-inset
+        # The upper courses catch more light; lower courses sit in the damp.
+        top = 'top' if row < count//3 else ('top_dark' if row < count*2//3 else 'face_light')
+        nose = 'worn' if row < count*2//3 else 'top'
+        face = 'face' if row < count//3 else 'dark'
+        box(d, (left, y, right, y+tread-2), top)
+        box(d, (left, y+tread-1, right, y+tread-1), nose)
+        box(d, (left, y+tread, right, y+tread+riser-2), face)
+        box(d, (left, y+tread+1, right, y+tread+riser-2), 'dark')
+        box(d, (left, y+tread+riser-1, right, y+tread+riser-1), 'joint')
+        # Alternating two/three slabs, unequal widths, never a dotted tread.
+        phase = [(-5, 4), (7, -3), (0, 8), (-8, -1)][row % 4]
+        joints = ([w//3+phase[0], w*2//3+phase[1]]
+                  if w >= 90 and row % 3 != 1 else [w//2+phase[0]])
+        # Broad mineral planes follow slab boundaries, not random flecks.
+        shade = {'top': 'top_dark', 'top_dark': 'face_light', 'face_light': 'face'}[top]
+        boundaries = [left+2] + joints + [right-2]
+        for slab, (x0, x1) in enumerate(zip(boundaries, boundaries[1:])):
+            if (slab+row) % 2 == 0:
+                box(d, (x0+2, y, x1-2, y+1), shade)
+                box(d, (x0+2, y+2, x0+max(4, (x1-x0)//3), y+2), shade)
+        for x in joints:
+            box(d, (x, y, x, y+tread-2), 'face')
+            box(d, (x, y+tread, x, y+tread+riser-2), 'joint')
+            # Worn lip stays connected: no detached dark flecks on top.
+            box(d, (x-1, y+tread-1, x+1, y+tread-1), top)
+        # Broad wear on one slab edge, 1px bright nose remains elsewhere.
+        cx = [w//5, w*3//5, w//3, w*4//5][row % 4]
+        box(d, (cx, y+tread-2, cx+5, y+tread-2), nose)
+        box(d, (left, y, left+1, y+tread-2), 'dark')
+        box(d, (right-1, y, right, y+tread-2), 'dark')
+        # Damp contact shadows and olive clusters hug inner cheek corners.
+        for x0, x1 in [(left+2, left+4), (right-4, right-2)]:
+            box(d, (x0, y, x1, y+1), 'moss')
+            if row % 3 == 2:
+                box(d, (x0, y+2, x1-1, y+tread-2), 'moss')
     return im
 
 
@@ -105,8 +128,8 @@ def actor():
 
 
 def paving():
-    # ONLY permitted concept crop, clear paving with no architectural object.
-    tile = Image.open(CONCEPT/'V1.png').convert('RGBA').crop((230, 25, 366, 65))
+    # Evidence-only clean paving crop: large area, no architectural pixels.
+    tile = Image.open(CONCEPT/'V1.png').convert('RGBA').crop((338, 0, 480, 140))
     im = Image.new('RGBA', (480, 270))
     for y in range(0, 270, tile.height):
         for x in range(0, 480, tile.width):
@@ -114,9 +137,17 @@ def paving():
     return im
 
 
-def temporary_wall(im, y, gaps):
-    """Evidence only: grey 6px cap + 44px face, never exported as a piece."""
-    d = ImageDraw.Draw(im)
+def retaining_wall(im, y, gaps, placements):
+    """Use the unmodified merged H-TERR kit, with closed end returns.
+    Wall coping y is the upper deck; stair toe meets wall y+50 exactly.
+    """
+    kit = ROOT/'public/assets/kits/H-TERR'
+    meta = json.loads((kit/'kit.json').read_text(encoding='utf-8'))['pieces']
+    def place(name, x, yy):
+        piece = Image.open(kit/meta[name]['file']).convert('RGBA')
+        ax, ay = meta[name]['anchor']
+        im.alpha_composite(piece, (x-ax, yy-ay))
+        placements.append(dict(kit='H-TERR', piece=name, anchor=[x, yy]))
     intervals = []
     edge = 0
     for left, right in sorted(gaps):
@@ -125,40 +156,39 @@ def temporary_wall(im, y, gaps):
     for left, right in intervals:
         if right <= left:
             continue
-        box(d, (left, y+6, right-1, y+49), 'face')
-        box(d, (left, y, right-1, y+5), 'top')
-        box(d, (left, y+48, right-1, y+49), 'joint')
-        for yy in [y+19, y+34]:
-            box(d, (left, yy, right-1, yy+1), 'dark')
-        for x in range(left+24, right, 32):
-            box(d, (x, y+7, x+1, y+18), 'dark')
-        # Plain temporary horizontal rail and upright posts.
-        box(d, (left, y-15, right-1, y-11), 'top_dark')
-        for x in range(left, right-8, 32):
-            box(d, (x, y-26, x+8, y-1), 'face_light')
-            box(d, (x-1, y-28, x+9, y-25), 'top')
+        # Native spans overlap only under end caps, never scaled or cropped.
+        wall = Image.new('RGBA', im.size)
+        for i, x in enumerate(range(left, right, 64)):
+            name = 'rwall_2_b' if i % 3 == 1 else 'rwall_2'
+            piece = Image.open(kit/meta[name]['file']).convert('RGBA')
+            wall.alpha_composite(piece, (min(x, right-64), y))
+            placements.append(dict(kit='H-TERR', piece=name, anchor=[min(x, right-64), y]))
+        im.alpha_composite(wall)
+        place('rwall_end_L', left, y)
+        place('rwall_end_R', right-32, y)
+        for x in range(left, right, 64):
+            place('balus_2', min(x, right-64), y)
 
 
 def compose(images, variant):
     im = paving()
-    if variant == 1:
-        specs = [('stair_3', 336, 158, '')]
-        temporary_wall(im, 172, [(322, 446)])
-        im.alpha_composite(images['stair_low_2'], (60, 196))
-        rulers = [(384, 192), (284, 126)]
-    else:
-        specs = [('stair_4', 176, -44, '_4'), ('stair_3', 0, 180, ''), ('stair_3', 384, 180, '')]
-        temporary_wall(im, 2, [(162, 318)])
-        temporary_wall(im, 194, [(0, 110), (370, 480)])
-        rulers = [(240, 36), (45, 226), (432, 216)]
     placements = []
+    if variant == 1:
+        specs = [('stair_3', 340, 158, '')]
+        retaining_wall(im, 172, [(326, 450)], placements)
+        rulers = [(396, 196), (284, 126)]
+    else:
+        specs = [('stair_4', 176, -44, '_4'), ('stair_3', -38, 178, ''), ('stair_3', 422, 178, '')]
+        retaining_wall(im, 2, [(162, 318)], placements)
+        retaining_wall(im, 192, [(-52, 72), (408, 532)], placements)
+        rulers = [(240, 36), (43, 238), (448, 215)]
     for name, x, y, suffix in specs:
         im.alpha_composite(images[name], (x, y))
         for side, xx in [('L', x-14), ('R', x+images[name].width-4)]:
             key = f'stair_cheek{suffix}_{side}'
             im.alpha_composite(images[key], (xx, y-30))
-            placements.append(dict(piece=key, top_left=[xx,y-30]))
-        placements.append(dict(piece=name, top_left=[x,y]))
+            placements.append(dict(kit='H-STAIR', piece=key, top_left=[xx,y-30]))
+        placements.append(dict(kit='H-STAIR', piece=name, top_left=[x,y]))
     a = actor()
     for x,y in rulers:
         im.alpha_composite(a, (x-32, y-61))
@@ -167,7 +197,8 @@ def compose(images, variant):
 
 
 def evidence(images):
-    sheet = Image.new('RGB', (790, 1480), '#262725')
+    height = 12 + sum(max(96, im.height*3)+44 for im in images.values())
+    sheet = Image.new('RGB', (790, height), '#262725')
     d = ImageDraw.Draw(sheet)
     y = 12
     for name, im in images.items():
@@ -185,7 +216,7 @@ def evidence(images):
         placements[f'V{variant}'] = p
         y = row*300
         d.text((6,y+5), f'Concept C V{variant} 1x', font=FONT, fill='#ddd5c7')
-        d.text((496,y+5), 'H-STAIR 1x / temporary grey wall', font=FONT, fill='#ddd5c7')
+        d.text((496,y+5), 'H-STAIR R2 + real H-TERR / 1x', font=FONT, fill='#ddd5c7')
         panel.paste(Image.open(CONCEPT/f'V{variant}.png').convert('RGB'), (0,y+25))
         panel.paste(im.convert('RGB'), (490,y+25))
     panel.save(REC/'assembly.png')
@@ -247,14 +278,8 @@ def main():
             a[mask,:3] = tuple(bytes.fromhex(COL[dst][1:]))
         images[f'stair_cheek{suffix}_L'] = left
         images[f'stair_cheek{suffix}_R'] = Image.fromarray(a)
-    pieces = {}
     for name, im in images.items():
         im.save(OUT/f'{name}.png')
-        side = 'cheek' in name
-        pieces[name] = dict(file=f'{name}.png', layer='base' if side else 'ground',
-            anchor=[0,im.height], footprint=[im.width,im.height-30 if side else im.height],
-            collide=[[0,-(im.height-30),18,im.height-30]] if side else [])
-    (OUT/'kit.json').write_text(json.dumps(dict(kit='H-STAIR',pieces=pieces),indent=2)+'\n',encoding='utf-8')
     evidence(images)
     verify()
 
