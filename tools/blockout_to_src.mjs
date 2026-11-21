@@ -28,9 +28,6 @@ const segDist = (px, py, a, b) => { const dx = b[0] - a[0], dy = b[1] - a[1], l2
 const overlap = (cx, cy, b) => Math.max(0, Math.min(cx + 1, b.x + b.w) - Math.max(cx, b.x)) * Math.max(0, Math.min(cy + 1, b.y + b.h) - Math.max(cy, b.y));   // dien tich giao o (cx,cy) voi khoi, don vi o^2
 const fold = s => s.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[đĐ]/g, 'd').toUpperCase().replace(/[^A-Z0-9.\/\- ]/g, ' ').replace(/\s+/g, ' ').trim();
 
-// Sua loi du lieu so do khoi (khong sua duoc layout.json): moi muc {note, rect:[x,y,w,h] don vi o} -> o co tam trong rect thanh loi di (xoa tuong/mep tang), to xanh de thay. Danh sach nay LA bao cao loi so do.
-const FIXES = (() => { try { return JSON.parse(readFileSync('tools/areas/blockout-fixes.json', 'utf8')); } catch (e) { return {}; } })();
-const FIX_C = '#4fb06a';
 const mats = {};   // ten -> mau
 const matOf = hexc => { const n = 'c_' + hexc.slice(1); mats[n] = { type: 'flat', color: hex(hexc) }; return n; };
 const report = [];
@@ -62,8 +59,6 @@ for (const A of L.areas) {
     const a = w.pts[i], c = w.pts[i + 1], len = Math.hypot(c[0] - a[0], c[1] - a[1]), n = Math.max(1, Math.round(len / 0.1));
     for (let k = 0; k < n; k++) { const t = (k + 0.5) / n, cx = Math.floor(a[0] + (c[0] - a[0]) * t), cy = Math.floor(a[1] + (c[1] - a[1]) * t); if (cx >= 0 && cy >= 0 && cx < W && cy < H) wall[cy][cx] = 1; }
   }
-  const fixc = grid(() => 0);
-  for (const f of FIXES[A.id] || []) for (let cy = 0; cy < H; cy++) for (let cx = 0; cx < W; cx++) { const mx = cx + 0.5, my = cy + 0.5; if (mx >= f.rect[0] && mx <= f.rect[0] + f.rect[2] && my >= f.rect[1] && my <= f.rect[1] + f.rect[3]) { fixc[cy][cx] = 1; wall[cy][cx] = 0; solid[cy][cx] = 0; water[cy][cx] = 0; wild[cy][cx] = 1; } }
   // ---- o di duoc truoc khi tinh mep tang
   const walk0 = grid((cx, cy) => wild[cy][cx] ? 1 : (lvl[cy][cx] >= 0 || strip[cy][cx]) && !water[cy][cx] && !solid[cy][cx] && !wall[cy][cx] ? 1 : 0);
   // mep giua 2 tang khac level: o co level cao hon bi chan (tru o bac/cau/cong)
@@ -76,7 +71,6 @@ for (const A of L.areas) {
   // ---- mau tung o
   const colorOf = (cx, cy) => {
     const z = zoneAt[cy][cx];
-    if (fixc[cy][cx]) return FIX_C;
     if (wild[cy][cx]) return lvl[cy][cx] >= 0 ? TIER[lvl[cy][cx]] : NEUTRAL;
     if (water[cy][cx]) return ZC.water;
     if (wall[cy][cx]) return WALL_C;
