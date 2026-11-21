@@ -1,0 +1,277 @@
+{
+  "kit": "H-TERR",
+  "pieces": {
+    "rwall_2": {
+      "file": "rwall_2.png",
+      "layer": "ground",
+      "anchor": [
+        0,
+        0
+      ],
+      "footprint": [
+        64,
+        6
+      ],
+      "collide": [
+        [
+          0,
+          0,
+          64,
+          50
+        ]
+      ]
+    },
+    "rwall_2_b": {
+      "file": "rwall_2_b.png",
+      "layer": "ground",
+      "anchor": [
+        0,
+        0
+      ],
+      "footprint": [
+        64,
+        6
+      ],
+      "collide": [
+        [
+          0,
+          0,
+          64,
+          50
+        ]
+      ]
+    },
+    "rwall_4": {
+      "file": "rwall_4.png",
+      "layer": "ground",
+      "anchor": [
+        0,
+        0
+      ],
+      "footprint": [
+        128,
+        6
+      ],
+      "collide": [
+        [
+          0,
+          0,
+          128,
+          50
+        ]
+      ]
+    },
+    "rwall_4_b": {
+      "file": "rwall_4_b.png",
+      "layer": "ground",
+      "anchor": [
+        0,
+        0
+      ],
+      "footprint": [
+        128,
+        6
+      ],
+      "collide": [
+        [
+          0,
+          0,
+          128,
+          50
+        ]
+      ]
+    },
+    "rwall_6": {
+      "file": "rwall_6.png",
+      "layer": "ground",
+      "anchor": [
+        0,
+        0
+      ],
+      "footprint": [
+        192,
+        6
+      ],
+      "collide": [
+        [
+          0,
+          0,
+          192,
+          50
+        ]
+      ]
+    },
+    "rwall_6_b": {
+      "file": "rwall_6_b.png",
+      "layer": "ground",
+      "anchor": [
+        0,
+        0
+      ],
+      "footprint": [
+        192,
+        6
+      ],
+      "collide": [
+        [
+          0,
+          0,
+          192,
+          50
+        ]
+      ]
+    },
+    "rwall_end_L": {
+      "file": "rwall_end_L.png",
+      "layer": "ground",
+      "anchor": [
+        0,
+        0
+      ],
+      "footprint": [
+        32,
+        16
+      ],
+      "collide": [
+        [
+          0,
+          0,
+          32,
+          50
+        ]
+      ]
+    },
+    "rwall_corner_L": {
+      "file": "rwall_corner_L.png",
+      "layer": "ground",
+      "anchor": [
+        0,
+        32
+      ],
+      "footprint": [
+        32,
+        48
+      ],
+      "collide": [
+        [
+          0,
+          0,
+          32,
+          50
+        ],
+        [
+          0,
+          -32,
+          16,
+          32
+        ]
+      ]
+    },
+    "rwall_end_R": {
+      "file": "rwall_end_R.png",
+      "layer": "ground",
+      "anchor": [
+        0,
+        0
+      ],
+      "footprint": [
+        32,
+        16
+      ],
+      "collide": [
+        [
+          0,
+          0,
+          32,
+          50
+        ]
+      ]
+    },
+    "rwall_corner_R": {
+      "file": "rwall_corner_R.png",
+      "layer": "ground",
+      "anchor": [
+        0,
+        32
+      ],
+      "footprint": [
+        32,
+        48
+      ],
+      "collide": [
+        [
+          0,
+          0,
+          32,
+          50
+        ],
+        [
+          16,
+          -32,
+          16,
+          32
+        ]
+      ]
+    },
+    "balus_2": {
+      "file": "balus_2.png",
+      "layer": "base",
+      "anchor": [
+        6,
+        30
+      ],
+      "footprint": [
+        64,
+        6
+      ],
+      "collide": [
+        [
+          0,
+          -6,
+          64,
+          6
+        ]
+      ]
+    },
+    "balus_4": {
+      "file": "balus_4.png",
+      "layer": "base",
+      "anchor": [
+        6,
+        30
+      ],
+      "footprint": [
+        128,
+        6
+      ],
+      "collide": [
+        [
+          0,
+          -6,
+          128,
+          6
+        ]
+      ]
+    },
+    "balus_post": {
+      "file": "balus_post.png",
+      "layer": "base",
+      "anchor": [
+        6,
+        30
+      ],
+      "footprint": [
+        12,
+        6
+      ],
+      "collide": [
+        [
+          -5,
+          -6,
+          10,
+          6
+        ]
+      ]
+    }
+  }
+}
