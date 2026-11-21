@@ -9,7 +9,7 @@ from PIL import Image, ImageDraw, ImageFont
 
 ROOT = Path(__file__).resolve().parents[3]
 OUT = ROOT/'public/assets/kits/H-WALL'
-REC = ROOT/'records/S1-WALL2'
+REC = ROOT/'records/S1-WALL3'
 DESIGN = Path(r'D:\SkillFX_TuThienChi_HoaLien\design\tienson')
 PALFILE = DESIGN/'tam-thanh/TT2/src/hall-reference.png'
 CONCEPT = DESIGN/'hvq-scene/C/V1.png'
@@ -59,9 +59,9 @@ def source(name):
         im=Image.fromarray(a); CACHE[name]=im.crop(im.getbbox())
     return CACHE[name].copy()
 
-def sample(im,w,h,material=None):
-    # Median occupied samples into a 2px cluster grid, then exact hall palette.
-    w2,h2=(w+1)//2,(h+1)//2
+def sample(im,w,h,material=None,cluster=2):
+    # Median occupied cells (normally 2px; roof courses use 1px), exact hall palette.
+    w2,h2=(w+cluster-1)//cluster,(h+cluster-1)//cluster
     a=np.array(im.convert('RGBA')); out=np.zeros((h2,w2,4),np.uint8)
     xs=np.rint(np.linspace(0,a.shape[1],w2+1)).astype(int)
     ys=np.rint(np.linspace(0,a.shape[0],h2+1)).astype(int)
@@ -92,7 +92,7 @@ def sample(im,w,h,material=None):
         q=original_colors[mineral]
         if len(q): colors[mineral]=p[((q[:,None,:]-p[None,:,:])**2).sum(axis=2).argmin(axis=1)]
     out[out[:,:,3]>0,:3]=colors
-    return Image.fromarray(out).resize((w2*2,h2*2),Image.Resampling.NEAREST).crop((0,0,w,h))
+    return Image.fromarray(out).resize((w2*cluster,h2*cluster),Image.Resampling.NEAREST).crop((0,0,w,h))
 
 def surface(im):
     s=Surface(*im.size); s.im=im.resize((im.width*S,im.height*S),Image.Resampling.NEAREST)
@@ -182,45 +182,43 @@ def corner(side):
     return s,lambda x,y:(y<61 or (x<15 if side=='L' else x>=33) and y<64)
 
 def gate():
-    im=source('gate'); a=np.array(im)
-    # Find the actual generated central opening; keep its source around the whole gate.
+    # R3: whole ImageGen gate, including hidden shoulders and roof. The body
+    # retains the 176px world footprint; 8px eaves sit outside either edge.
+    raw=np.array(Image.open(SOURCE/'gate-r3.png').convert('RGBA'))
+    raw[raw[:,:,3]<128]=0
+    im=Image.fromarray(raw); im=im.crop(im.getbbox()); a=np.array(im)
     hole=Image.fromarray(np.where(a[:,:,3]==0,255,0).astype(np.uint8)).copy()
-    ImageDraw.floodfill(hole,(im.width//2,int(im.height*.64)),128)
+    ImageDraw.floodfill(hole,(im.width//2,int(im.height*.6)),128)
     hy,hx=np.where(np.array(hole)==128)
-    sx=[0,int(hx.min()),int(hx.max())+1,im.width]
+    # Median cells preserve the generated tile courses, plaster and brickwork.
+    # Side cuts separately fit the overhang, 34px shoulders and 108px passage.
+    sx=[0,90,int(hx.min()),int(hx.max())+1,1086,im.width]
     sy=[0,int(hy.min()),int(hy.max())+1,im.height]
-    dx=[0,34,142,176]; dy=[0,36,144,148]
-    out=Image.new('RGBA',(176,148))
+    dx=[0,8,42,150,184,192]; dy=[0,36,144,148]
+    out=Image.new('RGBA',(192,148))
     for yi in range(3):
-        for xi in range(3):
+        for xi in range(5):
             patch=im.crop((sx[xi],sy[yi],sx[xi+1],sy[yi+1]))
-            # Material-aware median keeps the gray cap and russet underside distinct.
-            out.alpha_composite(sample(patch,dx[xi+1]-dx[xi],dy[yi+1]-dy[yi], 'architecture'),(dx[xi],dy[yi]))
-    # Exactly four stone pixels outside a strict 108x108 aperture. Blocky 2px
-    # voussoirs prevent single-pixel sparks around the structural ring.
-    ar=np.array(out); yy,xx=np.indices((148,176))
-    r=np.sqrt((xx-87.5)**2+(yy-89.5)**2)
-    # Reclaim any excess generated stone around the hole; the frame is 4px.
-    grey=(ar[:,:,0].astype(int)-ar[:,:,1].astype(int)<20)
-    ar[(r>58)&(r<=64)&grey]=C['red']
+            out.alpha_composite(sample(patch,dx[xi+1]-dx[xi],dy[yi+1]-dy[yi], 'architecture',cluster=1 if yi==0 else 2),(dx[xi],dy[yi]))
+    # The generated ring is normalized to a continuous four-pixel stone frame;
+    # this is a structural alpha/material cleanup, not replacement artwork.
+    ar=np.array(out); yy,xx=np.indices((148,192))
+    r=np.sqrt((xx-95.5)**2+(yy-89.5)**2)
     ring=(r<=58)&(r>54)
-    angle=np.arctan2(yy-89.5,xx-87.5)
-    light=(xx+yy)<175
-    ar[ring]=C['stone']
-    ar[ring&light]=C['stone_light']
-    ar[ring&(r>56)&light]=C['stone_hi']
-    joints=(np.floor((angle+math.pi)*12/math.pi)%4==0)&ring
-    ar[joints]=C['stone_shade']
-    out=Image.fromarray(ar); d=ImageDraw.Draw(out)
-    d.ellipse((34,36,141,143),fill=(0,0,0,0))
-    # Straight 24px shoulders meet the other 64px wall modules at the same foot.
-    for off in (0,152):
-        # Remove the generation's original shoulder cap before fitting ours.
-        ImageDraw.Draw(out).rectangle((off,54,off+23,147),fill=(0,0,0,0))
-        shoulder=wall_image(24); out.alpha_composite(shoulder,(off,84))
-    # Re-open structural hole after shoulders; base remains open for actors.
-    ImageDraw.Draw(out).ellipse((34,36,141,143),fill=(0,0,0,0))
-    return surface(out),lambda x,y:(y<49 and 12<=x<=164) or (y<97 and (x<24 or x>=152))
+    mineral=(ar[:,:,0].astype(int)-ar[:,:,1].astype(int)<20)
+    ar[(r>58)&(r<=64)&mineral]=C['red']
+    ar[ring]=C['stone_light']
+    ar[ring&(xx+yy<185.5)]=C['stone_hi']
+    ar[ring&(r<=55.5)&(xx+yy>=185.5)]=C['stone_shade']
+    # Close the source's two-pixel alpha inset at the left wall join.
+    ar[48:140,8:10]=ar[48:140,10:12]
+    out=Image.fromarray(ar)
+    # Exact same 8px foundation and global row alignment as adjoining walls.
+    foundation=wall_image(128).crop((0,56,128,64))
+    out.alpha_composite(foundation.crop((0,0,88,8)),(8,140))
+    out.alpha_composite(foundation.crop((40,0,128,8)),(96,140))
+    ImageDraw.Draw(out).ellipse((42,36,149,143),fill=(0,0,0,0))
+    return surface(out),lambda x,y:y<36 or (y<48 and (x<38 or x>=154))
 
 manifest={'kit':'H-WALL','tile':32,'pieces':{}}
 FULL={}
@@ -244,9 +242,9 @@ def create():
         emit('wall_corner_'+side,*corner(side),[48,64],[[0 if side=='L' else 32,-112,16,64],[0,-16,48,16]])
     for name,length in [('wall_v',64),('wall_v_4',128)]:
         emit(name,*vertical(length),[16,length],[[1,-length-14,16,length+14]])
-    emit('moongate_h',*gate(),[176,16],[[0,-16,34,16],[142,-16,34,16]])
+    emit('moongate_h',*gate(),[176,16],[[0,-16,34,16],[142,-16,34,16]],anchor=[8,148])
     (OUT/'kit.json').write_text(json.dumps(manifest,indent=2)+'\n',encoding='utf-8')
-    sheet(); assembly()
+    sheet(); assembly(); comparison()
 
 def font(size=12):
     return ImageFont.truetype('C:/Windows/Fonts/consola.ttf',size)
@@ -284,23 +282,49 @@ def assembly():
         d.rectangle((x,174,x+7,197),fill=C['stone_shade'])
         d.rectangle((x,172,x+9,176),fill=C['stone_light'])
         d.rectangle((x,177,x+3,195),fill=C['stone'])
-    placements=[('wall_h_2',-38,218),('wall_h_2',147,218),('wall_end_R',205,218),('moongate_h',0,218),('wall_post',171,218)]
+    placements=[('wall_h_2',-24,218),('wall_h_2',216,218),('wall_end_R',280,218),('moongate_h',40,218)]
     # Wall behind rail context, as on concept's left courtyard ledge.
     # Draw stonework only to the right of the terminating red wall.
     context=scene.copy()
     for name,x,y in placements:
-        im=FULL[name]; scene.alpha_composite(im,(x,y-im.height))
-    scene.alpha_composite(context.crop((227,168,480,244)),(227,168))
+        im=FULL[name]; ax,ay=manifest['pieces'][name]['anchor']; scene.alpha_composite(im,(x-ax,y-ay))
+    scene.alpha_composite(context.crop((302,168,480,244)),(302,168))
     atlas=Image.open(ROOT/'public/assets/dao_si.png').convert('RGBA')
     frames=json.loads((ROOT/'public/assets/dao_si.json').read_text(encoding='utf-8'))['frames']
     f=next(f['frame'] for f in frames if f['filename']=='dao_si_idle_down_00')
     actor=atlas.crop((f['x'],f['y'],f['x']+64,f['y']+64))
-    scene.alpha_composite(actor,(58,158)); scene.alpha_composite(actor,(254,180))
+    scene.alpha_composite(actor,(96,151)); scene.alpha_composite(actor,(254,180))
     scene.save(REC/'assembly-scene.png')
     board=Image.new('RGB',(976,302),(31,32,29)); board.paste(concept,(0,32)); board.paste(scene,(496,32))
-    d=ImageDraw.Draw(board); d.text((8,8),'CONCEPT V1 1x',font=font(15),fill='white'); d.text((504,8),'H-WALL R2 / RAIL CONTEXT 1x',font=font(15),fill='white')
+    d=ImageDraw.Draw(board); d.text((8,8),'CONCEPT V1 1x',font=font(15),fill='white'); d.text((504,8),'H-WALL R3 / RAIL CONTEXT 1x',font=font(15),fill='white')
     board.save(REC/'assembly.png')
     (REC/'placements.json').write_text(json.dumps(placements,indent=2)+'\n',encoding='utf-8')
+
+def comparison():
+    refs=ROOT/'.agents/refs/S1/H-WALL'
+    ref=Image.open(refs/'v1_moongate_1x.png').convert('RGBA')
+    ref4=Image.open(refs/'v1_moongate_4x.png').convert('RGBA')
+    gate=FULL['moongate_h']; gate.save(REC/'gate.png')
+    gate4=gate.resize((gate.width*4,gate.height*4),Image.Resampling.NEAREST)
+    scene=Image.open(REC/'assembly-scene.png').convert('RGBA')
+    w=ref4.width+gate4.width+scene.width+48
+    board=Image.new('RGBA',(w,max(ref4.height,gate4.height)+290),(39,40,36,255))
+    d=ImageDraw.Draw(board)
+    x1=16+ref4.width; x2=x1+16+gate4.width
+    for x,label in [(8,'APPROVED REFERENCE 4x'),(x1,'R3 MOON GATE 4x'),(x2,'ASSEMBLY 1x / DAO SI 57px')]:
+        d.text((x,8),label,font=font(15),fill='white')
+    board.alpha_composite(ref4,(8,36)); board.alpha_composite(gate4,(x1,36)); board.alpha_composite(scene,(x2,36))
+    y=36+max(ref4.height,gate4.height)+16
+    board.alpha_composite(ref,(8,y)); board.alpha_composite(gate,(ref.width+24,y))
+    d.text((x1,y),'BODY 176x148 / TEXTURE 192x148 / ANCHOR [8,148]',font=font(14),fill='white')
+    d.text((x1,y+24),'APERTURE 108x108 / SHOULDERS 34px / EAVES +8px',font=font(14),fill='white')
+    d.text((x1,y+48),'STONE RING 4px / FOUNDATION 8px / HALL PALETTE',font=font(14),fill='white')
+    board.convert('RGB').save(REC/'compare.png')
+    one=Image.new('RGBA',(ref.width+gate.width+32,max(ref.height,gate.height)+32),(39,40,36,255))
+    d=ImageDraw.Draw(one); d.text((4,4),'REFERENCE 1x',font=font(),fill='white'); d.text((ref.width+20,4),'SPRITE R3 1x',font=font(),fill='white')
+    one.alpha_composite(ref,(4,28));one.alpha_composite(gate,(ref.width+20,28))
+    one.convert('RGB').save(REC/'compare-1x.png')
+
 
 def verify():
     kit=json.loads((OUT/'kit.json').read_text(encoding='utf-8'))
@@ -316,7 +340,8 @@ def verify():
             overlap+=int(((a[:,:,3]>0)&(r[:,:,3]>0)).sum())
     assert outside==0 and overlap==0
     gatebase=Image.open(OUT/'moongate_h.png').convert('RGBA'); gateroof=Image.open(OUT/'moongate_h_roof.png').convert('RGBA')
-    g=np.array(Image.alpha_composite(gatebase,gateroof))
+    g=np.array(Image.alpha_composite(gatebase,gateroof))[:,8:184]
+    assert g[84:140,:2,3].all() and g[84:140,174:176,3].all(), 'shoulder joins'
     hole=g[36:144,34:142,3]==0
     # Every sample inside the inscribed circle is transparent, including its centre.
     yy,xx=np.indices((108,108)); circle=(xx-53.5)**2+(yy-53.5)**2<=53**2

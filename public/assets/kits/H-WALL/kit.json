@@ -358,7 +358,7 @@
       "file": "moongate_h.png",
       "layer": "base",
       "anchor": [
-        0,
+        8,
         148
       ],
       "footprint": [
@@ -385,7 +385,7 @@
       "file": "moongate_h_roof.png",
       "layer": "roof",
       "anchor": [
-        0,
+        8,
         148
       ],
       "footprint": [
