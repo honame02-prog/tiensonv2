@@ -16,6 +16,7 @@ const FADE_MS = 250;
 const WALK_SPEED = 58, RUN_SPEED = 118;
 const DIR8 = ['right', 'down_right', 'down', 'down_left', 'left', 'up_left', 'up', 'up_right'];
 const ANIMS = { idle: { n: 6, ms: 150, repeat: -1 }, walk: { n: 8, ms: 100, repeat: -1 }, run: { n: 8, ms: 75, repeat: -1 }, interact: { n: 8, ms: 90, repeat: 0 } };
+const SKILL_ANIM = /^(ketan|kiemchi)_/;   // dong tac ra chieu (atlas hero_skill)
 const dir8 = (x, y) => DIR8[((Math.round(Math.atan2(y, x) / (Math.PI / 4)) % 8) + 8) % 8];
 const FLAT = /^(flower|ground)/;
 // collision footprints (w, h) at the sprite foot, per sprite key
@@ -63,7 +64,9 @@ export class AreaScene extends Phaser.Scene {
     this.load.image('mistA', A + 'fx_mist_a.png');
     this.load.image('mistB', A + 'fx_mist_b.png');
     this.load.atlas('hero', 'assets/dao_si.png', 'assets/dao_si.json');
-    FxPlayer.preload(this, Object.values(CUES));
+    this.load.atlas('hero_skill', 'assets/dao_si_ketan_kiemchi.png', 'assets/dao_si_ketan_kiemchi.json');   // dong tac ra chieu: ketan_<huong>, kiemchi_<huong>
+    this.load.json('hero_skill_json', 'assets/dao_si_ketan_kiemchi.json');
+    FxPlayer.preload(this, Object.values(CUES).filter(c => c.id !== 'demo-anim-strike'));   // demo-anim-strike khong con dung trong demo -> khong tai atlas
   }
 
   create() {
@@ -160,7 +163,7 @@ export class AreaScene extends Phaser.Scene {
     const sx = urlPos ? +(sp.get('x') || spn[0]) : spn[0], sy = urlPos ? +(sp.get('y') || spn[1]) : spn[1];
     this.player = this.physics.add.sprite(sx, sy, 'hero', 'dao_si_idle_down_00').setOrigin(32 / 64, 61 / 64);
     this.player.body.setSize(14, 8).setOffset(25, 54);
-    this.player.on('animationcomplete', (anim) => { if (anim.key.startsWith('interact_')) this.endInteract(); });
+    this.player.on('animationcomplete', (anim) => { if (anim.key.startsWith('interact_')) this.endInteract(); else if (SKILL_ANIM.test(anim.key)) this.endSkill(); });
     this.facing = (urlPos && sp.get('face')) || spn[2] || 'up'; this.acting = false;
     this.player.anims.play(`idle_${this.facing}`);
     if (!this.textures.exists('shadow')) { const g = this.make.graphics({ x: 0, y: 0 }, false); g.fillStyle(0x0b0a09, 0.32); g.fillEllipse(9, 3, 18, 6); g.generateTexture('shadow', 18, 6); g.destroy(); }
@@ -238,6 +241,7 @@ export class AreaScene extends Phaser.Scene {
   }
 
   onShutdown() {
+    this.holdTimer?.remove(); this.holdTimer = null; this.holdFn = null;
     this.scale.off('resize', this.onResize, this);
     if (this.textures.exists('nightmask')) this.textures.remove('nightmask');
     // nen + du lieu cua khu nay: bo khoi cache (lan vao sau se nap lai) de texture khong tich luy qua cac khu
@@ -262,6 +266,12 @@ export class AreaScene extends Phaser.Scene {
     if (this.anims.exists('idle_down')) return;     // anim la toan cuc: chi tao 1 lan (restart khu khong tao lai)
     for (const [a, c] of Object.entries(ANIMS)) for (const d of DIR8)
       this.anims.create({ key: `${a}_${d}`, frames: this.anims.generateFrameNames('hero', { prefix: `dao_si_${a}_${d}_`, start: 0, end: c.n - 1, zeroPad: 2 }), frameRate: 1000 / c.ms, repeat: c.repeat });
+    // dong tac ra chieu: tao tu meta.frameTags cua atlas hero_skill, thoi luong tung khung (ms) lay tu json, chay 1 lan (repeat 0)
+    const sk = this.cache.json.get('hero_skill_json');
+    for (const t of sk?.meta?.frameTags || []) {
+      const frames = sk.frames.slice(t.from, t.to + 1).map(f => ({ key: 'hero_skill', frame: f.filename, duration: f.duration }));   // Phaser 4: duration cua khung = thoi gian khung (ms), uu tien hon frameRate
+      this.anims.create({ key: t.name, frames, frameRate: 1000, repeat: t.repeat === undefined ? 0 : Math.max(0, +t.repeat - 1) });
+    }
     for (const f of ['fern_a', 'fern_b', 'fern_c'])
       this.anims.create({ key: f + '_sway', frames: [1, 2, 1, 0].map(i => ({ key: 'sect', frame: `${f}_s${i}` })), frameRate: 1.6, repeat: -1 });
     for (let c = 0; c < 3; c++) this.anims.create({ key: `koi${c}`, frames: [0, 1].map(i => ({ key: 'sect', frame: `koi${c}_${i}` })), frameRate: 4, repeat: -1 });
@@ -407,6 +417,36 @@ export class AreaScene extends Phaser.Scene {
     this.player.setVelocity(0, 0);
     this.player.anims.play(`interact_${this.facing}`);
   }
+
+  // ra chieu: nhan vat dung lai, chay ketan_<huong> (ultimate) hoac kiemchi_<huong> (chieu thuong); hoi phuc idle khi het anim. Khoa di chuyen nhu interact (acting). Tra ve false neu dang ban.
+  // hitAt (ms, tuy chon): thoi diem event 'hit' cua cue; khung giu (kiemchi 7, ketan 5) keo dai toi hitAt + 100 ms roi moi ha tay
+  castAnim(kind, dir, hitAt) {
+    if (this.busy || this.dialog || this.acting || !this.anims.exists(`${kind}_${dir || this.facing}`)) return false;
+    if (dir) this.facing = dir;
+    this.acting = true; this.pendingIt = null; this.player.setVelocity(0, 0);
+    this.clearHold();
+    const anim = this.anims.get(`${kind}_${this.facing}`), hi = kind === 'ketan' ? 5 : 7, t0 = this.time.now;
+    if (hitAt !== undefined && hitAt !== null) {
+      this.holdFn = (a, f) => {
+        if (a !== anim || anim.frames.indexOf(f) !== hi) return;
+        const delay = t0 + hitAt + 100 - (this.time.now + f.duration);   // khung giu da tu chay f.duration ms sau khi resume
+        this.player.off('animationupdate', this.holdFn); this.holdFn = null;
+        if (delay <= 0) return;
+        this.player.anims.pause();
+        this.holdTimer = this.time.delayedCall(delay, () => { this.holdTimer = null; this.player.anims.resume(); });
+      };
+      this.player.on('animationupdate', this.holdFn);
+    }
+    this.player.anims.play(anim.key);
+    return true;
+  }
+
+  clearHold() {
+    if (this.holdFn) { this.player.off('animationupdate', this.holdFn); this.holdFn = null; }
+    if (this.holdTimer) { this.holdTimer.remove(); this.holdTimer = null; }
+  }
+
+  endSkill() { this.clearHold(); this.acting = false; this.player.anims.play(`idle_${this.facing}`, true); }
 
   endInteract() {
     this.acting = false;

@@ -61,6 +61,66 @@
    "source": "di-hoa/cot-linh-td"
   },
   {
+   "key": "hoacot-td-back",
+   "image": "hoacot-td-back.png",
+   "json": "hoacot-td-back.json",
+   "tags": [
+    "hoacot-td-back"
+   ],
+   "fps": 30,
+   "frames": 46,
+   "loop": false,
+   "size": [
+    249,
+    923
+   ],
+   "pivot": [
+    64,
+    134
+   ],
+   "source": "fire/hoa-tru-td"
+  },
+  {
+   "key": "hoacot-td-floor",
+   "image": "hoacot-td-floor.png",
+   "json": "hoacot-td-floor.json",
+   "tags": [
+    "hoacot-td-floor"
+   ],
+   "fps": 30,
+   "frames": 46,
+   "loop": false,
+   "size": [
+    483,
+    173
+   ],
+   "pivot": [
+    64,
+    134
+   ],
+   "source": "fire/hoa-tru-td"
+  },
+  {
+   "key": "hoacot-td-front",
+   "image": "hoacot-td-front.png",
+   "json": "hoacot-td-front.json",
+   "tags": [
+    "hoacot-td-front"
+   ],
+   "fps": 30,
+   "frames": 46,
+   "loop": false,
+   "size": [
+    251,
+    1043
+   ],
+   "pivot": [
+    64,
+    134
+   ],
+   "source": "fire/hoa-tru-td"
+  },
+  {
    "key": "thanhlien-td-back",
    "image": "thanhlien-td-back.png",
    "json": "thanhlien-td-back.json",
@@ -119,6 +179,66 @@
     146
    ],
    "source": "di-hoa/thanh-lien-td"
+  },
+  {
+   "key": "vanlac-td-back",
+   "image": "vanlac-td-back.png",
+   "json": "vanlac-td-back.json",
+   "tags": [
+    "vanlac-td-back"
+   ],
+   "fps": 30,
+   "frames": 91,
+   "loop": false,
+   "size": [
+    504,
+    268
+   ],
+   "pivot": [
+    112,
+    146
+   ],
+   "source": "di-hoa/van-lac-td"
+  },
+  {
+   "key": "vanlac-td-floor",
+   "image": "vanlac-td-floor.png",
+   "json": "vanlac-td-floor.json",
+   "tags": [
+    "vanlac-td-floor"
+   ],
+   "fps": 30,
+   "frames": 91,
+   "loop": false,
+   "size": [
+    990,
+    660
+   ],
+   "pivot": [
+    112,
+    146
+   ],
+   "source": "di-hoa/van-lac-td"
+  },
+  {
+   "key": "vanlac-td-front",
+   "image": "vanlac-td-front.png",
+   "json": "vanlac-td-front.json",
+   "tags": [
+    "vanlac-td-front"
+   ],
+   "fps": 30,
+   "frames": 91,
+   "loop": false,
+   "size": [
+    509,
+    584
+   ],
+   "pivot": [
+    112,
+    146
+   ],
+   "source": "di-hoa/van-lac-td"
   },
   {
    "key": "vocab-strike",

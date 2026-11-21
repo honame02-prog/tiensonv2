@@ -1,0 +1,20 @@
+{ "id": "van-lac-td", "ramp": "tam", "duration": 3000, "ultimate": false,
+  "tracks": [
+    { "at": 0, "type": "anim", "atlas": "vanlac-td-floor", "anim": "vanlac-td-floor", "layer": "ground", "blend": "normal" },
+    { "at": 0, "type": "anim", "atlas": "vanlac-td-back", "anim": "vanlac-td-back", "layer": "behind", "blend": "normal" },
+    { "at": 0, "type": "anim", "atlas": "vanlac-td-front", "anim": "vanlac-td-front", "layer": "front", "blend": "normal" },
+    { "at": 400, "type": "light", "rx": 50, "ry": 25, "power": 0.8, "dur": 2000, "ease": "Quad.easeIn", "color": "#a8204a", "alpha": [0, 0.5, 1] },
+    { "at": 2400, "type": "light", "rx": 50, "ry": 25, "power": 0.9, "dur": 600, "ease": "Quad.easeOut", "color": "#ff4f7a", "alpha": [1, 0.45, 0] },
+    { "at": 1550, "type": "light", "rx": 50, "ry": 25, "power": 0.5, "dur": 160, "color": "#ffb3c6", "alpha": [0, 1, 0] },
+    { "at": 1900, "type": "light", "rx": 50, "ry": 25, "power": 0.5, "dur": 160, "color": "#ffb3c6", "alpha": [0, 1, 0] },
+    { "at": 2250, "type": "light", "rx": 50, "ry": 25, "power": 0.5, "dur": 160, "color": "#ffb3c6", "alpha": [0, 1, 0] },
+    { "at": 400, "type": "shake", "dur": 120, "intensity": 0.0015 },
+    { "at": 2400, "type": "shake", "dur": 200, "intensity": 0.004 },
+    { "at": 2400, "type": "hitstop", "dur": 50 },
+    { "at": 2400, "type": "emitter", "tex": "fx_px2", "dur": 0, "blend": "add", "y": -30, "color": ["#ffffff", "#ffb3c6", "#ff4f7a"],
+      "config": { "frequency": -1, "quantity": 26, "x": { "min": -14, "max": 14 }, "speed": { "min": 30, "max": 110 }, "angle": { "min": 0, "max": 360 }, "lifespan": { "min": 450, "max": 900 }, "gravityY": 90, "alpha": { "start": 1, "end": 0 } } },
+    { "at": 1550, "type": "event", "name": "hit" },
+    { "at": 1900, "type": "event", "name": "hit" },
+    { "at": 2250, "type": "event", "name": "hit" },
+    { "at": 2400, "type": "event", "name": "hit" }
+  ] }

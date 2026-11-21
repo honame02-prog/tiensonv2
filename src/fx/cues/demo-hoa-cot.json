@@ -1,14 +1,9 @@
-{ "id": "demo-hoa-cot", "ramp": "hoa", "duration": 1500, "ultimate": false,
+{ "id": "demo-hoa-cot", "ramp": "hoa", "duration": 1550, "ultimate": false,
   "tracks": [
-    { "at": 0, "type": "decal", "rx": 32, "dur": 1400, "color": "hoa.1", "alpha": [0, 0.9, 0.7, 0] },
+    { "at": 0, "type": "anim", "atlas": "hoacot-td-floor", "anim": "hoacot-td-floor", "layer": "ground", "blend": "normal" },
+    { "at": 0, "type": "anim", "atlas": "hoacot-td-back", "anim": "hoacot-td-back", "layer": "behind", "blend": "normal" },
+    { "at": 0, "type": "anim", "atlas": "hoacot-td-front", "anim": "hoacot-td-front", "layer": "front", "blend": "normal" },
     { "at": 0, "type": "light", "rx": 84, "power": 1, "dur": 1350, "color": "glow", "alpha": [0, 1, 0.8, 0] },
-    { "at": 100, "type": "column", "w": 26, "h": 100, "dur": 1000, "flicker": 90,
-      "scaleX": [0.7, 1, 0.9, 0.1], "scaleY": [0.1, 1, 1, 0.9], "alpha": [1, 1, 1, 0] },
-    { "at": 100, "type": "light", "rx": 40, "ry": 40, "y": -44, "layer": "body", "power": 0.85, "dur": 1000, "color": "hoa.4", "alpha": [0, 1, 0.7, 0] },
-    { "at": 100, "type": "emitter", "tex": "fx_px2", "dur": 1000, "max": 70, "blend": "add", "color": ["core", "hoa.4", "hoa.2", "hoa.1"],
-      "config": { "frequency": 35, "quantity": 2, "x": { "min": -11, "max": 11 }, "speed": { "min": 35, "max": 100 }, "angle": { "min": 255, "max": 285 }, "lifespan": { "min": 500, "max": 1000 }, "gravityY": -25, "alpha": { "start": 1, "end": 0 } } },
-    { "at": 100, "type": "emitter", "tex": "fx_spark", "dur": 0, "blend": "add", "color": ["core", "hoa.4", "hoa.3"],
-      "config": { "frequency": -1, "quantity": 14, "speed": { "min": 60, "max": 150 }, "angle": { "min": 215, "max": 325 }, "lifespan": { "min": 450, "max": 800 }, "gravityY": 210 } },
     { "at": 100, "type": "shake", "dur": 220, "intensity": 0.006 },
     { "at": 100, "type": "hitstop", "dur": 70 },
     { "at": 100, "type": "event", "name": "hit" }
