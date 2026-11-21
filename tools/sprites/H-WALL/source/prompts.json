@@ -1,0 +1,12 @@
+{
+  "tool": "built-in image_gen.imagegen",
+  "background": "flat magenta #ff00ff, no cast shadows",
+  "shared_prompt": "One whole isolated object, high quality 2D game pixel sprite reference. Orthographic oblique camera from south-above, front face dominant, narrow visible top, no converging perspective. Light upper left, dark right side. Restrained ancient mountain Daoist monastery; desaturated weathered red-brown plaster, gray olive cylindrical clay tiles, gray-brown stone. Large three-tone faded plaster patches, broad vertical damp streaks, sparse exposed brick near feet. Chunky pixel clusters, minimum 2 target pixels, no dithering, no white speckles, no letters/symbols/text/watermarks, no scenery or extra objects. Entire object visible.",
+  "objects": {
+    "wall.png": "One straight horizontal wall, target128x64: plaster front42-44, thick cap12 with two cylindrical tile rows/ridge/rounded tile ends, stone foot8; joinable ends, no pillars.",
+    "gate.png": "One complete moon gate, target176x148, circular aperture108 centred x88 y90, light stone ring4. Raised shoulders, thick curved tiled roof, slightly upturned finials, short straight extensions and stone base8; no door.",
+    "post.png": "One narrow complete pillar, target14x68, broad faded plaster islands and vertical damp streaks, darker right face, masonry foot8, thick cylindrical tiled cap12 with ridge.",
+    "end.png": "One complete closed wall end, target22x64, rounded closed left terminal, right joinable edge, weathered plaster, masonry foot8, tiled cap12 with closed ornamental end tile and ridge."
+  },
+  "postprocess": "build.py; preserved PNG sources are the deterministic reproduction input, not a new service call."
+}

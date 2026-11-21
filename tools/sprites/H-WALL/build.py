@@ -1,4 +1,4 @@
-"""Reproducible H-WALL, original procedural geometry; no concept architecture pixels.
+"""Reproducible H-WALL, ImageGen whole-object sources, median cells and hall palette; no concept architecture pixels.
 Run from any directory: python -X utf8 tools/sprites/H-WALL/build.py [--verify|--repro]
 Only the assembly floor samples the approved concept. No stochastic dithering.
 """
@@ -9,7 +9,7 @@ from PIL import Image, ImageDraw, ImageFont
 
 ROOT = Path(__file__).resolve().parents[3]
 OUT = ROOT/'public/assets/kits/H-WALL'
-REC = ROOT/'records/S1-WALL'
+REC = ROOT/'records/S1-WALL2'
 DESIGN = Path(r'D:\SkillFX_TuThienChi_HoaLien\design\tienson')
 PALFILE = DESIGN/'tam-thanh/TT2/src/hall-reference.png'
 CONCEPT = DESIGN/'hvq-scene/C/V1.png'
@@ -48,70 +48,128 @@ class Surface:
         m[mask,:3]=rgb; m[:,:,3]=mask*255; m[~mask]=0
         return Image.fromarray(m)
 
+SOURCE = Path(__file__).resolve().parent/'source'
+CACHE = {}
+
+def source(name):
+    if name not in CACHE:
+        a=np.array(Image.open(SOURCE/(name+'.png')).convert('RGBA'))
+        mag=(a[:,:,0]>100)&(a[:,:,2]>80)&(a[:,:,0]>a[:,:,1].astype(float)*1.4)&(a[:,:,2]>a[:,:,1].astype(float)*1.4)
+        a[mag]=0
+        im=Image.fromarray(a); CACHE[name]=im.crop(im.getbbox())
+    return CACHE[name].copy()
+
+def sample(im,w,h,material=None):
+    # Median occupied samples into a 2px cluster grid, then exact hall palette.
+    w2,h2=(w+1)//2,(h+1)//2
+    a=np.array(im.convert('RGBA')); out=np.zeros((h2,w2,4),np.uint8)
+    xs=np.rint(np.linspace(0,a.shape[1],w2+1)).astype(int)
+    ys=np.rint(np.linspace(0,a.shape[0],h2+1)).astype(int)
+    for y in range(h2):
+        for x in range(w2):
+            block=a[ys[y]:ys[y+1],xs[x]:xs[x+1]]
+            solid=block[:,:,3]>0
+            if solid.sum()>=max(1,solid.size/2):
+                out[y,x,:3]=np.median(block[solid,:3],axis=0)
+                out[y,x,3]=255
+    colors=out[out[:,:,3]>0,:3].astype(np.int32)
+    palette=PAL
+    original_colors=colors.copy()
+    if material=='mineral':
+        palette=PAL[(PAL[:,0]-PAL[:,1]<15)&(PAL[:,0]-PAL[:,2]<22)]
+    elif material in ('plaster','architecture'):
+        # Pale weathered islands use mineral tones; the plaster stays russet.
+        pale=(colors[:,0]>145)&(colors[:,1]>110)&(colors[:,2]>75)
+        if pale.any():
+            grey=(colors[pale]@np.array([.2126,.7152,.0722]))*.82
+            colors[pale]=np.stack([grey+5,grey+2,grey-4],axis=1).astype(int)
+    for i in range(0,len(colors),4096):
+        q=colors[i:i+4096]
+        colors[i:i+len(q)]=palette[((q[:,None,:]-palette[None,:,:])**2).sum(axis=2).argmin(axis=1)]
+    if material=='architecture':
+        mineral=(original_colors[:,0]<original_colors[:,1]*1.3)|(original_colors[:,0]-original_colors[:,2]<32)
+        p=PAL[(PAL[:,0]-PAL[:,1]<15)&(PAL[:,0]-PAL[:,2]<22)]
+        q=original_colors[mineral]
+        if len(q): colors[mineral]=p[((q[:,None,:]-p[None,:,:])**2).sum(axis=2).argmin(axis=1)]
+    out[out[:,:,3]>0,:3]=colors
+    return Image.fromarray(out).resize((w2*2,h2*2),Image.Resampling.NEAREST).crop((0,0,w,h))
+
+def surface(im):
+    s=Surface(*im.size); s.im=im.resize((im.width*S,im.height*S),Image.Resampling.NEAREST)
+    s.d=ImageDraw.Draw(s.im); return s
+
+def wall_image(w):
+    im=source('wall')
+    # Explicit material bands retain 12px cap, 44px vertical plaster, 8px stone.
+    # Original generation is 1716x566 after chroma removal.
+    cuts=[0,153,510,im.height]
+    out=Image.new('RGBA',(128,64))
+    for sy0,sy1,dy,dh in zip(cuts,cuts[1:],[0,12,56],[12,44,8]):
+        out.alpha_composite(sample(im.crop((0,sy0,im.width,sy1)),128,dh,'plaster' if dy==12 else 'mineral'),(0,dy))
+    # A joinable module has no transparent end-column or cut-off foundation.
+    a=np.array(out)
+    a[:,:2]=a[:,2:4]; a[:,-2:]=a[:,2:4]
+    out=Image.fromarray(a); d=ImageDraw.Draw(out)
+    # Two 4px rows of cylindrical tile barrels + 2px ridge/eave.
+    d.rectangle((0,0,127,1),fill=C['tile_light'])
+    for row,ty in enumerate((2,6)):
+        for x in range(0,128,6):
+            d.rectangle((x,ty,x+3,ty+3),fill=C['tile'])
+            d.rectangle((x,ty,x+1,ty+3),fill=C['tile_light'])
+            d.rectangle((x+4,ty,x+5,ty+3),fill=C['tile_shade'])
+    d.rectangle((0,10,127,11),fill=C['tile_shade'])
+    # Wide damp trails hang from the eave, without letter-like cracks/speckles.
+    for x,length in ((18,16),(54,24),(92,18),(116,12)):
+        d.rectangle((x,12,x+3,17),fill=C['red_shade'])
+        d.rectangle((x,18,x+1,12+length-1),fill=C['red_shade'])
+    # Sparse exposed masonry in the worn lower plaster, 2px mortar courses.
+    for x,y in ((8,48),(92,50)):
+        d.rectangle((x+2,y,x+9,y+1),fill=C['red_shade'])
+        d.rectangle((x,y+2,x+13,y+5),fill=C['red_shade'])
+        d.rectangle((x+2,y+2,x+5,y+3),fill=C['stone_shade'])
+        d.rectangle((x+8,y+2,x+11,y+3),fill=C['stone_shade'])
+        if y+7<=55: d.rectangle((x+4,y+6,x+11,y+7),fill=C['stone_shade'])
+    # Gray 8px foundation, staggered stone joints at least 2px wide.
+    d.rectangle((0,56,127,63),fill=C['stone_shade'])
+    for row,ty in enumerate((56,60)):
+        for x in range(-16*row,128,32):
+            d.rectangle((x+2,ty,x+29,ty+1),fill=C['stone_light'] if row==0 else C['stone'])
+    a=np.array(out)
+    for y in range(2,64):
+        for x in range(128):
+            if a[y,x,3]==0: a[y,x]=a[y,min(124,max(4,x)),:]
+    return Image.fromarray(a).crop((0,0,w,64))
+
 def masonry(s,x0,y0,x1,y1):
-    s.rect((x0,y0,x1,y1),'stone_shade')
-    for row,y in enumerate(range(y0,y1,4)):
-        for x in range(x0-16*(row%2),x1,32):
-            l,r=max(x0,x+1),min(x1,x+30)
-            if r<=l: continue
-            s.rect((l,y+1,r,min(y1,y+3)),'stone')
-            s.line([(l,y+1),(r-2,y+1)],'stone_light')
-    for x in range(x0+9,x1-3,47):
-        s.rect((x,y1-2,x+5,y1),'moss')
-
-def plaster(s,x0,y0,x1,y1):
-    s.rect((x0,y0,x1,y1),'red')
-    s.rect((x0,y0,x1,y0+3),'red_shade')
-    s.line([(x0,y0+5),(x1,y0+5)],'red_light',2)
-    # Sparse contiguous worn plaster islands, not a pixel noise field.
-    for i,x in enumerate(range(x0+13,x1-7,39)):
-        y=y1-10-(i%3)*6
-        s.poly([(x,y+4),(x+3,y),(x+7,y+2),(x+5,y+7),(x+11,y+8),(x+7,y+11),(x+1,y+9)],'plaster_dark')
-        s.poly([(x+2,y+3),(x+4,y+2),(x+5,y+6),(x+8,y+8),(x+3,y+8)],'plaster')
-    for x in range(x0+25,x1-3,71):
-        s.line([(x,y0+13),(x-2,y0+18),(x+1,y0+21)],'red_shade')
-
-def roof(s,w,y=0):
-    s.rect((0,y+1,w-1,y+10),'tile_shade')
-    s.rect((0,y+2,w-1,y+6),'tile')
-    s.line([(0,y+1),(w-1,y+1)],'tile_light',2)
-    for x in range(2,w,6):
-        s.poly([(x,y+3),(x+2,y+3),(x+3,y+8),(x,y+8)],'tile_light')
-        s.line([(x+3,y+4),(x+4,y+9)],'dark')
-    s.line([(0,y+10),(w-1,y+10)],'dark')
-    s.line([(0,y+8),(w-1,y+8)],'tile')
+    im=wall_image(128).crop((0,56,128,64))
+    im=sample(im,x1-x0+1,y1-y0+1)
+    s.im.alpha_composite(im.resize((im.width*S,im.height*S),Image.Resampling.NEAREST),(x0*S,y0*S))
 
 def horizontal(w):
-    s=Surface(w,64); plaster(s,0,12,w-1,55); masonry(s,0,56,w-1,63); roof(s,w,1)
-    return s,lambda x,y:y<13
+    return surface(wall_image(w)),lambda x,y:y<13
 
 def post():
-    s=Surface(14,68); plaster(s,2,14,11,58)
-    s.rect((10,14,12,59),'red_shade'); s.line([(2,16),(2,56)],'red_light',2)
-    masonry(s,1,59,12,67); roof(s,14,1)
-    s.rect((1,12,12,15),'stone'); s.line([(1,12),(11,12)],'stone_light')
-    return s,lambda x,y:y<16
+    raw=source('post'); im=sample(raw,14,68,'plaster')
+    # Source cap and foundation are mineral rather than reddish plaster.
+    top=sample(raw.crop((0,0,raw.width,round(raw.height*.15))),14,12,'mineral')
+    im.alpha_composite(top,(0,0))
+    im.alpha_composite(wall_image(14).crop((0,56,14,64)),(0,60))
+    return surface(im),lambda x,y:y<16
 
 def end(side):
-    s=Surface(22,64)
-    plaster(s,4,13,21,55); masonry(s,4,56,21,63)
-    s.poly([(4,13),(0,17),(0,57),(4,63),(7,63),(7,13)],'red_shade')
-    s.poly([(2,17),(4,15),(5,15),(5,55),(2,55)],'red_light')
-    s.poly([(0,57),(4,56),(7,58),(7,63),(4,63),(0,60)],'stone')
-    roof(s,22,1)
-    s.poly([(0,3),(3,0),(7,1),(7,9),(3,11),(0,8)],'tile')
-    s.line([(1,3),(3,1),(6,2)],'tile_hi')
-    if side=='R': s.im=s.im.transpose(Image.Transpose.FLIP_LEFT_RIGHT)
-    return s,lambda x,y:y<13
+    raw=source('end'); im=sample(raw,22,64,'plaster')
+    im.alpha_composite(sample(raw.crop((0,0,raw.width,round(raw.height*.16))),22,12,'mineral'),(0,0))
+    im.alpha_composite(wall_image(22).crop((0,56,22,64)),(0,56))
+    if side=='R': im=im.transpose(Image.Transpose.FLIP_LEFT_RIGHT)
+    return surface(im),lambda x,y:y<13
 
 def vertical(length):
     s=Surface(18,length+14)
-    s.rect((2,0,16,length+6),'red_shade'); s.rect((2,0,5,length+6),'red')
-    s.rect((3,0,16,length-1),'tile_shade'); s.rect((5,0,13,length-1),'tile')
-    s.line([(5,0),(5,length-1)],'tile_light',2)
-    for y in range(0,length,6):
-        s.line([(6,y+1),(12,y+1)],'tile_light',2)
-        s.line([(13,y+2),(15,y+4)],'dark')
+    cap=wall_image(128).crop((0,0,128,12)).transpose(Image.Transpose.ROTATE_270)
+    cap=sample(cap,14,length)
+    s.im.alpha_composite(cap.resize((14*S,length*S),Image.Resampling.NEAREST),(3*S,0))
+    s.rect((1,0,2,length+6),'red_shade'); s.rect((3,length,16,length+6),'red_shade')
+    s.line([(1,0),(1,length+6)],'red_light',2)
     masonry(s,1,length+7,16,length+13)
     return s,lambda x,y:y<length and x>=3
 
@@ -124,41 +182,45 @@ def corner(side):
     return s,lambda x,y:(y<61 or (x<15 if side=='L' else x>=33) and y<64)
 
 def gate():
-    s=Surface(176,148)
-    plaster(s,0,96,175,139); masonry(s,0,140,175,147)
-    # Original arched wall silhouette with raised shoulders.
-    arch=[(24,45),(30,40),(40,32),(52,24),(68,18),(88,16),(108,18),(124,24),(136,32),(146,40),(152,45)]
-    s.poly(arch+[(152,147),(24,147)],'red')
-    s.poly([(145,45),(152,45),(152,139),(146,139)],'red_shade')
-    for x,y in [(27,114),(143,112),(39,54),(126,53),(62,30),(111,30)]:
-        s.poly([(x,y),(x+4,y-2),(x+6,y+2),(x+3,y+6),(x+7,y+9),(x+2,y+10)],'plaster_dark')
-        s.poly([(x+1,y),(x+3,y),(x+3,y+4),(x+1,y+5)],'plaster')
-    # The structural circle is 108x108; 4px stone ring outside it.
-    s.ellipse((30,32,145,147),'stone_shade')
-    s.ellipse((31,32,144,146),'stone')
-    s.d.arc((31*S,32*S,144*S,146*S),180,285,fill=C['stone_hi'],width=2*S)
-    s.d.arc((31*S,32*S,144*S,146*S),285,360,fill=C['stone_light'],width=S)
-    for angle in range(0,360,30):
-        a=math.radians(angle)
-        s.line([(88+54*math.cos(a),90+54*math.sin(a)),(88+58*math.cos(a),90+58*math.sin(a))],'stone_shade')
-    # Curving ceramic cap: continuous solid band with discrete glazed roll tiles.
-    def ry(x): return 12+23*(abs(x-88)/66)**1.65
-    upper=[(x,ry(x)) for x in range(22,155,2)]
-    lower=[(x,ry(x)+12) for x in range(154,21,-2)]
-    s.poly(upper+lower,'tile_shade')
-    s.line([(x,ry(x)+3) for x in range(22,155,2)],'tile_light',3)
-    s.line([(x,ry(x)) for x in range(22,155,2)],'stone_light',2)
-    for x in range(24,153,6):
-        y=ry(x); s.poly([(x,y+3),(x+2,y+3),(x+3,y+10),(x,y+10)],'tile_light')
-        s.line([(x+3,y+4),(x+4,y+11)],'dark')
-    for x,sgn in [(22,-1),(154,1)]:
-        s.poly([(x,ry(x)+9),(x+sgn*8,ry(x)+4),(x+sgn*10,ry(x)-2),(x+sgn*7,ry(x)),(x,ry(x)+2)],'tile')
-        s.line([(x,ry(x)+2),(x+sgn*7,ry(x)),(x+sgn*10,ry(x)-2)],'tile_light')
-    # Shoulder roofs exactly meet ordinary wall y=baseline-64+2.
-    for off in [0,152]:
-        t=Surface(24,13); roof(t,24,1); s.im.alpha_composite(t.im,(off*S,84*S))
-    s.ellipse((34,36,141.99,143.99),(0,0,0,0))
-    return s,lambda x,y:(y<49 and 12<=x<=164) or (y<97 and (x<24 or x>=152))
+    im=source('gate'); a=np.array(im)
+    # Find the actual generated central opening; keep its source around the whole gate.
+    hole=Image.fromarray(np.where(a[:,:,3]==0,255,0).astype(np.uint8)).copy()
+    ImageDraw.floodfill(hole,(im.width//2,int(im.height*.64)),128)
+    hy,hx=np.where(np.array(hole)==128)
+    sx=[0,int(hx.min()),int(hx.max())+1,im.width]
+    sy=[0,int(hy.min()),int(hy.max())+1,im.height]
+    dx=[0,34,142,176]; dy=[0,36,144,148]
+    out=Image.new('RGBA',(176,148))
+    for yi in range(3):
+        for xi in range(3):
+            patch=im.crop((sx[xi],sy[yi],sx[xi+1],sy[yi+1]))
+            # Material-aware median keeps the gray cap and russet underside distinct.
+            out.alpha_composite(sample(patch,dx[xi+1]-dx[xi],dy[yi+1]-dy[yi], 'architecture'),(dx[xi],dy[yi]))
+    # Exactly four stone pixels outside a strict 108x108 aperture. Blocky 2px
+    # voussoirs prevent single-pixel sparks around the structural ring.
+    ar=np.array(out); yy,xx=np.indices((148,176))
+    r=np.sqrt((xx-87.5)**2+(yy-89.5)**2)
+    # Reclaim any excess generated stone around the hole; the frame is 4px.
+    grey=(ar[:,:,0].astype(int)-ar[:,:,1].astype(int)<20)
+    ar[(r>58)&(r<=64)&grey]=C['red']
+    ring=(r<=58)&(r>54)
+    angle=np.arctan2(yy-89.5,xx-87.5)
+    light=(xx+yy)<175
+    ar[ring]=C['stone']
+    ar[ring&light]=C['stone_light']
+    ar[ring&(r>56)&light]=C['stone_hi']
+    joints=(np.floor((angle+math.pi)*12/math.pi)%4==0)&ring
+    ar[joints]=C['stone_shade']
+    out=Image.fromarray(ar); d=ImageDraw.Draw(out)
+    d.ellipse((34,36,141,143),fill=(0,0,0,0))
+    # Straight 24px shoulders meet the other 64px wall modules at the same foot.
+    for off in (0,152):
+        # Remove the generation's original shoulder cap before fitting ours.
+        ImageDraw.Draw(out).rectangle((off,54,off+23,147),fill=(0,0,0,0))
+        shoulder=wall_image(24); out.alpha_composite(shoulder,(off,84))
+    # Re-open structural hole after shoulders; base remains open for actors.
+    ImageDraw.Draw(out).ellipse((34,36,141,143),fill=(0,0,0,0))
+    return surface(out),lambda x,y:(y<49 and 12<=x<=164) or (y<97 and (x<24 or x>=152))
 
 manifest={'kit':'H-WALL','tile':32,'pieces':{}}
 FULL={}
@@ -207,9 +269,28 @@ def assembly():
     scene=Image.new('RGBA',(480,270))
     for y in range(0,270,40):
         for x in range(0,480,56):scene.alpha_composite(paving,(x,y))
-    placements=[('wall_h_2',-45,218),('wall_h_4',174,218),('wall_h_3',302,218),('wall_end_R',394,218),('moongate_h',0,218),('wall_post',171,218),('wall_post',296,218)]
+    # Grey rail/retaining-wall context is assembly-only, never exported as kit.
+    d=ImageDraw.Draw(scene)
+    d.rectangle((150,199,479,243),fill=C['stone_shade'])
+    for row,y in enumerate(range(201,243,10)):
+        for x in range(142-20*(row%2),480,40):
+            d.rectangle((x+2,y+2,x+38,y+9),fill=C['stone'])
+            d.rectangle((x+2,y+2,x+38,y+3),fill=C['stone_light'])
+    d.rectangle((150,195,479,200),fill=C['stone_light'])
+    for y in (177,189):
+        d.rectangle((150,y,479,y+4),fill=C['stone'])
+        d.rectangle((150,y,479,y+1),fill=C['stone_hi'])
+    for x in range(154,480,32):
+        d.rectangle((x,174,x+7,197),fill=C['stone_shade'])
+        d.rectangle((x,172,x+9,176),fill=C['stone_light'])
+        d.rectangle((x,177,x+3,195),fill=C['stone'])
+    placements=[('wall_h_2',-38,218),('wall_h_2',147,218),('wall_end_R',205,218),('moongate_h',0,218),('wall_post',171,218)]
+    # Wall behind rail context, as on concept's left courtyard ledge.
+    # Draw stonework only to the right of the terminating red wall.
+    context=scene.copy()
     for name,x,y in placements:
         im=FULL[name]; scene.alpha_composite(im,(x,y-im.height))
+    scene.alpha_composite(context.crop((227,168,480,244)),(227,168))
     atlas=Image.open(ROOT/'public/assets/dao_si.png').convert('RGBA')
     frames=json.loads((ROOT/'public/assets/dao_si.json').read_text(encoding='utf-8'))['frames']
     f=next(f['frame'] for f in frames if f['filename']=='dao_si_idle_down_00')
@@ -217,7 +298,7 @@ def assembly():
     scene.alpha_composite(actor,(58,158)); scene.alpha_composite(actor,(254,180))
     scene.save(REC/'assembly-scene.png')
     board=Image.new('RGB',(976,302),(31,32,29)); board.paste(concept,(0,32)); board.paste(scene,(496,32))
-    d=ImageDraw.Draw(board); d.text((8,8),'CONCEPT V1 1x',font=font(15),fill='white'); d.text((504,8),'H-WALL ASSEMBLY 480x270 1x',font=font(15),fill='white')
+    d=ImageDraw.Draw(board); d.text((8,8),'CONCEPT V1 1x',font=font(15),fill='white'); d.text((504,8),'H-WALL R2 / RAIL CONTEXT 1x',font=font(15),fill='white')
     board.save(REC/'assembly.png')
     (REC/'placements.json').write_text(json.dumps(placements,indent=2)+'\n',encoding='utf-8')
 
