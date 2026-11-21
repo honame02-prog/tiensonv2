@@ -175,6 +175,160 @@
         ]
       ],
       "source": "V1-original balustrade y498..590, posts [(617, 652), (791, 827), (995, 1030), (1195, 1230)] (Opus CM-TERR)"
+    },
+    "stair_2x2": {
+      "file": "stair_2x2.png",
+      "layer": "ground",
+      "anchor": [
+        0,
+        0
+      ],
+      "footprint": [
+        64,
+        64
+      ],
+      "collide": [],
+      "source": "V1-original stairs x1241..1503 units 561..759 (8 px/bac), cheeks y599..766 (Opus CM-TERR)"
+    },
+    "stair_3x2": {
+      "file": "stair_3x2.png",
+      "layer": "ground",
+      "anchor": [
+        0,
+        0
+      ],
+      "footprint": [
+        96,
+        64
+      ],
+      "collide": [],
+      "source": "V1-original stairs x1241..1503 units 561..759 (8 px/bac), cheeks y599..766 (Opus CM-TERR)"
+    },
+    "stair_4x2": {
+      "file": "stair_4x2.png",
+      "layer": "ground",
+      "anchor": [
+        0,
+        0
+      ],
+      "footprint": [
+        128,
+        64
+      ],
+      "collide": [],
+      "source": "V1-original stairs x1241..1503 units 561..759 (8 px/bac), cheeks y599..766 (Opus CM-TERR)"
+    },
+    "stair_4x3": {
+      "file": "stair_4x3.png",
+      "layer": "ground",
+      "anchor": [
+        0,
+        0
+      ],
+      "footprint": [
+        128,
+        96
+      ],
+      "collide": [],
+      "source": "V1-original stairs x1241..1503 units 561..759 (8 px/bac), cheeks y599..766 (Opus CM-TERR)"
+    },
+    "stair_moon_60": {
+      "file": "stair_moon_60.png",
+      "layer": "ground",
+      "anchor": [
+        0,
+        0
+      ],
+      "footprint": [
+        60,
+        24
+      ],
+      "collide": [],
+      "source": "V1-original stairs x1241..1503 units 561..759 (8 px/bac), cheeks y599..766 (Opus CM-TERR)"
+    },
+    "stair_cheek_L": {
+      "file": "stair_cheek_L.png",
+      "layer": "base",
+      "anchor": [
+        0,
+        84
+      ],
+      "footprint": [
+        16,
+        64
+      ],
+      "collide": [
+        [
+          0,
+          -64,
+          16,
+          64
+        ]
+      ],
+      "source": "V1-original stairs x1241..1503 units 561..759 (8 px/bac), cheeks y599..766 (Opus CM-TERR)"
+    },
+    "stair_cheek_long_L": {
+      "file": "stair_cheek_long_L.png",
+      "layer": "base",
+      "anchor": [
+        0,
+        116
+      ],
+      "footprint": [
+        16,
+        96
+      ],
+      "collide": [
+        [
+          0,
+          -96,
+          16,
+          96
+        ]
+      ],
+      "source": "V1-original stairs x1241..1503 units 561..759 (8 px/bac), cheeks y599..766 (Opus CM-TERR)"
+    },
+    "stair_cheek_R": {
+      "file": "stair_cheek_R.png",
+      "layer": "base",
+      "anchor": [
+        0,
+        84
+      ],
+      "footprint": [
+        16,
+        64
+      ],
+      "collide": [
+        [
+          0,
+          -64,
+          16,
+          64
+        ]
+      ],
+      "source": "V1-original stairs x1241..1503 units 561..759 (8 px/bac), cheeks y599..766 (Opus CM-TERR)"
+    },
+    "stair_cheek_long_R": {
+      "file": "stair_cheek_long_R.png",
+      "layer": "base",
+      "anchor": [
+        0,
+        116
+      ],
+      "footprint": [
+        16,
+        96
+      ],
+      "collide": [
+        [
+          0,
+          -96,
+          16,
+          96
+        ]
+      ],
+      "source": "V1-original stairs x1241..1503 units 561..759 (8 px/bac), cheeks y599..766 (Opus CM-TERR)"
     }
   }
 }
