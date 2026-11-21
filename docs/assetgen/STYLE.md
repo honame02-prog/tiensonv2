@@ -56,3 +56,14 @@ Bão hoà cao, màu thuần (#00ff00, #ff0000), gradient trơn, viền đen kín
 
 ## 9. Kiểm (scout/Codex chấm chữ theo thẻ này)
 1) Đặt cạnh tài nguyên cũ có lạc tông không. 2) Nguồn sáng trên-trái nhất quán. 3) Viền chọn lọc, không viền đen kín. 4) Chân đúng mép dưới. 5) Chất liệu nền: không thấy đường nối hay hoa văn đối xứng ở ảnh 960×540. 6) Script chạy 2 lần cho cùng md5.
+
+## 10. Công thức công trình lớn (khoá 21/11, mẫu Tam Thanh điện TT2 được duyệt)
+Áp cho mọi công trình/sprite lớn (điện, lầu, cổng, nhà). Mẫu: `design/tienson/tam-thanh/TT2/` ở gốc dự án SkillFX (`src/prompt.txt`, `tools/build.py`, `metrics.md`).
+1. **Thiết kế dáng trước (TT0):** Codex tra mẫu + đề xuất 2–3 concept imagegen có mô tả và thông số; Opus chọn/hợp nhất; người dùng duyệt. Không gò theo nháp silhouette.
+2. **Vẽ trọn một bức:** imagegen sinh MỘT sprite pixel art hoàn chỉnh, tham chiếu = concept duyệt + sprite chuẩn `hall`; prompt nêu: lưới pixel vuông đều phóng ~3×, góc 3/4 cao như `hall` (thấy rộng mặt mái), ánh sáng trái-trên, mảng bóng lớn rõ, cấu trúc đối xứng, nền trong suốt, cấm dither/nhiễu/anime/3D/ngói vàng. Sửa dáng bằng lượt imagegen tinh chỉnh trên chính ảnh đó (một sửa đổi mỗi lượt), không vá bằng mã.
+3. **Hạ về cỡ thật bằng median theo ô** (không nearest từ ảnh mịn), alpha theo đa số, lượng tử RGB gần nhất về bảng `hall` (48 màu; rêu chọn dải olive của `hall`), bỏ điểm sáng cô lập.
+4. **Đối xứng cấu trúc:** lấy nửa trái làm chuẩn, gương sang phải, tô lại bóng nửa phải trong cùng nhóm vật liệu (giữ chữ biển).
+5. **Tách lớp:** `<ten>` (đủ), `<ten>_base` (thân + đài, dưới nhân vật), `<ten>_roof` (mái + băng cổ lầu, trên nhân vật), chia tại đáy dầm mái; base+roof = đủ từng pixel, alpha 0/255.
+6. **Kiểm:** K-A5 = 0 màu ngoài bảng; diện tích theo thẻ; 0 px vàng lưu ly (H 40–60°, S > 0,45, V > 0,6); đối xứng bản đồ vật liệu ≤ 2 %; script `--repro` tái tạo khớp SHA256. Ảnh so: `hall` | concept | sprite ×2 và ×1 cùng đáy.
+7. **Chấm tổng thể trước chi tiết:** "liền một bức, đẹp ngang concept, cùng bộ với `hall`?" Nền tảng sai thì làm lại, không vá.
+**Cấm (bài học TT1 21/11):** ghép cọ pixel cắt từ `hall` + hình học bằng mã → rời rạc, máy móc, bị chê dù mọi số đo đạt.
