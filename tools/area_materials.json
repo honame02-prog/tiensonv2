@@ -2,6 +2,7 @@
  "source": "public/assets/sect/ground_bake.png",
  "ghi_chu": "Mau cat tu anh nen Huyen Van Quan (toa do pixel [x,y,w,h]). Chon vung dong nhat: khong co mep tuong/bac/sinh, khong co pixel trong suot. Bake lat guong + tron 2 lop lech de giau duong noi. Dat: anh goc chi co mang dat nho -> 'recolor' = do sang cua co (tile 'grass') anh xa len bang mau lay tu mang dat that (vung palette).",
  "materials": {
+  "kit_slab": {"type": "texture", "piece": "C-R1/slab_256", "ghi_chu": "Tuan hoan modulo 1x, chi nap khi vung bake goi ten; khu phai khai bao kit C-R1"},
   "grass": {"type": "terrain", "set": "grass", "src": "public/assets/terrain/terrain.json", "ghi_chu": "o lat lien 128 px (khong lat guong), chon bien the theo hash(o, seed), wrap modulo"},
   "forest": {"type": "terrain", "set": "forest", "src": "public/assets/terrain/terrain.json", "ghi_chu": "nhu grass, bo forest"},
   "dirt": {"type": "terrain", "set": "dirt", "src": "public/assets/terrain/terrain.json", "ghi_chu": "nhu grass, bo dirt"},

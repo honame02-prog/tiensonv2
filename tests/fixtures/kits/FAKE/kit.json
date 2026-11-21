@@ -1,0 +1,91 @@
+{
+  "kit": "FAKE",
+  "pieces": {
+    "ground": {
+      "file": "ground.png",
+      "layer": "ground",
+      "anchor": [
+        16,
+        16
+      ],
+      "footprint": [
+        64,
+        64
+      ],
+      "collide": []
+    },
+    "base": {
+      "file": "base.png",
+      "layer": "base",
+      "anchor": [
+        32,
+        64
+      ],
+      "footprint": [
+        64,
+        12
+      ],
+      "collide": [
+        [
+          -32,
+          -12,
+          64,
+          12
+        ]
+      ]
+    },
+    "roof": {
+      "file": "roof.png",
+      "layer": "roof",
+      "anchor": [
+        32,
+        64
+      ],
+      "footprint": [
+        64,
+        12
+      ],
+      "collide": []
+    },
+    "gate": {
+      "file": "gate.png",
+      "layer": "base",
+      "anchor": [
+        64,
+        64
+      ],
+      "footprint": [
+        128,
+        12
+      ],
+      "collide": [
+        [
+          -64,
+          -12,
+          40,
+          12
+        ],
+        [
+          24,
+          -12,
+          40,
+          12
+        ]
+      ],
+      "pair": "gate_roof"
+    },
+    "gate_roof": {
+      "file": "gate_roof.png",
+      "layer": "roof",
+      "anchor": [
+        64,
+        80
+      ],
+      "footprint": [
+        128,
+        12
+      ],
+      "collide": []
+    }
+  }
+}

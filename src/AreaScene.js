@@ -8,6 +8,7 @@ import { FxPlayer } from './fx/FxPlayer.js';
 import { CUES } from './fx/cues/index.js';
 import { setupFxDemo } from './fx/fxdemo.js';
 import { tierAt, depthOf, tierStepOk, roofTargetAlpha, isRoofFrame, alphaMaskRects, ROOF_FADE_MS } from './areaLayers.js';
+import { kitCacheKey, kitTextureKey, kitPieceUrl, validateKit, resolveKitPieces } from './areaKits.js';
 
 const A = 'assets/sect/';              // tai nguyen dung chung (atlas sprite, decal, hinh nen troi, suong)
 const DEFAULT_AREA = 'huyen-van-quan';
@@ -42,6 +43,14 @@ export class AreaScene extends Phaser.Scene {
     this.load.once('filecomplete-json-' + key, () => {
       const ar = this.cache.json.get(key);
       this.load.image('ground:' + id, ar.ground);
+      for (const [kit, url] of Object.entries(ar.kits || {})) {
+        const kk = kitCacheKey(id, kit);
+        this.load.once('filecomplete-json-' + kk, () => {
+          const data = validateKit(kit, this.cache.json.get(kk));
+          for (const [name, p] of Object.entries(data.pieces)) this.load.image(kitTextureKey(id, kit, name), kitPieceUrl(url, p.file));
+        });
+        this.load.json(kk, url);
+      }
       for (const a of ar.atlases || []) {   // goi tai nguyen kem theo khu (vd cliff, forest): atlas + bang kich thuoc/foot
         this.load.atlas(a, `assets/${a}/${a}_atlas.png`, `assets/${a}/${a}_atlas.json`);
         this.load.json('spr:' + a, `assets/${a}/${a}_sprites.json`);
@@ -78,6 +87,16 @@ export class AreaScene extends Phaser.Scene {
     const solid = (x, y, w, h) => this.solids.add(this.add.zone(x, y, w, h));
     this.interactables = []; this.foliage = []; this.lanterns = []; this.ferns = [];
     this.makeAnims();
+    this.kitImages = [];
+    const kits = Object.fromEntries(Object.keys(meta.kits || {}).map(k => [k, this.cache.json.get(kitCacheKey(id, k))]));
+    for (const o of resolveKitPieces(meta, kits)) {
+      const p = o.piece;
+      const depth = p.layer === 'ground' ? -99 : p.layer === 'roof' ? H + 1 : depthOf(o.y, tierAt(meta, o.x, o.y));
+      const im = this.add.image(o.x - p.anchor[0], o.y - p.anchor[1], kitTextureKey(id, o.kit, o.name)).setOrigin(0).setDepth(depth);
+      im.setData('kitPiece', o.k); this.kitImages.push(im);
+      if (p.layer === 'roof') this.addRoof(im);
+      for (const [x, y, w, h] of p.collide) solid(o.x + x + w / 2, o.y + y + h / 2, w, h);
+    }
     for (const p of meta.props || []) {
       const k = p.key, x = Math.round(p.x), y = Math.round(p.y), ci = k.indexOf(':');
       if (ci > 0) {   // khoa dang "atlas:frame" (vd cliff:cliff_n_0, forest:canopy_2): kich thuoc/foot tu <atlas>_sprites.json, pivot giua mep duoi
@@ -224,6 +243,11 @@ export class AreaScene extends Phaser.Scene {
     // nen + du lieu cua khu nay: bo khoi cache (lan vao sau se nap lai) de texture khong tich luy qua cac khu
     if (this.textures.exists('ground:' + this.areaId)) this.textures.remove('ground:' + this.areaId);
     for (const a of this.meta?.atlases || []) { if (this.textures.exists(a)) this.textures.remove(a); this.cache.json.remove('spr:' + a); }
+    for (const k of Object.keys(this.meta?.kits || {})) {
+      const kk = kitCacheKey(this.areaId, k), kit = this.cache.json.get(kk);
+      for (const name of Object.keys(kit?.pieces || {})) this.textures.remove(kitTextureKey(this.areaId, k, name));
+      this.cache.json.remove(kk);
+    }
     this.cache.json.remove('area:' + this.areaId);
   }
 

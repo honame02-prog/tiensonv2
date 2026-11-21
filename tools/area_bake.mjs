@@ -6,11 +6,18 @@ import { dirname } from 'node:path';
 import { createHash } from 'node:crypto';
 import { decodePng, encodePng } from './png.mjs';
 import { formatArea } from './area_common.mjs';
+import { kitPieceUrl, validateKit, resolveKitPieces } from '../src/areaKits.js';
 
 const srcFile = process.argv[2];
 if (!srcFile) { console.error('Dung: node tools/area_bake.mjs tools/areas/<id>.src.json'); process.exit(2); }
 const t0 = Date.now();
 const src = JSON.parse(readFileSync(srcFile, 'utf8'));
+// Accept kits/pieces at source top level, or within area; omit absent fields for byte-identical legacy output.
+const kitFields = {};
+for (const k of ['kits', 'pieces']) if (src[k] !== undefined) kitFields[k] = src[k];
+const kitArea = { ...src.area, ...kitFields }, kits = {};
+for (const [id, url] of Object.entries(kitArea.kits || {})) kits[id] = validateKit(id, JSON.parse(readFileSync(`public/${url}`, 'utf8')));
+resolveKitPieces(kitArea, kits); // Fail before writing output on a broken reference.
 const matDef = JSON.parse(readFileSync(src.materials || 'tools/area_materials.json', 'utf8'));
 const B = src.bake, W = B.width, H = B.height, SEED = B.seed ?? 1;
 
@@ -39,6 +46,17 @@ function buildMaterial(name) {
   let t;
   if (d.type === 'flat') t = { w: 1, h: 1, flat: d.color, data: Buffer.from([...d.color, 255]) };   // mau phang (khu xam / blockout)
   else if (d.type === 'tile') t = cutTile(d.rect);
+  else if (d.type === 'texture') {
+    let file = d.file;
+    if (d.piece) {
+      const [id, name] = d.piece.split('/'), p = kits[id]?.pieces?.[name];
+      if (!p || p.layer !== 'ground') throw new Error('texture needs a ground kit piece: ' + d.piece);
+      file = `public/${kitPieceUrl(kitArea.kits[id], p.file)}`;
+    }
+    const im = decodePng(file);
+    for (let i = 0; i < im.w * im.h; i++) if (im.data[i * 4 + 3] !== 255) throw new Error('texture must be opaque: ' + file);
+    t = { ...im, repeat: true };
+  }
   else if (d.type === 'shade') { const b = buildMaterial(d.base); t = { w: b.w, h: b.h, data: Buffer.from(b.data) }; for (let i = 0; i < t.w * t.h; i++) for (let c = 0; c < 3; c++) t.data[i * 4 + c] = Math.max(0, Math.min(255, Math.round(t.data[i * 4 + c] * d.mul[c]))); }
   else if (d.type === 'recolor') {   // giu do sang tuong doi cua nen `base`, doi sang bang mau lay tu cac vung `palette` (vd dat nau tu vung dat that)
     const b = buildMaterial(d.base), pal = [];
@@ -64,6 +82,10 @@ const mirror = (v, n) => { v = ((v % (2 * n)) + 2 * n) % (2 * n); return v < n ?
 // lay mau chat lieu tai (x,y): lat guong; tron 2 lop lech nhau theo nhieu thap tan (dither) de giau duong nen/doi xung
 function matPix(m, x, y, out) {
   if (m.flat) { out[0] = m.flat[0]; out[1] = m.flat[1]; out[2] = m.flat[2]; return; }
+  if (m.repeat) {
+    const a = ((((y % m.h) + m.h) % m.h) * m.w + ((x % m.w) + m.w) % m.w) * 4;
+    out[0] = m.data[a]; out[1] = m.data[a + 1]; out[2] = m.data[a + 2]; return;
+  }
   if (m.tiles) {   // terrain: o 128 px lien, bien the theo hash(o, seed), wrap modulo
     const T = m.w, tx = Math.floor(x / T), ty = Math.floor(y / T), a = (((y % T) + T) % T * T + ((x % T) + T) % T) * 4, td = m.tiles[Math.floor(hash(tx, ty, SEED * 31 + m.id * 7 + 11) * m.tiles.length)];
     out[0] = td[a]; out[1] = td[a + 1]; out[2] = td[a + 2]; return;
@@ -199,7 +221,7 @@ for (const s of B.scatter || []) {
 props.sort((a, b) => a.y - b.y); objs.sort((a, b) => a.y - b.y);
 
 // ---------------------------------------------------------------- ghi
-const A = src.area, outDir = `public/assets/areas/${A.id}`;
+const A = kitArea, outArg = process.argv.indexOf('--out'), outDir = outArg < 0 ? `public/assets/areas/${A.id}` : process.argv[outArg + 1];
 mkdirSync(outDir, { recursive: true });
 const png = encodePng({ w: W, h: H, data: img }, `${outDir}/ground.png`);
 const area = { ...A, ground: `assets/areas/${A.id}/ground.png`, width: W, height: H, baked: true, walls: [], stairs: [], col, objs, props };
