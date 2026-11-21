@@ -108,6 +108,10 @@ def masonry(w, damp=False):
         occupied=np.where(a[y,:,3]>0)[0]
         for x in np.where(a[y,:,3]==0)[0]:
             a[y,x]=a[y,occupied[np.argmin(abs(occupied-x))]] if len(occupied) else C['stone']
+    if w==192:
+        # Long 6-cell runs: lift the brightest sub-70 face tone one step to stone.
+        lum=a[...,:3].mean(axis=2)
+        a[6:48][(abs(lum[6:48]-63)<1)&(a[6:48,:,3]>0),:3]=C['stone'][:3]
     im=Image.fromarray(a)
     d=ImageDraw.Draw(im)
     # Flat joining strip; chipped highlights use connected 2px clusters.
