@@ -1,0 +1,99 @@
+{
+  "kit": "CM-BAMBG",
+  "tile": 32,
+  "pieces": {
+    "bamboo_a_bg": {
+      "file": "bamboo_a_bg.png",
+      "layer": "base",
+      "anchor": [
+        0,
+        140
+      ],
+      "footprint": [
+        92,
+        20
+      ],
+      "collide": [
+        [
+          23,
+          -12,
+          16,
+          12
+        ],
+        [
+          46,
+          -15,
+          16,
+          13
+        ],
+        [
+          69,
+          -11,
+          5,
+          8
+        ]
+      ],
+      "source": "CM-TERR/bamboo_a + bamboo_a_roof composited (no roof pair)"
+    },
+    "bamboo_b_bg": {
+      "file": "bamboo_b_bg.png",
+      "layer": "base",
+      "anchor": [
+        0,
+        129
+      ],
+      "footprint": [
+        84,
+        20
+      ],
+      "collide": [
+        [
+          17,
+          -12,
+          5,
+          9
+        ],
+        [
+          31,
+          -14,
+          18,
+          14
+        ],
+        [
+          58,
+          -12,
+          5,
+          9
+        ]
+      ],
+      "source": "CM-TERR/bamboo_b + bamboo_b_roof composited (no roof pair)"
+    },
+    "bamboo_edge_bg": {
+      "file": "bamboo_edge_bg.png",
+      "layer": "base",
+      "anchor": [
+        0,
+        63
+      ],
+      "footprint": [
+        64,
+        20
+      ],
+      "collide": [
+        [
+          18,
+          -9,
+          15,
+          9
+        ],
+        [
+          42,
+          -8,
+          5,
+          7
+        ]
+      ],
+      "source": "CM-TERR/bamboo_edge + bamboo_edge_roof composited (no roof pair)"
+    }
+  }
+}
