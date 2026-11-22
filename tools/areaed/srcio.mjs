@@ -149,7 +149,9 @@ export function validateEdit({ id, fileId, obj, edits, kitsJson }) {
   for (const key of ['kits', 'pieces']) if (own(candidate, key) && candidate[key] === null) errors.push(`${key} cannot be null`);
   const loaded = Object.create(null);
   if (record(kits)) for (const [kit, url] of Object.entries(kits)) {
-    if (!validId(kit) || url !== `assets/kits/${kit}/kit.json`) {
+    // New kits must use the standard path; a kit already on disk with the same URL is kept as-is if it stays under public/assets/.
+    const kept = record(obj.kits) && obj.kits[kit] === url && typeof url === 'string' && /^assets\/[A-Za-z0-9_\/-]+\.json$/.test(url) && !url.includes('..');
+    if (!validId(kit) || (!kept && url !== `assets/kits/${kit}/kit.json`)) {
       errors.push(`Invalid kit URL for ${kit}`);
       continue;
     }
@@ -163,8 +165,9 @@ export function validateEdit({ id, fileId, obj, edits, kitsJson }) {
     const match = typeof piece.k === 'string' && /^([A-Za-z0-9_-]+)\/(.+)$/.exec(piece.k);
     if (!match || !record(kits) || !own(kits, match[1])) errors.push(`Unknown KIT in placement ${index}`);
     else if (!loaded[match[1]] || !own(loaded[match[1]].pieces, match[2])) errors.push(`Unknown kit piece ${piece.k}`);
-    if (!Number.isInteger(piece.x) || piece.x < 0 || piece.x > width ||
-        !Number.isInteger(piece.y) || piece.y < 0 || piece.y > height) errors.push(`Invalid coordinates in placement ${index}`);
+    // Existing sources hold fractional anchors (e.g. y 827.2) and pieces overhanging the edge; accept finite numbers within 1024 px of the area.
+    const M = 1024, inRange = (v, max) => typeof v === 'number' && Number.isFinite(v) && v >= -M && v <= max + M;
+    if (!inRange(piece.x, width) || !inRange(piece.y, height)) errors.push(`Invalid coordinates in placement ${index}`);
   });
   if (!errors.length) {
     try { resolveKitPieces({ kits, pieces }, loaded); }

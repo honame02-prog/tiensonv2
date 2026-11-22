@@ -175,11 +175,20 @@ test('validate rejects mismatched id, unknown edit keys and unsafe kit URLs', ()
   for (const url of ['../x', 'assets/kits/../kit.json', '/assets/kits/TEST/kit.json', 'assets/kits/OTHER/kit.json', 'assets/kits/TEST/kit.json?x', 'assets/areas/x/floor-kit.json']) {
     rejected({ edits: { kits: { TEST: url } } }, /URL/);
   }
+  // A non-standard URL already on disk for that kit is kept (HVQ-floor -> assets/areas/.../floor-kit.json); a changed or traversing one is not.
+  const legacy = { ...obj, kits: { TEST: 'assets/areas/test-area/floor-kit.json' } };
+  assert.equal(validateEdit({ ...args, obj: legacy, edits: { pieces: obj.pieces } }).ok, true);
+  rejected({ obj: legacy, edits: { kits: { TEST: 'assets/areas/other/floor-kit.json' } } }, /URL/);
+  rejected({ obj: { ...obj, kits: { TEST: 'assets/../x.json' } }, edits: { pieces: obj.pieces } }, /URL/);
 });
 
 test('validate rejects missing KIT, fractional/outside coordinates, missing piece', () => {
   rejected({ edits: { pieces: [{ k: 'OTHER/base', x: 1, y: 1 }] } }, /KIT/);
-  for (const [x, y] of [[1.5, 0], [-1, 0], [0, 81], [101, 0], [0, -1], [0, 1.5], [NaN, 0], [Infinity, 0], ['1', 0]]) {
+  // Fractional anchors and up to 1024 px overhang are legal (real HVQ data has y 827.2 and edge pieces).
+  for (const [x, y] of [[1.5, 0], [-1, 0], [0, 81], [-1024, 1104], [1124, 0.5]]) {
+    assert.equal(validateEdit({ ...args, edits: { pieces: [{ k: 'TEST/base', x, y }] } }).ok, true, `${x},${y}`);
+  }
+  for (const [x, y] of [[-1025, 0], [1125, 0], [0, 1105], [NaN, 0], [Infinity, 0], ['1', 0], [null, 0]]) {
     rejected({ edits: { pieces: [{ k: 'TEST/base', x, y }] } }, /coordinates/);
   }
   for (const k of ['TEST/missing', 'TEST/toString', 'TEST/__proto__', '/base', 'TEST/', 'base', null]) {
@@ -209,16 +218,19 @@ test('all real kit manifests used by valid URLs load through shared validator', 
   }
   let valid = 0, legacy = 0;
   for (const [file, text] of sources) {
-    const obj = JSON.parse(text), id = file.slice(0, -'.src.json'.length);
-    const result = validateEdit({ id, fileId: id, obj, edits: {}, kitsJson });
-    const invalidUrls = Object.entries(obj.kits ?? {}).filter(([key, url]) => url !== `assets/kits/${key}/kit.json`);
-    if (invalidUrls.length) {
-      assert.equal(result.ok, false);
-      for (const [key] of invalidUrls) assert(result.errors.includes(`Invalid kit URL for ${key}`));
-      legacy += invalidUrls.length;
-    } else { assert.deepEqual(result, { ok: true, errors: [] }); valid++; }
+    const obj = JSON.parse(text), id = file.slice(0, -'.src.json'.length), kj = { ...kitsJson };
+    // Legacy on-disk URLs (HVQ-floor) are accepted unchanged; load their manifests from the URL itself.
+    for (const [key, url] of Object.entries(obj.kits ?? {})) if (url !== `assets/kits/${key}/kit.json`) {
+      kj[key] = JSON.parse(readFileSync(new URL(`../../public/${url}`, import.meta.url), 'utf8')); legacy++;
+    }
+    assert.deepEqual(validateEdit({ id, fileId: id, obj, edits: {}, kitsJson: kj }), { ok: true, errors: [] }, file);
+    if (obj.pieces?.length) {
+      const moved = structuredClone(obj.pieces); moved[0].x = Math.round(moved[0].x) + 5;
+      assert.deepEqual(validateEdit({ id, fileId: id, obj, edits: { pieces: moved }, kitsJson: kj }), { ok: true, errors: [] }, file + ' move');
+    }
+    valid++;
   }
-  console.log(`REAL VALIDATION ${valid}/${sources.size} accepted; ${legacy} legacy URL(s) rejected per R3`);
+  console.log(`REAL VALIDATION ${valid}/${sources.size} accepted (${legacy} legacy URL kept unchanged)`);
 });
 
 test('real source files remained byte-identical on disk', () => {
