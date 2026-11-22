@@ -35,6 +35,9 @@ export class AreaScene extends Phaser.Scene {
     this.fxDemo = null; this.fxLab = null; this.pond = null; this.smoke = null; this.gateRoof = null; this.gatePos = null; this.hallPos = null; this.burnerPos = null;
     this.cloudBack = null; this.peaks = null; this.seaDrift = null; this.portalArmed = false;
     this.tier = 0; this.lastGood = null; this.roofs = [];   // tang dai hien tai (so thuc, noi suy tren bac) + tan/mai mo khi che (K-A4)
+    // [editor, chi dev] data.edit = {pieces, kits, at?, play?}: restart tu Area Editor voi du lieu dang sua trong bo nho (khong doc pieces/kits tu area.json). Khong co ?edit=1 -> editData = null, hanh vi nhu cu.
+    this.editData = import.meta.env.DEV ? data?.edit || null : null;
+    this.editFree = import.meta.env.DEV && sp.get('edit') === '1' && !this.editData?.play;   // che do Sua: dung theo doi + khoa nhan vat
   }
 
   preload() {
@@ -43,6 +46,7 @@ export class AreaScene extends Phaser.Scene {
     this.load.json(key, `assets/areas/${id}/area.json`);
     this.load.once('filecomplete-json-' + key, () => {
       const ar = this.cache.json.get(key);
+      if (this.editData) { ar.pieces = this.editData.pieces.map(p => ({ ...p })); ar.kits = { ...this.editData.kits }; }   // [editor] kit moi (chua co trong khu) cung duoc nap o vong for ben duoi
       this.load.image('ground:' + id, ar.ground);
       for (const [kit, url] of Object.entries(ar.kits || {})) {
         const kk = kitCacheKey(id, kit);
@@ -91,12 +95,8 @@ export class AreaScene extends Phaser.Scene {
     this.interactables = []; this.foliage = []; this.lanterns = []; this.ferns = [];
     this.makeAnims();
     this.kitImages = [];
-    const kits = Object.fromEntries(Object.keys(meta.kits || {}).map(k => [k, this.cache.json.get(kitCacheKey(id, k))]));
-    for (const o of resolveKitPieces(meta, kits)) {
-      const p = o.piece;
-      const depth = p.layer === 'ground' ? -99 : p.layer === 'roof' ? H + 1 : depthOf(o.y, tierAt(meta, o.x, o.y));
-      const im = this.add.image(o.x - p.anchor[0], o.y - p.anchor[1], kitTextureKey(id, o.kit, o.name)).setOrigin(0).setDepth(depth);
-      im.setData('kitPiece', o.k); this.kitImages.push(im);
+    for (const { o, i } of this.kitEntries()) {
+      const p = o.piece, im = this.makeKitImage(o, i);
       if (p.layer === 'roof') this.addRoof(im);
       for (const [x, y, w, h] of p.collide) solid(o.x + x + w / 2, o.y + y + h / 2, w, h);
     }
@@ -160,7 +160,8 @@ export class AreaScene extends Phaser.Scene {
     // ---------- hero
     const spn = this.spawnName && meta.spawns?.[this.spawnName] ? meta.spawns[this.spawnName] : (meta.spawns?.default || meta.spawn);
     const urlPos = !this.fromPortal && (sp.has('x') || sp.has('y'));
-    const sx = urlPos ? +(sp.get('x') || spn[0]) : spn[0], sy = urlPos ? +(sp.get('y') || spn[1]) : spn[1];
+    let sx = urlPos ? +(sp.get('x') || spn[0]) : spn[0], sy = urlPos ? +(sp.get('y') || spn[1]) : spn[1];
+    if (this.editData?.at) { sx = this.editData.at.x; sy = this.editData.at.y; }   // [editor] Choi thu: nhan vat xuat hien o tam camera
     this.player = this.physics.add.sprite(sx, sy, 'hero', 'dao_si_idle_down_00').setOrigin(32 / 64, 61 / 64);
     this.player.body.setSize(14, 8).setOffset(25, 54);
     this.player.on('animationcomplete', (anim) => { if (anim.key.startsWith('interact_')) this.endInteract(); else if (SKILL_ANIM.test(anim.key)) this.endSkill(); });
@@ -184,7 +185,7 @@ export class AreaScene extends Phaser.Scene {
     this.nightK = sp.has('night') || this.game.registry.get('night') ? 1 : 0; this.night = this.nightK > 0.5; this.cycle = sp.has('cycle');
     // ---------- camera
     const cam = this.cameras.main;
-    cam.setBounds(0, 0, W, H); cam.startFollow(this.player, true, 0.15, 0.15); cam.setRoundPixels(true);
+    cam.setBounds(0, 0, W, H); if (!this.editFree) cam.startFollow(this.player, true, 0.15, 0.15); cam.setRoundPixels(true);   // che do Sua: camera tu do (editor dieu khien)
     cam.setBackgroundColor(meta.bg || '#7d8c92'); cam.centerOn(sx, sy);
     // ---------- input + UI (UI la DOM, tao 1 lan cho ca game; callback tro toi scene hien tai)
     this.keys = this.input.keyboard.addKeys('W,A,S,D,UP,DOWN,LEFT,RIGHT,E,SPACE,SHIFT,N');
@@ -209,7 +210,31 @@ export class AreaScene extends Phaser.Scene {
     this.fx = new FxPlayer(this, { maxParticles: 300, isNight: () => this.night });
     const lab = sp.get('fxlab') === '1';
     if (lab || sp.get('fx') === '1') this.fxDemo = setupFxDemo(this);
-    if (lab) import('./fxlab/index.js').then(m => { if (this.scene.isActive()) this.fxLab = m.setupFxLab(this, this.fxDemo); });
+    if (import.meta.env.DEV && lab) import('./fxlab/index.js').then(m => { if (this.scene.isActive()) this.fxLab = m.setupFxLab(this, this.fxDemo); });
+    // [editor] Area Editor: chi dev + ?edit=1 (hoac restart tu editor); khong vao ban build
+    if (import.meta.env.DEV && (sp.get('edit') === '1' || this.editData)) import('./editor/index.js').then(m => { if (this.scene.isActive()) m.attach(this); });
+  }
+
+  // kit piece: moi anh gan chi so placement (meta.pieces[i]); anh mai tu sinh (resolveKitPieces) mang chi so cua placement cha -> editor chon/keo ca nhom
+  kitEntries() {
+    const meta = this.meta, id = this.areaId, given = meta.pieces || [];
+    const kits = Object.fromEntries(Object.keys(meta.kits || {}).map(k => [k, this.cache.json.get(kitCacheKey(id, k))]));
+    let pi = -1;
+    return resolveKitPieces(meta, kits).map(o => { const g = given[pi + 1]; if (g && g.k === o.k && g.x === o.x && g.y === o.y) pi++; return { o, i: pi }; });   // anh tu sinh khong trung placement nao -> giu pi cua cha
+  }
+
+  makeKitImage(o, i) {
+    const p = o.piece, depth = p.layer === 'ground' ? -99 : p.layer === 'roof' ? this.H + 1 : depthOf(o.y, tierAt(this.meta, o.x, o.y));
+    const im = this.add.image(o.x - p.anchor[0], o.y - p.anchor[1], kitTextureKey(this.areaId, o.kit, o.name)).setOrigin(0).setDepth(depth);
+    im.setData('kitPiece', o.k); im.setData('placement', i); this.kitImages.push(im);
+    return im;
+  }
+
+  // [editor] dung lai toan bo anh kit tu meta.pieces hien tai (them/xoa/hoan tac); khong dung collider/mai/den (chi xem truoc, xem DESIGN 5b.5)
+  rebuildKitImages() {
+    for (const im of this.kitImages) im.destroy();
+    this.kitImages = []; this.roofs = this.roofs.filter(r => r.img.active);
+    for (const { o, i } of this.kitEntries()) this.makeKitImage(o, i);
   }
 
   // tan/mai (K-A4): moi anh mai/tan dang ky o day; update() ha alpha khi bbox che than nhan vat (areaLayers.roofTargetAlpha)
@@ -226,6 +251,7 @@ export class AreaScene extends Phaser.Scene {
   }
 
   updateLayers(delta) {
+    if (this.editFree) return;   // [editor] che do Sua: nhan vat dung yen, khong mo mai
     const p = this.player, x = p.x, y = p.y;
     if (this.meta.tierRows) {
       const lg = this.lastGood, ok = (nx, ny) => tierStepOk(this.meta, lg.x, lg.y, nx, ny, this.tier);
@@ -403,7 +429,7 @@ export class AreaScene extends Phaser.Scene {
   }
 
   onInteract() {
-    if (this.busy) return;
+    if (this.busy || this.editFree) return;
     if (this.dialog) {
       if (this.typing) { this.typing = false; this.ui.setDialog(this.dialog.lines[this.dialog.i].who, this.full, true); return; }
       this.dialog.i++;
@@ -487,7 +513,7 @@ export class AreaScene extends Phaser.Scene {
       if (n !== this.lastN) { this.lastN = n; this.ui.setDialog(this.dialog.lines[this.dialog.i].who, this.full.slice(0, n), !this.typing); }
     }
     let vx = 0, vy = 0, run = false;
-    if (!this.dialog && !this.acting && !this.busy) {
+    if (!this.dialog && !this.acting && !this.busy && !this.editFree) {
       if (k.LEFT.isDown || k.A.isDown) vx -= 1; if (k.RIGHT.isDown || k.D.isDown) vx += 1;
       if (k.UP.isDown || k.W.isDown) vy -= 1; if (k.DOWN.isDown || k.S.isDown) vy += 1;
       run = k.SHIFT.isDown;
@@ -505,7 +531,7 @@ export class AreaScene extends Phaser.Scene {
     }
     this.wasMoving = len > 0;
     this.updateLayers(delta); this.shadow.setPosition(Math.round(p.x), Math.round(p.y) - 1);   // tang + depth + tan/mai mo (thay cho mo cong rieng 0.72)
-    if (!this.busy) for (const e of this.exits) if (e.r.contains(p.x, p.y)) { this.transition(e.title, e.text, e.to); break; }
+    if (!this.busy && !this.editFree) for (const e of this.exits) if (e.r.contains(p.x, p.y)) { this.transition(e.title, e.text, e.to); break; }
     // cong chuyen khu: cham vung la chuyen; sau khi vao khu, phai buoc ra khoi moi cong thi cong moi "len dan" (tranh nhay qua lai)
     let hit = null, near = null;
     for (const q of this.portals) {
@@ -513,14 +539,14 @@ export class AreaScene extends Phaser.Scene {
       else if (Phaser.Geom.Rectangle.Overlaps(Phaser.Geom.Rectangle.Inflate(Phaser.Geom.Rectangle.Clone(q.r), 56, 56), new Phaser.Geom.Rectangle(p.x - 1, p.y - 1, 2, 2))) near = near || q;
     }
     if (!hit) this.portalArmed = true;
-    if (hit && this.portalArmed && !this.busy) this.goArea(hit.to.area, hit.to.spawn);
+    if (hit && this.portalArmed && !this.busy && !this.editFree) this.goArea(hit.to.area, hit.to.spawn);
     // prompt
-    const it = !this.dialog && !this.busy && this.nearest();
+    const it = !this.dialog && !this.busy && !this.editFree && this.nearest();
     if (it) {
       const z = this.scale.zoom, r = this.game.canvas.getBoundingClientRect();
       const wy = it.key === 'hall' ? it.y - 70 : it.key === 'gate' ? it.y - 70 : it.y - 50;
       this.ui.setPrompt(this.TEXT[it.key]?.prompt || 'Xem', r.left + (it.x - cam.scrollX) * z, r.top + (wy - cam.scrollY) * z);
-    } else if (near && !this.busy && !this.dialog) {
+    } else if (near && !this.busy && !this.dialog && !this.editFree) {
       const z = this.scale.zoom, r = this.game.canvas.getBoundingClientRect(), q = near.r;
       this.ui.setPrompt('→ ' + (near.label || near.to.area), r.left + (q.centerX - cam.scrollX) * z, r.top + (q.y - 8 - cam.scrollY) * z, true);
     } else this.ui.setPrompt(null);
