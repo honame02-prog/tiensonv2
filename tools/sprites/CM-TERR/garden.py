@@ -16,6 +16,7 @@ import bamboo as bb
 OUT = bb.OUT
 W, H = 224, 200           # x 0..224 (mép khu -> tường viện dọc), y 516..716 (tới chân tường nguyệt môn)
 PATH_X = 138              # tâm lỗ nguyệt môn Tây (x thế giới, mảnh đặt x=0)
+PATH_X_E = 224 - (1166 - 1056)   # Đông: mảnh soi gương đặt x=1056, tâm lỗ cổng Đông x=1166 (cổng Đông = Tây +1028, không đối xứng)
 C = sorted(bb.concept_cols(), key=sum)
 SOIL = [C[0], C[2], C[4], C[6]]                 # đất ẩm tối
 MOSS = [C[9], C[12], C[15], C[18]]              # rêu / cỏ thấp
@@ -23,7 +24,7 @@ LEAFD = [C[21], C[23], C[25]]                   # lá trúc khô rơi
 slab = np.asarray(Image.open(OUT / 'slab_worn_128.png').convert('RGBA'))
 _sc = slab[slab[:, :, 3] > 0, :3].reshape(-1, 3)
 _lum = _sc.mean(1)
-STONE = [tuple(int(v) for v in _sc[np.argsort(_lum)[int(len(_lum) * q)]]) for q in (0.08, 0.35, 0.6, 0.85, 0.97)]
+STONE = [tuple(int(v) for v in _sc[np.argsort(_lum)[int(len(_lum) * q)]]) for q in (0.02, 0.08, 0.16, 0.3, 0.45)]   # v2: đá tối hơn, chìm vào đất (scout/Opus: v1 như vạch sáng)
 NAMES = ['garden_bed_w', 'garden_bed_e']
 
 
@@ -36,7 +37,7 @@ def noise(rnd, w, h, cell):
     return a * (1 - fx) * (1 - fy) + b * fx * (1 - fy) + c * (1 - fx) * fy + d * fx * fy
 
 
-def bed():
+def bed(path_x=PATH_X):
     rnd = random.Random('hvq-garden-v1')
     n1, n2, n3 = noise(rnd, W, H, 14), noise(rnd, W, H, 5), noise(rnd, W, H, 2)
     yy, xx = np.mgrid[0:H, 0:W].astype(float)
@@ -62,25 +63,40 @@ def bed():
         for k in range(rnd.randint(3, 4)):
             px, py = int(x + math.cos(a) * k), int(y + math.sin(a) * k * 0.5)
             if 0 <= px < W and 0 <= py < H: rgb[py, px] = c
-    # đá bước: so le quanh tâm lối, cách đều ~17 px, phiến dẹt bo góc, gờ sáng trên, bóng dưới
-    y = H - 9
-    i = 0
-    while y > 26:
-        cx = PATH_X + (5 if i % 2 else -5) + rnd.uniform(-2, 2)
-        rw, rh = rnd.uniform(9, 12), rnd.uniform(4.2, 5.6)
-        for py in range(int(y - rh - 2), int(y + rh + 3)):
-            for px in range(int(cx - rw - 2), int(cx + rw + 3)):
+    # đá bước v3 (scout v3f: v2 thành cột thẳng cách đều như thang): lối uốn chữ S, thẳng dần về
+    # tâm lỗ cổng ở phần dưới (nhìn qua lỗ nguyệt môn), khoảng cách 11-23 px, phiến xoay lệch,
+    # to nhỏ khác nhau, đôi chỗ thêm đá con lệch bên; đá chìm một phần dưới rêu.
+    def stone(cx, cy, rw, rh, ang):
+        ca, sa = math.cos(ang), math.sin(ang)
+        R = int(max(rw, rh)) + 3
+        for py in range(int(cy) - R, int(cy) + R + 1):
+            for px in range(int(cx) - R, int(cx) + R + 1):
                 if not (0 <= px < W and 0 <= py < H): continue
-                d = ((px - cx) / rw) ** 4 + ((py - y) / rh) ** 4
-                ds = ((px - cx) / rw) ** 4 + ((py - y - 1.6) / rh) ** 4
+                u, v = (px - cx) * ca + (py - cy) * sa, -(px - cx) * sa + (py - cy) * ca
+                d = (u / rw) ** 4 + (v / rh) ** 4 + (n3[py, px] - 0.5) * 0.25
+                us, vs = u - 1.6 * sa, v - 1.6 * ca
+                ds = (us / rw) ** 4 + (vs / rh) ** 4
                 if d <= 1:
-                    k = 3 if py < y - rh * 0.45 else (2 if n3[py, px] > 0.45 else 1)
-                    if py >= y + rh * 0.55: k = 0
-                    rgb[py, px] = STONE[k]
+                    k = 3 if v < -rh * 0.45 else (2 if n3[py, px] > 0.45 else 1)
+                    if v >= rh * 0.55: k = 0
+                    rgb[py, px] = MOSS[rnd.choice((1, 1, 2)) % len(MOSS)] if (n2[py, px] > 0.6 and k < 3) else STONE[k]
                     m[py, px] = True
                 elif ds <= 1.08:
                     rgb[py, px] = SOIL[0]; m[py, px] = True
-        y -= rnd.uniform(15, 18); i += 1
+
+    y = H - 9
+    i = 0
+    phase = rnd.uniform(0, math.pi)
+    while y > 22:
+        bend = min(1.0, max(0.0, (150 - y) / 70))          # dưới y150 (lỗ cổng): gần thẳng tâm
+        cx = path_x + bend * 13 * math.sin(phase + y / 34) + (1 if i % 2 else -1) * rnd.uniform(2, 5)
+        rw, rh = rnd.uniform(6, 12.5), rnd.uniform(3.5, 6.2)
+        stone(cx, y, rw, rh, rnd.uniform(-0.38, 0.38))
+        if rnd.random() < 0.3:                              # đá con lệch bên
+            side = 1 if rnd.random() < 0.5 else -1
+            stone(cx + side * (rw + rnd.uniform(3, 6)), y + rnd.uniform(-4, 4),
+                  rnd.uniform(2.5, 4), rnd.uniform(2, 3), rnd.uniform(-0.6, 0.6))
+        y -= rnd.uniform(11, 23); i += 1
     # khử điểm đặc cô lập
     pm = np.pad(m, 1)
     m &= (pm[:-2, 1:-1] | pm[2:, 1:-1] | pm[1:-1, :-2] | pm[1:-1, 2:])
@@ -88,9 +104,9 @@ def bed():
 
 
 def save():
-    rgb, m = bed()
     kit = json.loads((OUT / 'kit.json').read_text(encoding='utf-8'))
     for name, flip in (('garden_bed_w', False), ('garden_bed_e', True)):
+        rgb, m = bed(PATH_X_E if flip else PATH_X)
         r, a = (rgb[:, ::-1], m[:, ::-1]) if flip else (rgb, m)
         img = np.dstack([np.where(a[..., None], r, 0), np.where(a, 255, 0)]).astype(np.uint8)
         Image.fromarray(img, 'RGBA').save(OUT / f'{name}.png', optimize=False)

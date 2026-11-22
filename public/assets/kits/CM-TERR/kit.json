@@ -390,7 +390,7 @@
         ]
       ],
       "pair": "bamboo_a_roof",
-      "source": "V1-original bamboo grove x0..280 y0.. canopy 95px (Opus CM-TERR)"
+      "source": "Opus ve bang ma bamboo_draw.py v3e (mau rung truc concept C)"
     },
     "bamboo_a_roof": {
       "file": "bamboo_a_roof.png",
@@ -404,7 +404,7 @@
         20
       ],
       "collide": [],
-      "source": "V1-original bamboo grove x0..280 y0.. canopy 95px (Opus CM-TERR)"
+      "source": "Opus ve bang ma bamboo_draw.py v3e (mau rung truc concept C)"
     },
     "bamboo_b": {
       "file": "bamboo_b.png",
@@ -438,7 +438,7 @@
         ]
       ],
       "pair": "bamboo_b_roof",
-      "source": "V1-original bamboo grove x120..376 y0.. canopy 95px (Opus CM-TERR)"
+      "source": "Opus ve bang ma bamboo_draw.py v3e (mau rung truc concept C)"
     },
     "bamboo_b_roof": {
       "file": "bamboo_b_roof.png",
@@ -452,7 +452,7 @@
         20
       ],
       "collide": [],
-      "source": "V1-original bamboo grove x120..376 y0.. canopy 95px (Opus CM-TERR)"
+      "source": "Opus ve bang ma bamboo_draw.py v3e (mau rung truc concept C)"
     },
     "bamboo_edge": {
       "file": "bamboo_edge.png",
@@ -480,7 +480,7 @@
         ]
       ],
       "pair": "bamboo_edge_roof",
-      "source": "V1-original bamboo grove x250..445 y40.. canopy 65px mirrored (Opus CM-TERR)"
+      "source": "Opus ve bang ma bamboo_draw.py v3e (mau rung truc concept C)"
     },
     "bamboo_edge_roof": {
       "file": "bamboo_edge_roof.png",
@@ -494,7 +494,105 @@
         20
       ],
       "collide": [],
-      "source": "V1-original bamboo grove x250..445 y40.. canopy 65px mirrored (Opus CM-TERR)"
+      "source": "Opus ve bang ma bamboo_draw.py v3e (mau rung truc concept C)"
+    },
+    "garden_bed_w": {
+      "file": "garden_bed_w.png",
+      "layer": "ground",
+      "anchor": [
+        0,
+        0
+      ],
+      "footprint": [
+        224,
+        200
+      ],
+      "collide": [],
+      "source": "Opus garden.py: dat reu + da buoc toi long nguyet mon"
+    },
+    "garden_bed_e": {
+      "file": "garden_bed_e.png",
+      "layer": "ground",
+      "anchor": [
+        0,
+        0
+      ],
+      "footprint": [
+        224,
+        200
+      ],
+      "collide": [],
+      "source": "Opus garden.py: dat reu + da buoc toi long nguyet mon (soi guong)"
+    },
+    "edge_w_a": {
+      "file": "edge_w_a.png",
+      "layer": "base",
+      "anchor": [
+        0,
+        223
+      ],
+      "footprint": [
+        96,
+        20
+      ],
+      "collide": [],
+      "source": "Opus edge.py: vach da + co thu mep Dong/Tay (so do 15 muc 1.4)"
+    },
+    "edge_e_a": {
+      "file": "edge_e_a.png",
+      "layer": "base",
+      "anchor": [
+        0,
+        223
+      ],
+      "footprint": [
+        96,
+        20
+      ],
+      "collide": [],
+      "source": "Opus edge.py: vach da + co thu mep Dong/Tay (so do 15 muc 1.4) (soi guong)"
+    },
+    "edge_w_b": {
+      "file": "edge_w_b.png",
+      "layer": "base",
+      "anchor": [
+        0,
+        223
+      ],
+      "footprint": [
+        96,
+        20
+      ],
+      "collide": [],
+      "source": "Opus edge.py: vach da + co thu mep Dong/Tay (so do 15 muc 1.4)"
+    },
+    "edge_e_b": {
+      "file": "edge_e_b.png",
+      "layer": "base",
+      "anchor": [
+        0,
+        223
+      ],
+      "footprint": [
+        96,
+        20
+      ],
+      "collide": [],
+      "source": "Opus edge.py: vach da + co thu mep Dong/Tay (so do 15 muc 1.4) (soi guong)"
+    },
+    "edge_fill": {
+      "file": "edge_fill.png",
+      "layer": "ground",
+      "anchor": [
+        0,
+        0
+      ],
+      "footprint": [
+        48,
+        40
+      ],
+      "collide": [],
+      "source": "Opus edge.py: mieng dat lap nen xanh le o mep"
     }
   }
 }
