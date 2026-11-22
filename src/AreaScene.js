@@ -210,7 +210,7 @@ export class AreaScene extends Phaser.Scene {
     this.fx = new FxPlayer(this, { maxParticles: 300, isNight: () => this.night });
     const lab = sp.get('fxlab') === '1';
     if (lab || sp.get('fx') === '1') this.fxDemo = setupFxDemo(this);
-    if (import.meta.env.DEV && lab) import('./fxlab/index.js').then(m => { if (this.scene.isActive()) this.fxLab = m.setupFxLab(this, this.fxDemo); });
+    if (lab) import('./fxlab/index.js').then(m => { if (this.scene.isActive()) this.fxLab = m.setupFxLab(this, this.fxDemo); });
     // [editor] Area Editor: chi dev + ?edit=1 (hoac restart tu editor); khong vao ban build
     if (import.meta.env.DEV && (sp.get('edit') === '1' || this.editData)) import('./editor/index.js').then(m => { if (this.scene.isActive()) m.attach(this); });
   }

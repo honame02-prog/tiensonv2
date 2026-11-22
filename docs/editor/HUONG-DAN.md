@@ -20,7 +20,7 @@ Không có `edit=1` thì game chạy như bình thường.
 | Kéo vùng trống, hoặc kéo chuột phải (kể cả trên mảnh) | chọn theo khung (mảnh có điểm neo nằm trong khung) |
 | Kéo mảnh | dời, bám 1 px. Giữ Ctrl: bám lưới 8 px. Ctrl+Shift: lưới 32 px |
 | Chuột giữa kéo, hoặc Space+kéo | di chuyển camera |
-| Lăn chuột | zoom quanh con trỏ: 0.25× · 0.5× · 1× … 6× (nhãn mức zoom hiện trên thanh trên) |
+| Lăn chuột | zoom quanh con trỏ theo bậc 0.25× · 0.5× · 1× · 2× · 3× · 4× · 5× · 6× (nhãn mức zoom hiện trên thanh trên); phím 0 vừa khung cả khu có thể ra mức lẻ, nhỏ nhất 0.1× |
 | Giữ C + kéo | dời ảnh concept (khi chưa khoá) |
 Đường hồng hiện ra khi chân (điểm neo) mảnh đang kéo lệch không quá 2 px so với mảnh khác theo x hoặc y.
 
@@ -50,13 +50,13 @@ Menu "Lớp phủ" bật/tắt: lưới 32, `col`, màu tầng, va chạm piece,
 
 ## Khôi phục bản sao lưu
 Mỗi lần lưu, bản trước đó của cả bộ ba (`<id>.src.json`, `area.json`, `ground.png`) được cất ở `tools/areas/.bak/<id>/<YYYYMMDD-HHMMSS-mmm>/` (giờ UTC, giữ 30 bản mới nhất, thư mục này gitignore).
-**Trong editor:** nút "Sao lưu" trên thanh trên liệt kê các bản (mới nhất trên cùng, kèm thời gian). Bấm "Khôi phục", xác nhận trong hộp thoại của editor: bộ ba được ghi lại nguyên văn (không bake lại), bản hiện tại được sao lưu trước, rồi cảnh tải lại từ đĩa. Thay đổi chưa lưu sẽ mất.
+**Trong editor:** nút "Sao lưu" trên thanh trên liệt kê các bản (mới nhất trên cùng, kèm thời gian). Bấm "Khôi phục", xác nhận trong hộp thoại của editor: bộ ba được ghi lại nguyên văn (không bake lại), bản hiện tại được sao lưu trước, rồi cảnh tải lại từ đĩa. Thay đổi chưa lưu sẽ mất. Khôi phục có kiểm xung đột như khi lưu: nếu `src` trên đĩa đã đổi so với bản editor đang giữ (tab khác vừa lưu), máy chủ trả 409, không ghi gì và editor báo "XUNG ĐỘT" (bấm "Tải lại từ đĩa" rồi thử lại). Bản sao lưu có `ground.png` hỏng/cụt (sai chữ ký, CRC chunk hoặc thiếu IEND) bị từ chối.
 **Bằng tay** (khi không mở được editor): sao chép ba file từ thư mục bản sao lưu về `tools/areas/<id>.src.json` và `public/assets/areas/<id>/{area.json,ground.png}`, hoặc chép riêng src rồi chạy `node tools/area_bake.mjs tools/areas/<id>.src.json`.
-Máy chủ dev tự chạy `recoverJournals` khi khởi động (khôi phục nếu lần lưu trước hỏng giữa chừng) và chỉ phục vụ `/__areaed/*` sau khi xong.
+Máy chủ dev tự chạy `recoverJournals` khi khởi động (khôi phục nếu lần lưu trước hỏng giữa chừng) và chỉ phục vụ `/__areaed/*` sau khi xong; nếu recover lỗi thì mọi `/__areaed/*` trả 503 (`code: recover`) cho tới khi sửa journal và khởi động lại.
 
 ## Bảo mật dev-server
 `/__areaed/*` chỉ nhận Host là `localhost`, `127.0.0.1` hoặc `[::1]` kèm đúng cổng đang chạy (chống DNS rebinding) và, nếu có header Origin, phải cùng nguồn; sai trả 403. Truy cập qua IP LAN: đặt biến môi trường `AREAED_ALLOW_HOSTS=192.168.1.5:5173` khi chạy vite.
 
 ## Kiểm thử
-`node tools/editor_test.mjs` dựng bản sao tạm của repo (cổng 5190) và chạy E2E (chạy một mạch mất vài phút vì bake HVQ 2 lần). Chia được 7 lượt: `--part=1` … `--part=7` (mỗi lượt dưới 60 giây, dùng chung bản sao tạm, chạy theo thứ tự; lượt 7 dọn dẹp): 1-2 lưu/bake + trả về đúng byte, 3 thêm/xoá/chơi thử/xung đột/không ?edit, 4 zoom + banner nháp + concept, 5 lớp phủ/khoá kit/kéo thả/chọn khung/Alt/phím tắt/panel/Kiểm tra/guide, 6 khôi phục sao lưu + chụp ảnh (`records/editor/ui-1x.png`, `ui-overview.png`), 7 bảo mật Host/Origin + chọn theo ảnh trúng + làm tròn + gộp nudge + token phiên lưu.
+`node tools/editor_test.mjs` dựng bản sao tạm của repo (cổng 5190) và chạy E2E (chạy một mạch mất vài phút vì bake HVQ 2 lần). Chia được 7 lượt: `--part=1` … `--part=7` (mỗi lượt dưới 60 giây, dùng chung bản sao tạm, chạy theo thứ tự; lượt 7 dọn dẹp). `--part=1` ghi marker trong thư mục tạm (mã nguồn HEAD+diff và các lượt đã xong); `--part=N` (N>1) thiếu marker, khác mã nguồn hoặc lượt N-1 chưa xong thì thoát mã 2 với "chay --part=1 truoc". Chạy lẻ một lượt chỉ in `EDITOR E2E PART N PASS (k kiem tra)`; chỉ chạy một mạch (không `--part`) mới in `EDITOR E2E PASS (n kiem tra)`. Kiểm plugin riêng: `node tools/areaed/plugin_test.mjs`: 1-2 lưu/bake + trả về đúng byte, 3 thêm/xoá/chơi thử/xung đột/không ?edit, 4 zoom + banner nháp + concept, 5 lớp phủ/khoá kit/kéo thả/chọn khung/Alt/phím tắt/panel/Kiểm tra/guide, 6 khôi phục sao lưu + chụp ảnh (`records/editor/ui-1x.png`, `ui-overview.png`), 7 bảo mật Host/Origin + chọn theo ảnh trúng + làm tròn + gộp nudge + token phiên lưu.
 API cho test: `window.__areaed` (`state`, `select`, `moveBy`, `add`, `remove`, `duplicate`, `undo`, `redo`, `save`, `togglePlay`, `centerOn`, `fit`, `setLayer`, `hitsAt`, `pickAt`, `check`).

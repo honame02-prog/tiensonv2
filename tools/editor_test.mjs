@@ -7,6 +7,8 @@ import { cpSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync, symlinkSyn
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { execFileSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { chromium, packagePath } from './area_tool_runtime.mjs';
 
 const ID = 'huyen-van-quan-v2', PORT = 5190;
@@ -15,6 +17,13 @@ const check = (name, ok, extra = '') => { assert.ok(ok, name + ' ' + extra); che
 
 // ---------- ban sao repo tam
 const partArg = process.argv.find(a => a.startsWith('--part='))?.slice(7), PART = partArg ? +partArg : 0, run = n => !PART || PART === n, LAST = !PART || PART === 7;
+// marker luot: part 1 ghi {fingerprint ma nguon, cac luot da xong}; part N>1 phai co marker cung ma nguon va luot N-1 da xong (khong chay lai tren fixture cu / ma khac)
+const markerFile = join(tmpdir(), 'areaed-e2e-marker.json');
+const fingerprint = () => { const g = a => { try { return execFileSync('git', a, { cwd: resolve('.'), encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'], maxBuffer: 1 << 28 }); } catch { return 'nogit'; } }; return createHash('sha1').update(g(['rev-parse', 'HEAD'])).update(g(['diff', 'HEAD'])).digest('hex'); };
+const readMarker = () => { try { return JSON.parse(readFileSync(markerFile, 'utf8')); } catch { return null; } };
+if (partArg !== undefined && !(Number.isInteger(PART) && PART >= 1 && PART <= 7)) { console.error('--part phai la 1..7'); process.exit(2); }
+const FP = PART ? fingerprint() : '';
+if (PART > 1) { const mk = readMarker(); if (!mk || mk.fp !== FP || !mk.done.includes(PART - 1)) { console.error(`EDITOR E2E: chay --part=1 truoc (marker ${!mk ? 'thieu' : mk.fp !== FP ? 'khac ma nguon (HEAD/diff)' : 'chua xong luot ' + (PART - 1)})`); process.exit(2); } }
 // thu muc concept gia (plugin doc AREAED_CONCEPT_DIR); ban sao tam khong co design/tienson
 const cdir = join(tmpdir(), 'areaed-e2e-concepts'); mkdirSync(join(cdir, 'sub'), { recursive: true });
 cpSync(join(repo0(), 'public/assets/mist.png'), join(cdir, 'sub/c1.png')); process.env.AREAED_CONCEPT_DIR = cdir;
@@ -26,6 +35,7 @@ if (PART <= 1) {
   for (const f of ['index.html', 'vite.config.js', 'package.json']) cpSync(join(repo, f), join(tmp, f));
   symlinkSync(realpathSync(join(repo, 'node_modules')), join(tmp, 'node_modules'), 'junction');
   cpSync(join(tmp, 'tools/areas/huyen-van-quan-v2.src.json'), join(tmp, 'original.src.json'));
+  if (PART === 1) writeFileSync(markerFile, JSON.stringify({ fp: FP, done: [] }));
 }
 const srcPath = join(tmp, `tools/areas/${ID}.src.json`), areaPath = join(tmp, `public/assets/areas/${ID}/area.json`);
 const original = readFileSync(join(tmp, 'original.src.json'), 'utf8');
@@ -437,6 +447,16 @@ try {
     check('(2) hop thoai xac nhan la DOM cua editor (khong window.confirm)', !dialogs.includes('confirm') && await page.locator('#aed [data-cf="1"]').isVisible());
     await page.click('#aed [data-cf="0"]');
     check('(2) Huy: khong doi file', readFileSync(srcPath, 'utf8') !== s1);
+    { const before = readFileSync(srcPath, 'utf8'), nB = lst.list.length;
+      const rs = await fetch(base + '__areaed/restore', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: ID, name: want, baseHash: '0'.repeat(64) }) }), rj = await rs.json();
+      check('(2) restore voi baseHash cu -> 409 conflict, khong ghi gi', rs.status === 409 && rj.code === 'conflict' && readFileSync(srcPath, 'utf8') === before && (await (await fetch(base + `__areaed/backups?id=${ID}`)).json()).list.length === nB, JSON.stringify(rj).slice(0, 120));
+      await page.route('**/__areaed/restore', route => route.fulfill({ status: 409, contentType: 'application/json', body: JSON.stringify({ ok: false, code: 'conflict', error: 'Source changed on disk' }) }));
+      await page.click(`#aed [data-a=bkrestore][data-name="${want}"]`); await page.waitForSelector('#aed [data-cf="1"]'); await page.click('#aed [data-cf="1"]');
+      await page.waitForFunction(() => /XUNG/.test(document.querySelector('#aed .dlg .box')?.textContent || ''), null, { timeout: 10000 });
+      check('(2) UI hien "XUNG DOT" khi restore tra 409', /XUNG/.test(await page.locator('#aed .st').textContent()));
+      await page.unroute('**/__areaed/restore'); await page.click('#aed [data-a=bkclose]');
+      await page.click('#aed [data-a=bak]');
+    }
     await page.waitForSelector(`#aed [data-a=bkrestore][data-name="${want}"]`);
     await page.click(`#aed [data-a=bkrestore][data-name="${want}"]`); await page.waitForSelector('#aed [data-cf="1"]');
     const nav = page.waitForEvent('load', { timeout: 30000 });
@@ -533,11 +553,21 @@ try {
     await page.unroute('**/__areaed/save');
     for (const k of await ev(() => Object.keys(localStorage).filter(k => k.startsWith('areaed:draft:')))) await ev(k => localStorage.removeItem(k), k);
     await reopen();
+
+    // (XSS) ten piece/kit chua HTML phai duoc escape khi render thu vien
+    { const nErr = errors.length, XN = '<img src=x onerror=window.__xss=1>';
+      await page.route('**/__areaed/kits', async route => { const real = await (await route.fetch()).json(); real.push({ kit: 'XSSKIT', url: 'assets/kits/XSSKIT/kit.json', pieces: { [XN]: { file: 'x.png', layer: 'base', anchor: [0, 0], w: 8, h: 8 } } }); await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(real) }); });
+      await reopen();
+      await page.fill('#aed .q', 'onerror'); await page.waitForTimeout(500);
+      const x = await ev(() => ({ xss: window.__xss, imgs: document.querySelectorAll('#aed .list b img').length, text: document.querySelector('#aed .list b')?.textContent }));
+      check('(XSS) ten piece <img onerror> chi hien thanh chu, window.__xss undefined', x.xss === undefined && x.imgs === 0 && x.text === XN, JSON.stringify(x));
+      await page.unroute('**/__areaed/kits'); await reopen(); errors.length = nErr;
+    }
   }
   const realErr = errors.filter(e => !/status of 409/.test(e));   // 409 la phan hoi conflict mong doi cua test (e)
   check('khong loi console/pageerror o luot nay', realErr.length === 0, JSON.stringify(realErr.slice(0, 3)));
   console.log(PART ? `\nEDITOR E2E PART ${PART} PASS (${checks} kiem tra)` : `\nEDITOR E2E PASS (${checks} kiem tra)`);
-  if (PART === 7) console.log('EDITOR E2E PASS (7 luot)');
+  if (PART) { const mk = readMarker() || { fp: FP, done: [] }; mk.done = [...new Set([...mk.done, PART])]; writeFileSync(markerFile, JSON.stringify(mk)); if (PART === 7) rmSync(markerFile, { force: true }); }   // chi chay mot mach (khong --part) moi in dong PASS tong
 } catch (e) {
   console.error('EDITOR E2E FAIL:', e.message);
   process.exitCode = 1;

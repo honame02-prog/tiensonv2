@@ -1,0 +1,16 @@
+task_id: ED5F — sửa 6 điểm sau review Codex ED5R (R3)
+repo: D:\SkillFX_TuThienChi_HoaLien\.codex-worktrees\tiensonv2-editor (nhánh editor, HEAD e488286). Đọc .agents/codex/ED5R/report.md.
+write_scope: vite.config.js, tools/areaed/txn.mjs, tools/areaed/txn_test.mjs, src/editor/*.js, src/AreaScene.js (chỉ dòng fxlab), tools/editor_test.mjs, tools/areaed/plugin_test.mjs (mới), docs/editor/HUONG-DAN.md.
+
+Sửa:
+1. vite.config.js:43 — recoverJournals reject đang bị .catch nuốt → handler vẫn phục vụ. Sửa: ghi lại lỗi; mọi handler /__areaed/* sau `await ready` nếu recover lỗi thì trả 503 {ok:false, code:'recover', error}. Test mới tools/areaed/plugin_test.mjs: dựng root tạm chứa stub tools/areaed/txn.mjs (recoverJournals trả Promise do test điều khiển) + srcio.mjs thật nếu cần; gọi configureServer của plugin areaEditor với server giả (middlewares.use thu handler, httpServer.address() trả port), bắn request giả (Host 127.0.0.1:port). Assert: (a) request đến khi recover còn treo → handler CHƯA trả lời; resolve → mới trả 200; (b) recover reject → 503; (c) Host sai → 403. Để làm được có thể phải export plugin factory từ vite.config.js (export const areaEditor) — được phép, không đổi hành vi. In `PLUGIN PASS (n)`.
+2. Restore phải kiểm xung đột: client (src/editor) gửi baseHash hiện có; server/ txn.restoreBackup(root,id,name,{baseHash}) so hash src trên đĩa TRONG khoá giao dịch; lệch → {ok:false, code:'conflict'} HTTP 409, không ghi gì. UI hiện "XUNG ĐỘT" như khi lưu. Thêm case vào txn_test.mjs.
+3. txn.mjs checkTriple:135 — ground.png chỉ kiểm 8 byte chữ ký. Thêm: duyệt chunk PNG tới IEND, kiểm CRC từng chunk (zlib.crc32 nếu node có, không thì bảng CRC tự viết), byte cuối là IEND. Hỏng → 'invalid', không ghi. Case txn_test: backup ground.png cắt cụt / chỉ 8 byte chữ ký → restore bị từ chối, file đang dùng nguyên vẹn.
+4. src/editor/panel.js (dòng ~82, 90, 104 và mọi chỗ nối chuỗi vào innerHTML/openBox): escape HTML (& < > " ') cho tên piece, kit, tên backup, thông báo lỗi, id. Một hàm esc dùng chung. Thêm 1 kiểm trong editor_test (part 5 hoặc 7): kit giả có tên piece `<img src=x onerror=window.__xss=1>` → sau render window.__xss undefined.
+5. tools/editor_test.mjs --part: part 1 ghi marker vào thư mục tạm (HEAD hash + danh sách part đã xong); part N>1 thiếu marker, khác HEAD, hoặc part N-1 chưa xong → thoát mã 2 với thông báo "chay --part=1 truoc". Chạy lẻ một part thì in `EDITOR E2E PART N PASS (k kiem tra)`, chỉ chạy một mạch mới in `EDITOR E2E PASS (n kiem tra)`.
+6. src/AreaScene.js:213 — trả lại `if (lab) import('./fxlab/index.js')...` như commit 30d8ec1 (bỏ `import.meta.env.DEV &&` ở dòng fxlab; dòng editor giữ DEV).
+7. HUONG-DAN.md: dòng zoom ghi đúng mức thật (code: 0.17–6× ? kiểm trong src/editor), ghi chú restore xung đột, ghi chú part.
+
+done_when (tự chạy, dán đuôi log): node tools/areaed/srcio_test.mjs → SRCIO PASS; node tools/areaed/txn_test.mjs → TXN PASS; node tools/areaed/plugin_test.mjs → PLUGIN PASS; node tools/editor_test.mjs (một mạch, chạy nền, vài phút) → EDITOR E2E PASS (>=105 kiem tra); npx vite build --outDir records/editor/build-check rồi grep __areaed = 0 và có chunk fxlab.
+do_not: không commit, không đụng dev server areas-v2 (cổng 5173/5176), không kill tiến trình không phải của mình, không sửa file ngoài write_scope.
+Trả: diff tóm tắt từng mục + đuôi log thật.

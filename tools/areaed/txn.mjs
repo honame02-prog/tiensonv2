@@ -128,11 +128,29 @@ async function assertUnchanged(ctx, expected) {
   }
 }
 
+const crcTable = (() => { const t = new Uint32Array(256); for (let n = 0; n < 256; n++) { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } return t; })();
+function crc32(buf) { let c = 0xffffffff; for (const b of buf) c = crcTable[(c ^ b) & 255] ^ (c >>> 8); return (c ^ 0xffffffff) >>> 0; }
+// Walk every PNG chunk to IEND and verify each CRC; the file must end exactly at IEND.
+function checkPng(buf) {
+  if (!buf.subarray(0, 8).equals(pngSignature)) throw new Error('Invalid PNG signature');
+  let pos = 8, first = true;
+  for (;;) {
+    if (pos + 12 > buf.length) throw new Error('Truncated PNG');
+    const len = buf.readUInt32BE(pos), type = buf.toString('latin1', pos + 4, pos + 8), end = pos + 12 + len;
+    if (end > buf.length) throw new Error('Truncated PNG chunk');
+    if (first && type !== 'IHDR') throw new Error('PNG must start with IHDR');
+    first = false;
+    if (crc32(buf.subarray(pos + 4, pos + 8 + len)) !== buf.readUInt32BE(pos + 8 + len)) throw new Error('PNG CRC mismatch in ' + type);
+    pos = end;
+    if (type === 'IEND') { if (pos !== buf.length) throw new Error('Data after IEND'); return; }
+  }
+}
+
 function checkTriple(id, data) {
   try {
     if (JSON.parse(data[0].toString('utf8'))?.area?.id !== id) throw new Error('Source id mismatch');
     if (JSON.parse(data[1].toString('utf8'))?.id !== id) throw new Error('Baked area id mismatch');
-    if (!data[2].subarray(0, 8).equals(pngSignature)) throw new Error('Invalid PNG signature');
+    checkPng(data[2]);
   } catch (error) { throw new TxnError('invalid', message(error)); }
 }
 
@@ -311,7 +329,7 @@ export async function listBackups(root, id) {
 
 // Restoring uses the saved triple verbatim; it does not rebake historical data.
 // It creates a fresh backup of the current triple and retains the default 30.
-export async function restoreBackup(root, id, name) {
+export async function restoreBackup(root, id, name, { baseHash } = {}) {
   const start = Date.now();
   try {
     return await locked(root, id, async ctx => {
@@ -321,6 +339,8 @@ export async function restoreBackup(root, id, name) {
       const next = await Promise.all(ctx.names.map(async file => fs.readFile(await safe(ctx.root, path.join(dir, file)))));
       checkTriple(id, next);
       const old = await readTriple(ctx);
+      if (typeof baseHash !== 'string') throw new TxnError('invalid', 'Missing baseHash');
+      if (sha(old[0]) !== baseHash) return { ok: false, code: 'conflict', error: 'Source changed on disk', diskText: old[0].toString('utf8') };
       await fs.mkdir(ctx.staging, { recursive: true });
       await commit(ctx, old, next, 30);
       return { ok: true, hash: sha(next[0]), ms: Date.now() - start, bakeLog: '' };

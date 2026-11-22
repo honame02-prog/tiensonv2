@@ -31,6 +31,7 @@ const CSS = `
 #aed.play .lib,#aed.play .prp,#aed .hide{display:none}
 `;
 const KITS_OPEN_MAX = 400;
+const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
 export function createPanel(S, A) {
   const st = document.createElement('style'); st.textContent = CSS; document.head.appendChild(st);
@@ -71,7 +72,7 @@ export function createPanel(S, A) {
   const closeBox = () => { dlg.style.display = 'none'; box.innerHTML = ''; };
   function confirmBox(msg, okLabel) {
     return new Promise(res => {
-      openBox(`<div style="margin-bottom:8px">${msg}</div><div class="f"><button data-cf="1">${okLabel}</button><button data-cf="0">Hủy</button></div>`);
+      openBox(`<div style="margin-bottom:8px">${esc(msg)}</div><div class="f"><button data-cf="1">${esc(okLabel)}</button><button data-cf="0">Hủy</button></div>`);
       box.onclick = e => { const b = e.target.closest('[data-cf]'); if (b) { box.onclick = null; closeBox(); res(b.dataset.cf === '1'); } };
     });
   }
@@ -79,7 +80,7 @@ export function createPanel(S, A) {
   async function showBackups() {
     openBox('<div>Đang tải...</div>');
     const r = await A.listBackups();
-    openBox(`<b>Bản sao lưu của ${S.id}</b> (mới nhất trên cùng; mỗi lần lưu cất bản trước đó)${(r.list || []).map(n => `<div class="bk" data-name="${n}"><span>${fmtName(n)}</span><code>${n}</code><button data-a="bkrestore" data-name="${n}">Khôi phục</button></div>`).join('') || '<div class="m">Chưa có bản sao lưu</div>'}${r.error ? '<div class="m">Lỗi: ' + r.error + '</div>' : ''}<div class="f"><button data-a="bkclose">Đóng</button></div>`);
+    openBox(`<b>Bản sao lưu của ${esc(S.id)}</b> (mới nhất trên cùng; mỗi lần lưu cất bản trước đó)${(r.list || []).map(n => `<div class="bk" data-name="${esc(n)}"><span>${esc(fmtName(n))}</span><code>${esc(n)}</code><button data-a="bkrestore" data-name="${esc(n)}">Khôi phục</button></div>`).join('') || '<div class="m">Chưa có bản sao lưu</div>'}${r.error ? '<div class="m">Lỗi: ' + esc(r.error) + '</div>' : ''}<div class="f"><button data-a="bkclose">Đóng</button></div>`);
   }
   async function askRestore(name) {
     const ok = await confirmBox(`Khôi phục bản ${fmtName(name)}? Mọi thay đổi chưa lưu sẽ mất; bản hiện tại được sao lưu trước. Cảnh sẽ tải lại.`, 'Khôi phục');
@@ -87,7 +88,7 @@ export function createPanel(S, A) {
     openBox('<div>Đang khôi phục...</div>');
     const r = await A.restore(name);
     if (r.ok) return;   // trang tải lại
-    openBox(`<div class="m">Lỗi: ${r.error}</div><div class="f"><button data-a="bkclose">Đóng</button></div>`);
+    openBox(`<div class="m">${r.code === 'conflict' ? 'XUNG ĐỘT: file trên đĩa đã đổi; tải lại rồi thử lại. ' : ''}Lỗi: ${esc(r.error)}</div><div class="f"><button data-a="bkclose">Đóng</button></div>`);
   }
   root.addEventListener('click', e => { if (e.target.closest('[data-a=bkclose]')) closeBox(); });
 
@@ -101,9 +102,9 @@ export function createPanel(S, A) {
       const open = term || d.inArea || d.opened;
       const items = open ? names.slice(0, KITS_OPEN_MAX).map(n => {
         const p = d.pieces[n], k = kit + '/' + n, size = p.w ? `${p.w}×${p.h}` : '';
-        return `<div class="it${S.armed === k ? ' on' : ''}" draggable="true" data-k="${k}"><img loading="lazy" src="${A.thumbUrl(kit, n)}"><div><b>${n}</b><small>${size} · ${p.layer}</small></div></div>`;
+        return `<div class="it${S.armed === k ? ' on' : ''}" draggable="true" data-k="${esc(k)}"><img loading="lazy" src="${esc(A.thumbUrl(kit, n))}"><div><b>${esc(n)}</b><small>${esc(size)} · ${esc(p.layer)}</small></div></div>`;
       }).join('') : '';
-      html.push(`<details data-kit="${kit}"${open ? ' open' : ''}><summary>${kit} (${names.length})${d.inArea ? ' •' : ''}</summary>${items}</details>`);
+      html.push(`<details data-kit="${esc(kit)}"${open ? ' open' : ''}><summary>${esc(kit)} (${names.length})${d.inArea ? ' •' : ''}</summary>${items}</details>`);
     }
     libList.innerHTML = html.join('') || '<div class="m">Không có kit</div>';
   }
@@ -125,14 +126,14 @@ export function createPanel(S, A) {
     if (!ps.length) h += '<div class="m">Chưa chọn. Bấm vào mảnh, Shift+bấm để thêm, kéo khung vùng trống (hoặc kéo chuột phải) để chọn nhiều.</div>';
     else if (ps.length === 1) {
       const p = ps[0], info = A.pieceInfo(p.k), t = A.tierAtFoot(p), d = A.depthAt(sel[0]);
-      h += `<div class="f"><label>k</label><input type="text" id="aed-k" value="${p.k}"></div>${num('x', 'x', p.x)}${num('y', 'y', p.y)}
-        <div class="m">lớp: ${info?.layer ?? '?'}\ndepth: ${d == null ? '?' : (+d).toFixed(2)}\ntầng tại chân: ${t.toFixed(2)}\nva chạm: ${info?.collide?.length ? JSON.stringify(info.collide) : 'không'}\nchỉ số placement: ${sel[0]}</div>`;
+      h += `<div class="f"><label>k</label><input type="text" id="aed-k" value="${esc(p.k)}"></div>${num('x', 'x', p.x)}${num('y', 'y', p.y)}
+        <div class="m">lớp: ${esc(info?.layer ?? '?')}\ndepth: ${d == null ? '?' : (+d).toFixed(2)}\ntầng tại chân: ${t.toFixed(2)}\nva chạm: ${info?.collide?.length ? esc(JSON.stringify(info.collide)) : 'không'}\nchỉ số placement: ${sel[0]}</div>`;
     } else h += `<div class="m">${ps.length} mục</div>${num('Δx', 'dx', 0)}${num('Δy', 'dy', 0)}`;
     h += `<div class="f"><button data-a="dup" ${ps.length ? '' : 'disabled'}>Nhân bản</button><button data-a="del" ${ps.length ? '' : 'disabled'}>Xoá</button></div>`;
-    h += '<h4>Kit trong khu (ẩn / khoá)</h4>' + Object.keys(M.kits).sort().map(k => `<div class="f"><label style="width:auto;flex:1">${k}</label><label style="width:auto"><input type="checkbox" data-kf="hidden:${k}" ${S.hidden.has(k) ? 'checked' : ''}> ẩn</label><label style="width:auto"><input type="checkbox" data-kf="locked:${k}" ${S.locked.has(k) ? 'checked' : ''}> khoá</label></div>`).join('');
+    h += '<h4>Kit trong khu (ẩn / khoá)</h4>' + Object.keys(M.kits).sort().map(k => `<div class="f"><label style="width:auto;flex:1">${esc(k)}</label><label style="width:auto"><input type="checkbox" data-kf="hidden:${esc(k)}" ${S.hidden.has(k) ? 'checked' : ''}> ẩn</label><label style="width:auto"><input type="checkbox" data-kf="locked:${esc(k)}" ${S.locked.has(k) ? 'checked' : ''}> khoá</label></div>`).join('');
     const c = S.concept;
-    h += `<h4>Lớp phủ concept</h4><div class="f"><select id="aed-cs"><option value="">(không)</option>${(concepts || []).map(p => `<option ${c.path === p ? 'selected' : ''}>${p}</option>`).join('')}</select></div>
-      <div class="m">${c.name || c.path || 'Thả file ảnh vào cảnh để dùng'}</div>
+    h += `<h4>Lớp phủ concept</h4><div class="f"><select id="aed-cs"><option value="">(không)</option>${(concepts || []).map(p => `<option ${c.path === p ? 'selected' : ''}>${esc(p)}</option>`).join('')}</select></div>
+      <div class="m">${esc(c.name || c.path || 'Thả file ảnh vào cảnh để dùng')}</div>
       <div class="f"><label>mờ</label><input type="range" id="aed-co" min="0" max="1" step="0.05" value="${c.opacity}"></div>
       ${num('x', 'cx', c.x)}${num('y', 'cy', c.y)}${num('zoom', 'cz', c.zoom, 0.05)}
       <div class="f"><label style="width:auto"><input type="checkbox" id="aed-cl" ${c.locked ? 'checked' : ''}> khoá</label><label style="width:auto"><input type="checkbox" id="aed-cv" ${c.visible ? 'checked' : ''}> hiện</label><button data-a="clearconcept">Bỏ</button></div>

@@ -215,7 +215,8 @@ const A = {
     try { const r = await (await fetch('/__areaed/backups?id=' + encodeURIComponent(S.id))).json(); return r.ok === false ? { list: [], error: r.error } : { list: r.list || [] }; } catch (e) { return { list: [], error: String(e.message || e) }; }
   },
   async restore(name) {
-    let r; try { r = await (await fetch('/__areaed/restore', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: S.id, name }) })).json(); } catch (e) { r = { ok: false, error: String(e.message || e) }; }
+    const st0 = S; let r; try { r = await (await fetch('/__areaed/restore', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: S.id, name, baseHash: S.baseHash }) })).json(); } catch (e) { r = { ok: false, error: String(e.message || e) }; }
+    if (!r.ok && r.code === 'conflict' && S === st0) { S.op = { kind: 'error', code: 'conflict', msg: r.error || 'conflict' }; S.panel.refresh(); }
     if (r.ok) { window.removeEventListener('beforeunload', beforeUnload); location.reload(); }   // nap lai canh tu dia (khong hoi 'chua luu')
     return r;
   },

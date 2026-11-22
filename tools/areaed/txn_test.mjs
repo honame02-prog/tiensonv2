@@ -49,6 +49,7 @@ async function changed(root, label) {
 async function save(root, text, options = {}) {
   return saveArea({ root, id, baseHash: hash(await fs.readFile(paths(root)[0])), newText: text, ...options });
 }
+const curHash = async root => hash(await fs.readFile(paths(root)[0]));
 function ok(result) { assert.equal(result.ok, true, JSON.stringify(result)); return result; }
 async function runBake(root) {
   await new Promise((resolve, reject) => {
@@ -190,20 +191,46 @@ try {
     const names = await listBackups(root, id), name = names.at(-1);
     const dir = path.join(root, 'tools/areas/.bak', id, name);
     const expected = await Promise.all([`${id}.src.json`, 'area.json', 'ground.png'].map(file => fs.readFile(path.join(dir, file))));
-    const old = await triple(root), result = ok(await restoreBackup(root, id, name));
+    const old = await triple(root), result = ok(await restoreBackup(root, id, name, { baseHash: await curHash(root) }));
     assert.equal(result.hash, hash(expected[0]));
     await unchanged(root, expected);
     const latest = (await listBackups(root, id))[0];
     assert.deepEqual(await Promise.all([`${id}.src.json`, 'area.json', 'ground.png'].map(file => fs.readFile(path.join(root, 'tools/areas/.bak', id, latest, file)))), old);
-    assert.equal((await restoreBackup(root, id, '../escape')).code, 'invalid');
+    assert.equal((await restoreBackup(root, id, '../escape', { baseHash: await curHash(root) })).code, 'invalid');
     await clean(root);
   });
 
   await test('restore uses the same rollback path on replacement failure', async () => {
     const name = (await listBackups(root, id)).at(-1), old = await triple(root);
     __testOnly.beforeReplace = ({ phase, index }) => { if (phase === 'commit' && index === 1) throw new Error('Restore failure'); };
-    assert.equal((await restoreBackup(root, id, name)).code, 'io');
+    assert.equal((await restoreBackup(root, id, name, { baseHash: await curHash(root) })).code, 'io');
     await unchanged(root, old); await clean(root);
+  });
+
+  await test('restore conflicts on stale or missing baseHash and writes nothing', async () => {
+    const name = (await listBackups(root, id)).at(-1), old = await triple(root), before = await listBackups(root, id);
+    const r = await restoreBackup(root, id, name, { baseHash: hash('stale') });
+    assert.equal(r.ok, false); assert.equal(r.code, 'conflict');
+    assert.equal((await restoreBackup(root, id, name)).code, 'invalid');
+    await unchanged(root, old); await clean(root);
+    assert.deepEqual(await listBackups(root, id), before);
+  });
+
+  await test('restore rejects truncated / signature-only / corrupt ground.png backups', async () => {
+    const latest = (await listBackups(root, id))[0], src = path.join(root, 'tools/areas/.bak', id, latest), old = await triple(root);
+    const png = await fs.readFile(path.join(src, 'ground.png'));
+    const flipped = Buffer.from(png); flipped[Math.floor(png.length / 2)] ^= 0xff;
+    const variants = { '20990101-000000-001': png.subarray(0, 8), '20990101-000000-002': png.subarray(0, png.length - 20), '20990101-000000-003': flipped, '20990101-000000-004': Buffer.concat([png, Buffer.from('x')]) };
+    for (const [name, bytes] of Object.entries(variants)) {
+      const dir = path.join(root, 'tools/areas/.bak', id, name);
+      await fs.mkdir(dir, { recursive: true });
+      for (const f of [`${id}.src.json`, 'area.json']) await fs.copyFile(path.join(src, f), path.join(dir, f));
+      await fs.writeFile(path.join(dir, 'ground.png'), bytes);
+      const r = await restoreBackup(root, id, name, { baseHash: await curHash(root) });
+      assert.equal(r.ok, false, name); assert.equal(r.code, 'invalid', name);
+      await unchanged(root, old); await clean(root);
+      await fs.rm(dir, { recursive: true, force: true });
+    }
   });
 
   await test('recovery refuses an external edit and preserves journal plus all disk bytes', async () => {

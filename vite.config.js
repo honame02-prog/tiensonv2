@@ -34,15 +34,17 @@ const fxlabSave = () => ({
 });
 
 // Chi khi chay `vite` (dev): Area Editor (src/editor, ?edit=1). Doc/ghi tools/areas/<id>.src.json qua tools/areaed/{srcio,txn}.mjs (giu dinh dang, hash chong xung dot, bake giao dich). Khong co trong build.
-const areaEditor = () => ({
+export const areaEditor = () => ({
   name: 'area-editor',
   apply: 'serve',
   configureServer(server) {
     const root = server.config.root, ID = /^[A-Za-z0-9_-]+$/;
     const mod = n => import(pathToFileURL(resolve(root, 'tools/areaed', n)).href);
     // recoverJournals xong moi phuc vu /__areaed/* (moi handler await ready)
-    const ready = mod('txn.mjs').then(m => m.recoverJournals(root)).then(r => { if (r?.length) console.log('[areaed] da khoi phuc journal:', r.join(', ')); }).catch(e => console.warn('[areaed] recoverJournals:', e.message));
-    server.areaedReady = ready;
+    const ready = mod('txn.mjs').then(m => m.recoverJournals(root)).then(r => { if (r?.length) console.log('[areaed] da khoi phuc journal:', r.join(', ')); });
+    let recoverError = null;   // recover loi -> giu trang thai loi, moi handler tra 503 (khong phuc vu du lieu chua phuc hoi)
+    ready.catch(e => { recoverError = e; console.warn('[areaed] recoverJournals:', e?.message || e); });
+    server.areaedReady = ready.catch(() => {});
     // middleware nay tra loi TRUOC bo loc Host cua Vite -> tu kiem Host (chong DNS rebinding) va Origin cung nguon; sai -> 403. AREAED_ALLOW_HOSTS=host:port,... de cho phep them (vd truy cap qua LAN)
     const extraHosts = (process.env.AREAED_ALLOW_HOSTS || '').split(',').filter(Boolean);
     const hostOk = req => { const h = req.headers.host || '', m = /^(localhost|127\.0\.0\.1|\[::1\]):(\d+)$/.exec(h), port = server.httpServer?.address()?.port; return !!(m && (!port || +m[2] === port)) || extraHosts.includes(h); };
@@ -58,7 +60,11 @@ const areaEditor = () => ({
       if (!hostOk(req)) return reply(res, 403, { ok: false, error: 'Host khong duoc phep' });
       if (!originOk(req)) return reply(res, 403, { ok: false, error: 'Origin khong cung nguon' });
       if (req.method !== method) return reply(res, 405, { ok: false, error: 'chi nhan ' + method });
-      try { await ready; await fn(req, res); } catch (e) { reply(res, 500, { ok: false, code: 'io', error: String(e.message || e) }); }
+      try {
+        try { await ready; } catch (e) { recoverError = recoverError || e; }
+        if (recoverError) return reply(res, 503, { ok: false, code: 'recover', error: 'recoverJournals loi: ' + String(recoverError.message || recoverError) });
+        await fn(req, res);
+      } catch (e) { reply(res, 500, { ok: false, code: 'io', error: String(e.message || e) }); }
     });
     // rong x cao PNG tu IHDR (khong can thu vien)
     const pngSize = f => { try { const b = readFileSync(f); return [b.readUInt32BE(16), b.readUInt32BE(20)]; } catch { return [0, 0]; } };
@@ -104,9 +110,9 @@ const areaEditor = () => ({
       reply(res, 200, { ok: true, list: await (await mod('txn.mjs')).listBackups(root, id) });   // moi nhat truoc; ten dung truc tiep cho restore
     });
     handle('/__areaed/restore', 'POST', async (req, res) => {
-      const { id, name } = await body(req);
+      const { id, name, baseHash } = await body(req);
       if (!ID.test(id || '') || typeof name !== 'string') return reply(res, 400, { ok: false, code: 'invalid', error: 'id/name khong hop le' });
-      const r = await (await mod('txn.mjs')).restoreBackup(root, id, name); delete r.diskText; reply(res, r.ok ? 200 : 400, r);
+      const r = await (await mod('txn.mjs')).restoreBackup(root, id, name, { baseHash }); delete r.diskText; reply(res, r.ok ? 200 : r.code === 'conflict' ? 409 : 400, r);
     });
     handle('/__areaed/save', 'POST', async (req, res) => {
       const { id, baseHash, pieces, kits } = await body(req);
