@@ -23,6 +23,11 @@ const CSS = `
 #aed .m{color:#b9ab86;font:11px monospace;white-space:pre-wrap}
 #aed .log{position:absolute;left:50%;top:60px;transform:translateX(-50%);width:min(640px,80vw);max-height:60vh;overflow:auto;padding:8px;display:none}
 #aed .log pre{margin:0;white-space:pre-wrap;font:11px monospace}
+#aed .zm{font:12px monospace;color:#cfe}
+#aed .dr{pointer-events:auto;position:absolute;left:50%;top:40px;transform:translateX(-50%);background:#3a2f12;border:1px solid #e3c97f;padding:6px 10px;display:none;gap:8px;align-items:center;z-index:3}
+#aed .dlg{pointer-events:auto;position:absolute;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:5}
+#aed .dlg .box{background:#1d1820;border:1px solid #b8913f;padding:10px 12px;min-width:320px;max-width:80vw;max-height:70vh;overflow:auto}
+#aed .dlg .bk{display:flex;gap:8px;align-items:center;margin:3px 0}#aed .dlg .bk span{flex:1}
 #aed.play .lib,#aed.play .prp,#aed .hide{display:none}
 `;
 const KITS_OPEN_MAX = 400;
@@ -36,9 +41,11 @@ export function createPanel(S, A) {
     <button data-a="undo" title="Ctrl+Z">Hoàn tác</button><button data-a="redo" title="Ctrl+Y">Làm lại</button>
     <button data-a="play" title="Tab">Chơi thử</button>
     <details class="ov" style="position:relative"><summary style="cursor:pointer">Lớp phủ</summary><div class="ovl" style="position:absolute;top:24px;left:0;background:#221c20;border:1px solid #b8913f;padding:6px;z-index:2;white-space:nowrap"></div></details>
-    <button data-a="check">Kiểm tra</button>
+    <button data-a="check">Kiểm tra</button><button data-a="bak">Sao lưu</button>
     <button data-a="reload" class="hide" style="display:none">Tải lại từ đĩa</button>
-    <span class="st"></span></div>
+    <span class="zm" title="Lăn chuột: zoom 0.25-6×; phím 0: vừa khung cả khu"></span><span class="st"></span></div>
+    <div class="dr"><span>Có bản nháp chưa lưu của khu này.</span><button data-a="drrestore">Khôi phục</button><button data-a="drdiscard">Bỏ nháp</button></div>
+    <div class="dlg"><div class="box"></div></div>
     <div class="lib"><input class="q" type="search" placeholder="Tìm mảnh / kit..."><div class="list"></div></div>
     <div class="prp"></div><div class="log"><button data-a="closelog" style="float:right">Đóng</button><pre></pre></div>`;
   document.body.appendChild(root);
@@ -53,9 +60,36 @@ export function createPanel(S, A) {
     const a = e.target.closest('[data-a]')?.dataset.a; if (!a) return;
     if (a === 'save') A.save(); else if (a === 'undo') A.undo(); else if (a === 'redo') A.redo(); else if (a === 'play') A.togglePlay();
     else if (a === 'check') A.check(); else if (a === 'closelog') $('.log').style.display = 'none'; else if (a === 'reload') location.reload();
+    else if (a === 'drrestore') A.applyDraft(); else if (a === 'drdiscard') A.discardDraft(); else if (a === 'bak') showBackups(); else if (a === 'bkrestore') askRestore(e.target.closest('[data-a]').dataset.name);
     else if (a === 'del') A.remove(); else if (a === 'dup') A.duplicate(); else if (a === 'clearconcept') A.concept.clear();
   });
   bind($('.ovl'), 'change', e => { const k = e.target.dataset.layer; if (k) A.setLayer(k, e.target.checked); });
+
+  // ---------- hop thoai DOM cua editor (khong dung window.confirm) + danh sach ban sao luu
+  const dlg = $('.dlg'), box = $('.dlg .box');
+  const openBox = html => { box.innerHTML = html; dlg.style.display = 'flex'; };
+  const closeBox = () => { dlg.style.display = 'none'; box.innerHTML = ''; };
+  function confirmBox(msg, okLabel) {
+    return new Promise(res => {
+      openBox(`<div style="margin-bottom:8px">${msg}</div><div class="f"><button data-cf="1">${okLabel}</button><button data-cf="0">Hủy</button></div>`);
+      box.onclick = e => { const b = e.target.closest('[data-cf]'); if (b) { box.onclick = null; closeBox(); res(b.dataset.cf === '1'); } };
+    });
+  }
+  const fmtName = n => `${n.slice(0, 4)}-${n.slice(4, 6)}-${n.slice(6, 8)} ${n.slice(9, 11)}:${n.slice(11, 13)}:${n.slice(13, 15)} (UTC)`;
+  async function showBackups() {
+    openBox('<div>Đang tải...</div>');
+    const r = await A.listBackups();
+    openBox(`<b>Bản sao lưu của ${S.id}</b> (mới nhất trên cùng; mỗi lần lưu cất bản trước đó)${(r.list || []).map(n => `<div class="bk" data-name="${n}"><span>${fmtName(n)}</span><code>${n}</code><button data-a="bkrestore" data-name="${n}">Khôi phục</button></div>`).join('') || '<div class="m">Chưa có bản sao lưu</div>'}${r.error ? '<div class="m">Lỗi: ' + r.error + '</div>' : ''}<div class="f"><button data-a="bkclose">Đóng</button></div>`);
+  }
+  async function askRestore(name) {
+    const ok = await confirmBox(`Khôi phục bản ${fmtName(name)}? Mọi thay đổi chưa lưu sẽ mất; bản hiện tại được sao lưu trước. Cảnh sẽ tải lại.`, 'Khôi phục');
+    if (!ok) return showBackups();
+    openBox('<div>Đang khôi phục...</div>');
+    const r = await A.restore(name);
+    if (r.ok) return;   // trang tải lại
+    openBox(`<div class="m">Lỗi: ${r.error}</div><div class="f"><button data-a="bkclose">Đóng</button></div>`);
+  }
+  root.addEventListener('click', e => { if (e.target.closest('[data-a=bkclose]')) closeBox(); });
 
   // ---------- thu vien
   const libList = $('.list'), q = $('.q');
@@ -133,6 +167,7 @@ export function createPanel(S, A) {
     $('[data-a=save]').disabled = S.op?.kind === 'baking' || !S.baseHash;
     $('[data-a=undo]').disabled = !M.undoStack.length; $('[data-a=redo]').disabled = !M.redoStack.length;
     $('[data-a=play]').textContent = S.mode === 'play' ? 'Sửa (Tab)' : 'Chơi thử (Tab)';
+    $('.zm').textContent = S.scene ? (+S.scene.cameras.main.zoom.toFixed(2)) + '×' : ''; $('.dr').style.display = S.draft && S.mode === 'edit' ? 'flex' : 'none';
     $('[data-a=reload]').style.display = S.op?.code === 'conflict' ? '' : 'none';
     for (const c of root.querySelectorAll('[data-layer]')) c.checked = !!S.layers[c.dataset.layer];
     libList.querySelectorAll('.it').forEach(it => it.classList.toggle('on', it.dataset.k === S.armed));

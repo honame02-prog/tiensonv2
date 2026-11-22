@@ -29,8 +29,9 @@ export class Model {
   push(before, label) {
     if (piecesKey(before.pieces) === piecesKey(this.pieces)) return false;
     const now = Date.now();
-    if (label === 'nudge' && this.undoStack.length && this.undoStack.at(-1).label === 'nudge' && now - this.lastNudge < 700) { this.lastNudge = now; return true; }
-    this.lastNudge = label === 'nudge' ? now : 0;
+    const selKey = JSON.stringify(before.sel);   // chi gop nudge khi cung tap chon
+    if (label === 'nudge' && this.undoStack.length && this.undoStack.at(-1).label === 'nudge' && now - this.lastNudge < 700 && this.lastNudgeSel === selKey) { this.lastNudge = now; return true; }
+    this.lastNudge = label === 'nudge' ? now : 0; this.lastNudgeSel = selKey;
     this.undoStack.push({ ...before, label }); if (this.undoStack.length > 200) this.undoStack.shift();
     this.redoStack = []; return true;
   }
@@ -75,7 +76,7 @@ export class Model {
   }
   duplicate(idx = this.sel, off = 8) {
     if (!idx.length) return []; const b = this.snap(), [dx, dy] = this.clampDelta(off, off, idx), start = this.pieces.length;
-    for (const i of idx) this.pieces.push({ ...this.pieces[i], x: this.pieces[i].x + dx, y: this.pieces[i].y + dy });
+    for (const i of idx) this.pieces.push({ ...this.pieces[i], x: Math.round(this.pieces[i].x + dx), y: Math.round(this.pieces[i].y + dy) });   // toa do dich lam tron nguyen (kể ca khi goc le)
     this.sel = idx.map((_, n) => start + n); this.push(b, 'duplicate'); this.emit('struct'); return [...this.sel];
   }
   // dan cac placement (chep tu clipboard) sao cho placement dau tien nam o (x, y)
@@ -84,7 +85,12 @@ export class Model {
     for (const p of items) this.pieces.push({ ...p, x: Math.max(-MARGIN, Math.min(this.W + MARGIN, Math.round(p.x - ox + x))), y: Math.max(-MARGIN, Math.min(this.H + MARGIN, Math.round(p.y - oy + y))) });
     this.sel = items.map((_, n) => start + n); this.push(b, 'paste'); this.emit('struct'); return [...this.sel];
   }
-  setPos(i, x, y) { const p = this.pieces[i]; return this.moveBy(x - p.x, y - p.y, 'setpos'); }
+  // nhap so: lam tron toa do DICH (623.8 -> nhap 624 thi ghi 624, khong giu 623.8)
+  setPos(i, x, y) {
+    const p = this.pieces[i], b = this.snap();
+    p.x = Math.max(-MARGIN, Math.min(this.W + MARGIN, Math.round(x))); p.y = Math.max(-MARGIN, Math.min(this.H + MARGIN, Math.round(y)));
+    this.emit('move'); if (this.push(b, 'setpos')) this.emit('commit');
+  }
   setK(idx, k) {
     const b = this.snap(); for (const i of idx) this.pieces[i].k = k; this.push(b, 'setk'); this.emit('struct');
   }

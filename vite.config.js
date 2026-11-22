@@ -40,7 +40,13 @@ const areaEditor = () => ({
   configureServer(server) {
     const root = server.config.root, ID = /^[A-Za-z0-9_-]+$/;
     const mod = n => import(pathToFileURL(resolve(root, 'tools/areaed', n)).href);
-    mod('txn.mjs').then(m => m.recoverJournals(root)).then(r => { if (r?.length) console.log('[areaed] da khoi phuc journal:', r.join(', ')); }).catch(e => console.warn('[areaed] recoverJournals:', e.message));
+    // recoverJournals xong moi phuc vu /__areaed/* (moi handler await ready)
+    const ready = mod('txn.mjs').then(m => m.recoverJournals(root)).then(r => { if (r?.length) console.log('[areaed] da khoi phuc journal:', r.join(', ')); }).catch(e => console.warn('[areaed] recoverJournals:', e.message));
+    server.areaedReady = ready;
+    // middleware nay tra loi TRUOC bo loc Host cua Vite -> tu kiem Host (chong DNS rebinding) va Origin cung nguon; sai -> 403. AREAED_ALLOW_HOSTS=host:port,... de cho phep them (vd truy cap qua LAN)
+    const extraHosts = (process.env.AREAED_ALLOW_HOSTS || '').split(',').filter(Boolean);
+    const hostOk = req => { const h = req.headers.host || '', m = /^(localhost|127\.0\.0\.1|\[::1\]):(\d+)$/.exec(h), port = server.httpServer?.address()?.port; return !!(m && (!port || +m[2] === port)) || extraHosts.includes(h); };
+    const originOk = req => { const o = req.headers.origin; if (o === undefined) return true; try { return new URL(o).host === req.headers.host; } catch { return false; } };
     const reply = (res, code, msg) => { res.statusCode = code; res.setHeader('Content-Type', 'application/json; charset=utf-8'); res.end(JSON.stringify(msg)); };
     const body = req => new Promise((ok, no) => {
       let b = ''; req.on('data', c => { b += c; if (b.length > 8e6) { req.destroy(); no(new Error('body qua lon')); } });
@@ -49,8 +55,10 @@ const areaEditor = () => ({
     const query = req => new URL(req.url, 'http://x').searchParams;
     const srcFile = id => resolve(root, 'tools/areas', id + '.src.json');
     const handle = (path, method, fn) => server.middlewares.use(path, async (req, res) => {
+      if (!hostOk(req)) return reply(res, 403, { ok: false, error: 'Host khong duoc phep' });
+      if (!originOk(req)) return reply(res, 403, { ok: false, error: 'Origin khong cung nguon' });
       if (req.method !== method) return reply(res, 405, { ok: false, error: 'chi nhan ' + method });
-      try { await fn(req, res); } catch (e) { reply(res, 500, { ok: false, code: 'io', error: String(e.message || e) }); }
+      try { await ready; await fn(req, res); } catch (e) { reply(res, 500, { ok: false, code: 'io', error: String(e.message || e) }); }
     });
     // rong x cao PNG tu IHDR (khong can thu vien)
     const pngSize = f => { try { const b = readFileSync(f); return [b.readUInt32BE(16), b.readUInt32BE(20)]; } catch { return [0, 0]; } };
@@ -86,8 +94,19 @@ const areaEditor = () => ({
     });
     handle('/__areaed/concept', 'GET', async (req, res) => {
       const p = query(req).get('path') || '', file = conceptRoot && resolve(conceptRoot, p);   // chi doc, chan duong dan thoat ra ngoai thu muc concept
-      if (!file || !file.startsWith(conceptRoot + sep) || !IMG[extname(file).toLowerCase()] || !existsSync(file) || !statSync(file).isFile()) return reply(res, 404, { ok: false, error: 'khong co concept' });
+      if (!file || !file.startsWith(conceptRoot + sep) || !IMG[extname(file).toLowerCase()]) return reply(res, 400, { ok: false, error: 'duong dan concept khong hop le' });
+      if (!existsSync(file) || !statSync(file).isFile()) return reply(res, 404, { ok: false, error: 'khong co concept' });
       res.setHeader('Content-Type', IMG[extname(file).toLowerCase()]); createReadStream(file).pipe(res);
+    });
+    handle('/__areaed/backups', 'GET', async (req, res) => {
+      const id = query(req).get('id');
+      if (!ID.test(id || '')) return reply(res, 400, { ok: false, error: 'id khong hop le' });
+      reply(res, 200, { ok: true, list: await (await mod('txn.mjs')).listBackups(root, id) });   // moi nhat truoc; ten dung truc tiep cho restore
+    });
+    handle('/__areaed/restore', 'POST', async (req, res) => {
+      const { id, name } = await body(req);
+      if (!ID.test(id || '') || typeof name !== 'string') return reply(res, 400, { ok: false, code: 'invalid', error: 'id/name khong hop le' });
+      const r = await (await mod('txn.mjs')).restoreBackup(root, id, name); delete r.diskText; reply(res, r.ok ? 200 : 400, r);
     });
     handle('/__areaed/save', 'POST', async (req, res) => {
       const { id, baseHash, pieces, kits } = await body(req);

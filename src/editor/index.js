@@ -8,7 +8,7 @@ import { kitCacheKey, kitTextureKey, kitPieceUrl } from '../areaKits.js';
 const LS = (k, v) => { try { if (v === undefined) return JSON.parse(localStorage.getItem(k)); if (v === null) localStorage.removeItem(k); else localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* bo qua: localStorage tat/day */ } return null; };
 const DEFAULT_LAYERS = { grid: false, col: false, tier: false, collide: true, anchor: false, frame: false, portals: true, spawns: true, steps: true, exits: true };
 const TIER_COLORS = [0x4caf50, 0x2196f3, 0xff9800, 0xe91e63, 0x9c27b0, 0x00bcd4];
-const MAX_ZOOM = 6, DRAG_PX = 3;
+const ZOOMS = [0.25, 0.5, 1, 2, 3, 4, 5, 6], MIN_ZOOM = 0.1, MAX_ZOOM = 6, DRAG_PX = 3, GUIDE_TOL = 2;   // thu nho 0.25/0.5 (xem ca khu), phong to nguyen 1-6; guide hien khi lech <= 2 px
 let S = null;   // trang thai editor cua khu hien tai
 let boot = null;   // Promise khoi tao (doc src, thu vien, ban nhap) cua khu hien tai
 
@@ -32,19 +32,21 @@ function s2w(cx, cy) {
   return { x: (gx - c.width / 2) / z + c.width / 2 + c.scrollX, y: (gy - c.height / 2) / z + c.height / 2 + c.scrollY };
 }
 function camCenter() { const c = S.scene.cameras.main; return { x: c.scrollX + c.width / 2, y: c.scrollY + c.height / 2 }; }
-function setCam(zoom, cx, cy) {   // dat zoom nguyen 1..6 va tam camera (gioi han trong khu)
+function setCam(zoom, cx, cy) {   // dat zoom (0.25..6; so le chi khi 'vua khung') va tam camera (gioi han trong khu)
   const c = S.scene.cameras.main, m = S.model;
-  c.setZoom(Math.max(1, Math.min(MAX_ZOOM, Math.round(zoom))));
+  c.setZoom(Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, zoom)));
   c.scrollX = Math.round(Math.max(0, Math.min(m.W, cx)) - c.width / 2); c.scrollY = Math.round(Math.max(0, Math.min(m.H, cy)) - c.height / 2);
-  S.cam = { zoom: c.zoom, x: camCenter().x, y: camCenter().y };
+  S.cam = { zoom: c.zoom, x: camCenter().x, y: camCenter().y }; S.panel?.refresh();
 }
-function zoomAt(dir, cx, cy) {
-  const c = S.scene.cameras.main, before = s2w(cx, cy), nz = Math.max(1, Math.min(MAX_ZOOM, c.zoom + dir));
-  if (nz === c.zoom) return;
+function zoomAt(dir, cx, cy) {   // dir > 0: len muc ke tiep trong ZOOMS; < 0: xuong muc ke duoi
+  const c = S.scene.cameras.main, before = s2w(cx, cy), nz = dir > 0 ? ZOOMS.find(z => z > c.zoom + 1e-6) : [...ZOOMS].reverse().find(z => z < c.zoom - 1e-6);
+  if (!nz) return;
   c.setZoom(nz); const after = s2w(cx, cy);
   c.scrollX = Math.round(c.scrollX + before.x - after.x); c.scrollY = Math.round(c.scrollY + before.y - after.y);
-  S.cam = { zoom: nz, ...camCenter() };
+  S.cam = { zoom: nz, ...camCenter() }; S.panel?.refresh();
 }
+// phim 0: thu nho vua khung ca khu (zoom le = min(rong/W, cao/H)), tam o giua khu
+function fitArea() { const c = S.scene.cameras.main, m = S.model; setCam(Math.min(c.width / m.W, c.height / m.H), m.W / 2, m.H / 2); }
 function focusSel() {
   const idx = S.model.sel; if (!idx.length) return;
   const b = selBounds(idx); setCam(S.scene.cameras.main.zoom, b.x + b.w / 2, b.y + b.h / 2);
@@ -112,13 +114,18 @@ function opaqueAt(im, wx, wy) {
   }
   return !m.d || m.d[(ly * m.w + lx) * 4 + 3] > 16;
 }
-function pickAt(wx, wy, alt) {
+// cac placement co anh dac tai diem, xep theo depth cua ANH THUC SU TRUNG con tro (mai depth H+1 che cay thi chon mai), khong theo anh than
+function hitsAt(wx, wy) {
   const hits = [];
   for (const [i, g] of S.groups) {
     const kit = kitOf(S.model.pieces[i].k); if (S.hidden.has(kit) || S.locked.has(kit)) continue;
-    if (g.imgs.some(im => opaqueAt(im, wx, wy))) hits.push(i);
+    let d = -Infinity; for (const im of g.imgs) if (im.depth > d && opaqueAt(im, wx, wy)) d = im.depth;
+    if (d > -Infinity) hits.push({ i, d });
   }
-  hits.sort((a, b) => (mainImg(b)?.depth ?? 0) - (mainImg(a)?.depth ?? 0) || b - a);   // tren cung truoc (theo depth that)
+  return hits.sort((a, b) => b.d - a.d || b.i - a.i);
+}
+function pickAt(wx, wy, alt) {
+  const hits = hitsAt(wx, wy).map(h => h.i);
   if (!hits.length) return -1;
   if (alt) { const cur = S.model.sel.length === 1 ? hits.indexOf(S.model.sel[0]) : -1; return hits[(cur + 1) % hits.length]; }
   return hits[0];
@@ -128,37 +135,37 @@ function pickAt(wx, wy, alt) {
 function draw() {
   const sc = S.scene, g = S.gfx, c = sc.cameras.main, m = S.model, meta = sc.meta, L = S.layers, z = c.zoom, lw = 1 / z;
   if (!g || !g.active) return;
-  g.clear();
+  g.clear(); const n = S.stats = { grid: 0, col: 0, tier: 0, collide: 0, anchor: 0, frame: 0, portals: 0, spawns: 0, steps: 0, exits: 0 };   // so doi tuong da ve moi lop (test dung)
   const v = c.worldView, x0 = Math.floor(v.x / CELL) - 1, x1 = Math.ceil(v.right / CELL) + 1, y0 = Math.floor(v.y / CELL) - 1, y1 = Math.ceil(v.bottom / CELL) + 1;
   const cells = (rows, fn) => { if (rows) for (let cy = Math.max(0, y0); cy <= y1 && cy < rows.length; cy++) { const r = rows[cy]; for (let cx = Math.max(0, x0); cx <= x1 && cx < r.length; cx++) fn(cx, cy, r[cx]); } };
-  if (L.tier) cells(meta.tierRows, (cx, cy, ch) => { if (ch !== '.') { g.fillStyle(TIER_COLORS[+ch % TIER_COLORS.length], 0.22); g.fillRect(cx * CELL, cy * CELL, CELL, CELL); } });
-  if (L.col) cells(meta.col, (cx, cy, v2) => { if (v2) { g.fillStyle(0xe53935, 0.3); g.fillRect(cx * CELL, cy * CELL, CELL, CELL); } });
+  if (L.tier) cells(meta.tierRows, (cx, cy, ch) => { if (ch !== '.') { n.tier++; g.fillStyle(TIER_COLORS[+ch % TIER_COLORS.length], 0.22); g.fillRect(cx * CELL, cy * CELL, CELL, CELL); } });
+  if (L.col) cells(meta.col, (cx, cy, v2) => { if (v2) { n.col++; g.fillStyle(0xe53935, 0.3); g.fillRect(cx * CELL, cy * CELL, CELL, CELL); } });
   if (L.grid) {
-    g.lineStyle(lw, 0xffffff, 0.22);
+    g.lineStyle(lw, 0xffffff, 0.22); n.grid = 1;
     for (let cx = Math.max(0, x0); cx <= Math.min(x1, m.W / CELL); cx++) g.lineBetween(cx * CELL, Math.max(0, y0 * CELL), cx * CELL, Math.min(m.H, y1 * CELL));
     for (let cy = Math.max(0, y0); cy <= Math.min(y1, m.H / CELL); cy++) g.lineBetween(Math.max(0, x0 * CELL), cy * CELL, Math.min(m.W, x1 * CELL), cy * CELL);
   }
-  const box = (r, color, a) => { g.lineStyle(lw * 2, color, a); g.strokeRect(r[0], r[1], r[2], r[3]); g.fillStyle(color, 0.12); g.fillRect(r[0], r[1], r[2], r[3]); };
-  if (L.portals) for (const q of meta.portals || []) box(q.rect, 0x66bb6a, 0.95);
-  if (L.exits) for (const q of meta.exits || []) box(q.rect, 0xffa726, 0.95);
-  if (L.steps) for (const q of meta.steps || []) box(q.rect, 0x42a5f5, 0.95);
+  const box = (r, color, a, key) => { n[key]++; g.lineStyle(lw * 2, color, a); g.strokeRect(r[0], r[1], r[2], r[3]); g.fillStyle(color, 0.12); g.fillRect(r[0], r[1], r[2], r[3]); };
+  if (L.portals) for (const q of meta.portals || []) box(q.rect, 0x66bb6a, 0.95, 'portals');
+  if (L.exits) for (const q of meta.exits || []) box(q.rect, 0xffa726, 0.95, 'exits');
+  if (L.steps) for (const q of meta.steps || []) box(q.rect, 0x42a5f5, 0.95, 'steps');
   if (L.spawns) for (const [name, s] of Object.entries(meta.spawns || {})) {
-    g.lineStyle(lw * 2, 0xffee58, 1); g.strokeCircle(s[0], s[1], 6); g.lineBetween(s[0] - 9, s[1], s[0] + 9, s[1]); g.lineBetween(s[0], s[1] - 9, s[0], s[1] + 9);
+    n.spawns++; g.lineStyle(lw * 2, 0xffee58, 1); g.strokeCircle(s[0], s[1], 6); g.lineBetween(s[0] - 9, s[1], s[0] + 9, s[1]); g.lineBetween(s[0], s[1] - 9, s[0], s[1] + 9);
   }
   if (L.collide) for (let i = 0; i < m.pieces.length; i++) {
     const p = m.pieces[i], info = pieceInfo(p.k); if (!info?.collide?.length || S.hidden.has(kitOf(p.k))) continue;
     g.lineStyle(lw, 0xff5252, 0.95); g.fillStyle(0xff5252, 0.18);
-    for (const [rx, ry, rw, rh] of info.collide) { g.fillRect(p.x + rx, p.y + ry, rw, rh); g.strokeRect(p.x + rx, p.y + ry, rw, rh); }
+    for (const [rx, ry, rw, rh] of info.collide) { n.collide++; g.fillRect(p.x + rx, p.y + ry, rw, rh); g.strokeRect(p.x + rx, p.y + ry, rw, rh); }
   }
-  if (L.frame) { g.lineStyle(lw, 0x80deea, 0.7); for (const [, grp] of S.groups) for (const im of grp.imgs) if (im.visible) g.strokeRect(im.x, im.y, im.width, im.height); }
-  if (L.anchor) for (const p of m.pieces) { g.lineStyle(lw, 0xffffff, 0.9); g.lineBetween(p.x - 3, p.y, p.x + 3, p.y); g.lineBetween(p.x, p.y - 3, p.x, p.y + 3); }
+  if (L.frame) { g.lineStyle(lw, 0x80deea, 0.7); for (const [, grp] of S.groups) for (const im of grp.imgs) if (im.visible) { n.frame++; g.strokeRect(im.x, im.y, im.width, im.height); } }
+  if (L.anchor) for (const p of m.pieces) { n.anchor++; g.lineStyle(lw, 0xffffff, 0.9); g.lineBetween(p.x - 3, p.y, p.x + 3, p.y); g.lineBetween(p.x, p.y - 3, p.x, p.y + 3); }
   // chon
   for (const i of m.sel) {
     if (!m.pieces[i]) continue; const b = boundsOf(i), p = m.pieces[i];
     g.lineStyle(lw * 2, 0xffd54f, 1); g.strokeRect(b.x, b.y, b.w, b.h);
     g.lineStyle(lw * 2, 0xffd54f, 1); g.lineBetween(p.x - 5, p.y, p.x + 5, p.y); g.lineBetween(p.x, p.y - 5, p.x, p.y + 5);
   }
-  for (const gd of S.guides) { g.lineStyle(lw, 0xff4081, 0.95); g.lineBetween(gd[0], gd[1], gd[2], gd[3]); }
+  for (const gd of S.guides) { g.lineStyle(lw, 0xff4081, 0.95); g.lineBetween(gd.l[0], gd.l[1], gd.l[2], gd.l[3]); }
   if (S.marquee) { const r = S.marquee; g.lineStyle(lw, 0xffffff, 0.9); g.strokeRect(r.x, r.y, r.w, r.h); g.fillStyle(0xffffff, 0.08); g.fillRect(r.x, r.y, r.w, r.h); }
   if (S.armed && S.mouse) { g.lineStyle(lw, 0x69f0ae, 1); g.strokeCircle(S.mouse.x, S.mouse.y, 4); }
 }
@@ -170,8 +177,8 @@ function computeGuides() {
     const p = m.pieces[i];
     for (let j = 0; j < m.pieces.length; j++) {
       if (sel.has(j)) continue; const q = m.pieces[j];
-      if (q.y === p.y) out.push([Math.min(p.x, q.x) - 8, p.y, Math.max(p.x, q.x) + 8, p.y]);
-      if (q.x === p.x) out.push([p.x, Math.min(p.y, q.y) - 8, p.x, Math.max(p.y, q.y) + 8]);
+      if (Math.abs(q.y - p.y) <= GUIDE_TOL) out.push({ ref: j, axis: 'y', l: [Math.min(p.x, q.x) - 8, q.y, Math.max(p.x, q.x) + 8, q.y] });   // chan lech <= 2 px: ve duong tai y cua muc tham chieu
+      if (Math.abs(q.x - p.x) <= GUIDE_TOL) out.push({ ref: j, axis: 'x', l: [q.x, Math.min(p.y, q.y) - 8, q.x, Math.max(p.y, q.y) + 8] });
     }
   }
   S.guides = out.slice(0, 40);
@@ -188,17 +195,29 @@ const A = {
     if (S.op?.kind === 'baking') return { ok: false, code: 'busy', error: 'dang bake' };
     if (!S.baseHash) { S.op = { kind: 'error', msg: 'khong co may chu luu (plugin areaEditor)' }; S.panel.refresh(); return { ok: false, code: 'noserver', error: S.op.msg }; }
     S.op = { kind: 'baking' }; S.panel.refresh();
-    const m = S.model, key = m.key(), oldDraft = draftKey();
+    const st0 = S, m = S.model, key = m.key(), oldDraft = draftKey();   // st0: phien (khu) luc bat dau luu; phan hoi tra ve sau khi da chuyen khu bi bo
+    const sid = st0.id;
     let r;
     try {
       const res = await fetch('/__areaed/save', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: S.id, baseHash: S.baseHash, pieces: m.pieces, kits: m.usedKits() }) });
       r = await res.json();
     } catch (e) { r = { ok: false, code: 'io', error: String(e.message || e) }; }
+    if (S !== st0) { if (r.ok) LS(oldDraft, null); return r; }   // da sang khu khac / editor moi: khong cham vao trang thai khu moi
     if (r.ok) {
       S.baseHash = r.hash; m.savedKey = key; S.op = { kind: 'saved', ms: r.ms }; LS(oldDraft, null);
       if (m.key() !== key) saveDraft();
     } else S.op = { kind: 'error', code: r.code, msg: r.error || r.code };
     S.panel.refresh(); return r;
+  },
+  applyDraft() { const d = S.draft; if (!d) return; S.draft = null; S.model.reset(d.pieces, d.kits); S.panel.refresh(); },
+  discardDraft() { LS(draftKey(), null); S.draft = null; S.panel.refresh(); },
+  async listBackups() {
+    try { const r = await (await fetch('/__areaed/backups?id=' + encodeURIComponent(S.id))).json(); return r.ok === false ? { list: [], error: r.error } : { list: r.list || [] }; } catch (e) { return { list: [], error: String(e.message || e) }; }
+  },
+  async restore(name) {
+    let r; try { r = await (await fetch('/__areaed/restore', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: S.id, name }) })).json(); } catch (e) { r = { ok: false, error: String(e.message || e) }; }
+    if (r.ok) { window.removeEventListener('beforeunload', beforeUnload); location.reload(); }   // nap lai canh tu dia (khong hoi 'chua luu')
+    return r;
   },
   async check() {
     S.panel.showLog('Dang kiem tra (blockout_reach)...');
@@ -227,7 +246,7 @@ const A = {
 const draftKey = () => `areaed:draft:${S.id}:${S.baseHash}`;
 function saveDraft() {
   clearTimeout(S.draftT);
-  S.draftT = setTimeout(() => { if (!S) return; if (S.model.dirty) LS(draftKey(), { pieces: S.model.pieces, kits: S.model.usedKits(), t: Date.now() }); else LS(draftKey(), null); }, 300);
+  S.draftT = setTimeout(() => { if (!S || S.draft) return; if (S.model.dirty) LS(draftKey(), { pieces: S.model.pieces, kits: S.model.usedKits(), t: Date.now() }); else LS(draftKey(), null); }, 300);
 }
 function persistUi() { LS('areaed:ui', { layers: S.layers }); LS('areaed:kitflags:' + S.id, { hidden: [...S.hidden], locked: [...S.locked] }); }
 
@@ -320,13 +339,14 @@ function onKeyDown(e) {
   if (ctrl && k === 'a') { e.preventDefault(); A.selectAll(); return; }
   if (e.key === 'Delete' || e.key === 'Backspace') { e.preventDefault(); A.remove(); return; }
   if (k === 'f') { focusSel(); return; }
+  if (e.key === '0') { fitArea(); return; }
   if (e.key === 'Escape') { if (S.armed) A.arm(null); else S.model.setSel([]); return; }
   const dir = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] }[e.key];
   if (dir && S.model.sel.length) { e.preventDefault(); const s = e.shiftKey ? 8 : 1; S.model.moveBy(dir[0] * s, dir[1] * s, 'nudge'); }
 }
 function onKeyUp(e) { if (e.key === ' ') S.space = false; if (e.key.toLowerCase() === 'c') S.keyC = false; }
 function onBlur() { S.space = false; S.keyC = false; }
-const beforeUnload = e => { if (S && S.model.dirty) { e.preventDefault(); e.returnValue = ''; } };
+const beforeUnload = e => { if (S?.model?.dirty) { e.preventDefault(); e.returnValue = ''; } };
 
 // ---------- lop phu concept
 function conceptCfg() { return LS('areaed:concept:' + S.id) || { path: null, opacity: 0.5, x: 0, y: 0, zoom: 1, locked: false, visible: true }; }
@@ -379,10 +399,9 @@ async function init(scene) {
   S.model = new Model({ id, W, H, pieces: view?.pieces || meta.pieces || [], kits: view?.kits || meta.kits || {} });
   await loadLibrary();
   // ban nhap chua luu (bo qua neu bang ban tren dia)
+  // ban nhap chua luu: hien banner DOM (Khoi phuc / Bo nhap); chua chon thi khong dong vao localStorage
   const dr = S.baseHash && LS(draftKey());
-  if (dr && piecesKey(dr.pieces) !== piecesKey(S.model.pieces) && confirm(`Khu ${id}: co ban nhap chua luu (${new Date(dr.t).toLocaleString()}). Khoi phuc?`)) {
-    S.model.pieces = clone(dr.pieces); S.model.kits = { ...S.model.kits, ...dr.kits };
-  } else if (dr) LS(draftKey(), null);
+  if (dr && piecesKey(dr.pieces) !== piecesKey(S.model.pieces)) S.draft = dr; else if (dr) LS(draftKey(), null);
   S.panel = createPanel(S, A);
   window.addEventListener('beforeunload', beforeUnload);
   S.model.on(kind => {
@@ -440,7 +459,8 @@ const guard = async fn => { await settle(); const r = fn(); const p = S.attachP;
 window.__areaed = {
   ready: () => settle(),
   state: () => S && S.model ? { id: S.id, mode: S.mode, baseHash: S.baseHash, dirty: S.model.dirty, sel: [...S.model.sel], count: S.model.pieces.length, pieces: clone(S.model.pieces), kits: { ...S.model.kits }, usedKits: S.model.usedKits(),
-    images: S.scene.kitImages.length, groups: S.groups.size, undo: S.model.undoStack.length, redo: S.model.redoStack.length, op: S.op, cam: S.cam, layers: { ...S.layers } } : null,
+    images: S.scene.kitImages.length, zoom: S.scene.cameras.main.zoom, guides: S.guides.map(g => ({ ref: g.ref, axis: g.axis })), draft: !!S.draft, hidden: [...S.hidden], locked: [...S.locked],
+    concept: { ...S.concept, url: undefined, loaded: !!S.conceptImg?.active, texture: S.scene.textures.exists('areaed:concept'), visible: S.conceptImg?.active ? S.conceptImg.visible : null }, overlay: { ...S.stats }, groups: S.groups.size, undo: S.model.undoStack.length, redo: S.model.redoStack.length, op: S.op, cam: S.cam, layers: { ...S.layers } } : null,
   select: idx => guard(() => S.model.setSel(idx)),
   moveBy: (dx, dy) => guard(() => S.model.moveBy(dx, dy)),
   add: (k, x, y) => guard(() => A.addPiece(k, x, y)),
@@ -449,8 +469,10 @@ window.__areaed = {
   save: async () => { await settle(); return A.save(); },
   check: async () => { await settle(); return A.check(); },
   togglePlay: () => guard(() => A.togglePlay()),
+  setLayer: (name, on) => { A.setLayer(name, on); S.panel.refresh(); }, fit: () => guard(() => fitArea()),
   centerOn: (x, y, zoom) => guard(() => setCam(zoom || S.scene.cameras.main.zoom, x, y)),
   // tien ich cho test: chon bang click gia lap tai toa do the gioi; doi toa do the gioi -> client
+  hitsAt: (x, y) => hitsAt(x, y),
   pickAt: (x, y, alt) => { const i = pickAt(x, y, !!alt); return i; },
   toClient: (x, y) => { const c = S.scene.cameras.main, r = rectOf(), z = c.zoom, gx = (x - c.scrollX - c.width / 2) * z + c.width / 2, gy = (y - c.scrollY - c.height / 2) * z + c.height / 2; return { x: r.left + gx * r.width / c.width, y: r.top + gy * r.height / c.height }; },
   s2w: (cx, cy) => s2w(cx, cy),
