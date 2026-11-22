@@ -1,0 +1,262 @@
+{
+  "kit": "CM-VWALL",
+  "tile": 32,
+  "palette": [
+    "#0a110d",
+    "#0e0c08",
+    "#131110",
+    "#14110d",
+    "#16221c",
+    "#181010",
+    "#181612",
+    "#191a0f",
+    "#1d1d1d",
+    "#1d2022",
+    "#1f1d19",
+    "#201c0c",
+    "#201c18",
+    "#211c15",
+    "#212e27",
+    "#24241f",
+    "#242729",
+    "#25241e",
+    "#26292a",
+    "#27332d",
+    "#2a251d",
+    "#2a2d30",
+    "#2b2922",
+    "#2b3830",
+    "#2e2c28",
+    "#30301f",
+    "#303335",
+    "#322e15",
+    "#32302c",
+    "#333122",
+    "#342e24",
+    "#34312b",
+    "#34342f",
+    "#364636",
+    "#38352f",
+    "#39473d",
+    "#3b371a",
+    "#3b3c24",
+    "#3c1e18",
+    "#3c3b39",
+    "#3d3b38",
+    "#3d3e37",
+    "#3e3a34",
+    "#413a30",
+    "#413e2d",
+    "#414140",
+    "#43403a",
+    "#44402a",
+    "#45484a",
+    "#46583f",
+    "#474731",
+    "#48453f",
+    "#48574b",
+    "#4a463e",
+    "#4b4e4b",
+    "#4f473b",
+    "#514d46",
+    "#515234",
+    "#524e33",
+    "#54504c",
+    "#545350",
+    "#564a45",
+    "#576948",
+    "#5a2a20",
+    "#5a5750",
+    "#5f5f42",
+    "#61615f",
+    "#625e3e",
+    "#665951",
+    "#667063",
+    "#676767",
+    "#69635e",
+    "#697a52",
+    "#73756a",
+    "#74726e",
+    "#7a3a2a",
+    "#7b7062",
+    "#7d765c",
+    "#7d8b5d",
+    "#7e7c77",
+    "#84837e",
+    "#8b8480",
+    "#8c8782",
+    "#8c8b86",
+    "#8e8e6f",
+    "#949e6e",
+    "#95938c",
+    "#b9b1a9",
+    "#c0c0b8",
+    "#d0d0c8",
+    "#f0c070",
+    "#ffd890"
+  ],
+  "pieces": {
+    "vwall_32": {
+      "file": "vwall_32.png",
+      "layer": "base",
+      "anchor": [
+        0,
+        32
+      ],
+      "footprint": [
+        16,
+        32
+      ],
+      "collide": [
+        [
+          0,
+          -32,
+          16,
+          32
+        ]
+      ],
+      "source": {
+        "file": ".agents/refs/CM/V1-original.png",
+        "strip": [
+          638,
+          0,
+          696,
+          274
+        ],
+        "gable": [
+          638,
+          274,
+          696,
+          313
+        ],
+        "stone": [
+          641,
+          313,
+          693,
+          362
+        ],
+        "scale": 3.483,
+        "v1_crop": [
+          183,
+          0,
+          200,
+          104
+        ],
+        "method": "Opus 22/11 buoc 3: direct crop V1.png 1x (game scale) x183..199 y0..104; strip period 32 by min seam; STYLE5+V1 palette; alpha 0/255; roof-only N/S wall (no side face)",
+        "tile_window": [
+          35,
+          67
+        ],
+        "seam": 23.33
+      }
+    },
+    "vwall_end_S": {
+      "file": "vwall_end_S.png",
+      "layer": "base",
+      "anchor": [
+        0,
+        32
+      ],
+      "footprint": [
+        16,
+        32
+      ],
+      "collide": [
+        [
+          0,
+          -32,
+          16,
+          32
+        ]
+      ],
+      "source": {
+        "file": ".agents/refs/CM/V1-original.png",
+        "strip": [
+          638,
+          0,
+          696,
+          274
+        ],
+        "gable": [
+          638,
+          274,
+          696,
+          313
+        ],
+        "stone": [
+          641,
+          313,
+          693,
+          362
+        ],
+        "scale": 3.483,
+        "v1_crop": [
+          183,
+          0,
+          200,
+          104
+        ],
+        "method": "Opus 22/11 buoc 3: direct crop V1.png 1x (game scale) x183..199 y0..104; strip period 32 by min seam; STYLE5+V1 palette; alpha 0/255; roof-only N/S wall (no side face)",
+        "tile_window": [
+          35,
+          67
+        ],
+        "seam": 23.33
+      }
+    },
+    "vwall_end_N": {
+      "file": "vwall_end_N.png",
+      "layer": "base",
+      "anchor": [
+        0,
+        32
+      ],
+      "footprint": [
+        16,
+        32
+      ],
+      "collide": [
+        [
+          0,
+          -32,
+          16,
+          32
+        ]
+      ],
+      "source": {
+        "file": ".agents/refs/CM/V1-original.png",
+        "strip": [
+          638,
+          0,
+          696,
+          274
+        ],
+        "gable": [
+          638,
+          274,
+          696,
+          313
+        ],
+        "stone": [
+          641,
+          313,
+          693,
+          362
+        ],
+        "scale": 3.483,
+        "v1_crop": [
+          183,
+          0,
+          200,
+          104
+        ],
+        "method": "Opus 22/11 buoc 3: direct crop V1.png 1x (game scale) x183..199 y0..104; strip period 32 by min seam; STYLE5+V1 palette; alpha 0/255; roof-only N/S wall (no side face)",
+        "tile_window": [
+          35,
+          67
+        ],
+        "seam": 23.33
+      }
+    }
+  }
+}
