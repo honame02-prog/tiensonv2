@@ -15,15 +15,31 @@ def build():
     ims, kit = {}, {'kit': 'CM-BAMBG', 'tile': 32, 'pieces': {}}
     for n in NAMES:
         b = Image.open(SRC / f'{n}.png').convert('RGBA'); r = Image.open(SRC / f'{n}_roof.png').convert('RGBA')
-        ims[n + '_bg'] = Image.alpha_composite(b, r)
+        ims[n + '_bg'] = recolor(Image.alpha_composite(b, r))
         p = src[n]
         kit['pieces'][n + '_bg'] = {'file': f'{n}_bg.png', 'layer': 'base', 'anchor': p['anchor'],
-            'footprint': p['footprint'], 'collide': p['collide'], 'source': f'CM-TERR/{n} + {n}_roof composited (no roof pair)'}
+            'footprint': p['footprint'], 'collide': p['collide'], 'source': f'CM-TERR/{n} + {n}_roof composited (no roof pair), '
+            'recolored to bamboo_wall_w palette by luminance rank (22/11 trúc dày)'}
     return ims, kit
+
+def recolor(im):
+    """22/11 (người dùng: màu game xanh/vàng hơn concept): khớp độ sáng theo hạng với vách trúc cắt từ
+    V1.png rồi lấy màu bảng vách gần nhất về độ sáng -> lục xám như concept, giữ hình khóm."""
+    w = np.array(Image.open(OUT / 'bamboo_wall_w.png').convert('RGBA')).reshape(-1, 4)
+    w = w[w[:, 3] == 255, :3].astype(float)
+    lw = w @ [0.3, 0.59, 0.11]
+    pal = np.unique(w, axis=0); lp = pal @ [0.3, 0.59, 0.11]
+    a = np.array(im).copy(); m = a[:, :, 3] == 255
+    px = a[m, :3].astype(float); l = px @ [0.3, 0.59, 0.11]
+    rank = np.argsort(np.argsort(l)) / max(len(l) - 1, 1)
+    tgt = np.quantile(lw, rank)
+    a[m, :3] = pal[np.abs(lp[None, :] - tgt[:, None]).argmin(1)].astype(np.uint8)
+    return Image.fromarray(a, 'RGBA')
 
 def verify():
     ims, kit = build()
-    assert json.loads((OUT / 'kit.json').read_text(encoding='utf-8')) == kit
+    k = json.loads((OUT / 'kit.json').read_text(encoding='utf-8'))
+    assert {n: k['pieces'][n] for n in kit['pieces']} == kit['pieces'] and k['kit'] == kit['kit']
     for n, im in ims.items():
         a = np.array(Image.open(OUT / f'{n}.png').convert('RGBA'))
         assert np.array_equal(a, np.array(im)), n
@@ -34,5 +50,7 @@ if __name__ == '__main__':
     if '--verify' not in sys.argv:
         ims, kit = build(); OUT.mkdir(parents=True, exist_ok=True)
         for n, im in ims.items(): im.save(OUT / f'{n}.png')
-        (OUT / 'kit.json').write_text(json.dumps(kit, ensure_ascii=False, indent=2), encoding='utf-8')
+        p = OUT / 'kit.json'; j = json.loads(p.read_text(encoding='utf-8')) if p.exists() else kit
+        j['pieces'].update(kit['pieces'])
+        p.write_text(json.dumps(j, ensure_ascii=False, indent=2), encoding='utf-8', newline='')
     verify()

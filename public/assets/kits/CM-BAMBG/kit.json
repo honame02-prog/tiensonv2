@@ -33,7 +33,7 @@
           8
         ]
       ],
-      "source": "CM-TERR/bamboo_a + bamboo_a_roof composited (no roof pair)"
+      "source": "CM-TERR/bamboo_a + bamboo_a_roof composited (no roof pair), recolored to bamboo_wall_w palette by luminance rank (22/11 trúc dày)"
     },
     "bamboo_b_bg": {
       "file": "bamboo_b_bg.png",
@@ -66,7 +66,7 @@
           9
         ]
       ],
-      "source": "CM-TERR/bamboo_b + bamboo_b_roof composited (no roof pair)"
+      "source": "CM-TERR/bamboo_b + bamboo_b_roof composited (no roof pair), recolored to bamboo_wall_w palette by luminance rank (22/11 trúc dày)"
     },
     "bamboo_edge_bg": {
       "file": "bamboo_edge_bg.png",
@@ -93,7 +93,35 @@
           7
         ]
       ],
-      "source": "CM-TERR/bamboo_edge + bamboo_edge_roof composited (no roof pair)"
+      "source": "CM-TERR/bamboo_edge + bamboo_edge_roof composited (no roof pair), recolored to bamboo_wall_w palette by luminance rank (22/11 trúc dày)"
+    },
+    "bamboo_wall_w": {
+      "file": "bamboo_wall_w.png",
+      "layer": "base",
+      "anchor": [
+        0,
+        90
+      ],
+      "footprint": [
+        216,
+        20
+      ],
+      "collide": [],
+      "source": "Opus 22/11: direct crop .agents/refs/CM/V1.png cols 0..183 rows 0..147 (gate filled from rows above, P=72), mirror-left 32, top 72 rolled, quantize 28"
+    },
+    "bamboo_wall_e": {
+      "file": "bamboo_wall_e.png",
+      "layer": "base",
+      "anchor": [
+        0,
+        90
+      ],
+      "footprint": [
+        216,
+        20
+      ],
+      "collide": [],
+      "source": "Opus 22/11: direct crop .agents/refs/CM/V1.png cols 0..183 rows 0..147 (gate filled from rows above, P=72), mirror-left 32, top 72 rolled, quantize 28, flipped"
     }
   }
 }
