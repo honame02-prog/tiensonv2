@@ -1,0 +1,34 @@
+{
+  "kit": "CM-EDGECUT",
+  "tile": 32,
+  "pieces": {
+    "edge_w_a_out": {
+      "file": "edge_w_a_out.png",
+      "layer": "base",
+      "anchor": [
+        0,
+        223
+      ],
+      "footprint": [
+        96,
+        20
+      ],
+      "collide": [],
+      "source": "CM-TERR/edge_w_a alpha cut to map margin ~32px"
+    },
+    "edge_e_a_out": {
+      "file": "edge_e_a_out.png",
+      "layer": "base",
+      "anchor": [
+        0,
+        223
+      ],
+      "footprint": [
+        96,
+        20
+      ],
+      "collide": [],
+      "source": "CM-TERR/edge_e_a alpha cut to map margin ~32px"
+    }
+  }
+}
